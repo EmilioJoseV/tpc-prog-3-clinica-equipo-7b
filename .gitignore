@@ -1,0 +1,74 @@
+## Rutas a ignorar por git
+
+## =========================
+## Visual Studio
+## =========================
+
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## =========================
+## Build / Compilación
+## =========================
+
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+
+## =========================
+## Archivos temporales
+## =========================
+
+*.log
+*.tmp
+*.cache
+
+## =========================
+## NuGet
+## =========================
+
+packages/
+*.nupkg
+*.snupkg
+
+## =========================
+## Rider / VSCode (por si alguno usa)
+## =========================
+
+.idea/
+.vscode/
+
+## =========================
+## Archivos de sistema
+## =========================
+
+.DS_Store
+Thumbs.db
+
+## =========================
+## Configs locales
+## =========================
+
+appsettings.Development.json
+appsettings.Local.json
+
+## =========================
+## Archivos de base de datos local
+## =========================
+
+*.mdf
+*.ldf
+
+## =========================
+## Publicaciones
+## =========================
+publish/
+
+*.exe
+*.dll
