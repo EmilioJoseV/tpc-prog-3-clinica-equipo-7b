@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GestionClinica.Web
+namespace TurnosClinica.Web
 {
 
 

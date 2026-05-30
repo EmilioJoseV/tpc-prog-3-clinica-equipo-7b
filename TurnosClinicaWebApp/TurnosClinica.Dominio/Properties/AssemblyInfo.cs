@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GestionClinica.Dominio")]
+[assembly: AssemblyTitle("TurnosClinica.Dominio")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GestionClinica.Dominio")]
+[assembly: AssemblyProduct("TurnosClinica.Dominio")]
 [assembly: AssemblyCopyright("Copyright ©  2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("49264272-2dbe-4d2e-8aff-a350272d61f8")]
+[assembly: Guid("c07a4199-fd72-409b-898f-e63f93aa1480")]
 
 // Version information for an assembly consists of the following four values:
 //

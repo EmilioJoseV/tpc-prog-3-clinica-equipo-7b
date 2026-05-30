@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GestionClinica.Dominio
+namespace TurnosClinica.Dominio
 {
     public class Class1
     {

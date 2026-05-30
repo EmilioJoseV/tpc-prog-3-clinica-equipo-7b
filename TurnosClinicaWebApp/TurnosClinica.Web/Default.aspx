@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="GestionClinica.Web.Default" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="TurnosClinica.Web.Default" %>
 
 <!DOCTYPE html>
 
@@ -13,4 +13,4 @@
         </div>
     </form>
 </body>
-</html> 
+</html>

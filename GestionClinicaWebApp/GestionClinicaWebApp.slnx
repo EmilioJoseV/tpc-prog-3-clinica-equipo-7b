@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="GestionClinica.Dominio/GestionClinica.Dominio.csproj" />
-  <Project Path="GestionClinica.Negocio/GestionClinica.Negocio.csproj" />
-  <Project Path="GestionClinica.Web/GestionClinica.Web.csproj" />
-</Solution>
