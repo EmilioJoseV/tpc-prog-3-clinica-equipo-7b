@@ -1,16 +1,19 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace TurnosClinica.Dominio
+namespace TurnosClinica.Dominio.Entidades
 {
     public class Rol
     {
+        public Rol()
+        {
+            Usuarios = new List<Usuario>();
+        }
+
         public int IdRol { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public bool Activo { get; set; } = true;
+
+        public List<Usuario> Usuarios { get; set; }
     }
 }
