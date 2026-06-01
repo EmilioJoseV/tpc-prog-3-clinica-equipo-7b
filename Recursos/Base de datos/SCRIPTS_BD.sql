@@ -24,16 +24,16 @@ GO
    1 - ROLES
    ------------- */
 
-CREATE TABLE dbo.Rol
+CREATE TABLE dbo.Roles
 (
     IdRol INT IDENTITY(1,1) NOT NULL,
     Nombre VARCHAR(50) NOT NULL,
     Descripcion VARCHAR(200) NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_Rol PRIMARY KEY (IdRol),
-    CONSTRAINT UQ_Rol_Nombre UNIQUE (Nombre),
-    CONSTRAINT CK_Rol_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0)
+    CONSTRAINT PK_Roles PRIMARY KEY (IdRol),
+    CONSTRAINT UQ_Roles_Nombre UNIQUE (Nombre),
+    CONSTRAINT CK_Roles_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0)
 );
 GO
 
@@ -41,7 +41,7 @@ GO
    2 - TURNOS DE TRABAJO
    ------------- */
 
-CREATE TABLE dbo.TurnoTrabajo
+CREATE TABLE dbo.TurnosTrabajo
 (
     IdTurnoTrabajo INT IDENTITY(1,1) NOT NULL,
     Nombre VARCHAR(80) NOT NULL,
@@ -49,10 +49,10 @@ CREATE TABLE dbo.TurnoTrabajo
     HoraSalida TIME NOT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_TurnoTrabajo PRIMARY KEY (IdTurnoTrabajo),
-    CONSTRAINT UQ_TurnoTrabajo_Nombre UNIQUE (Nombre),
-    CONSTRAINT CK_TurnoTrabajo_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
-    CONSTRAINT CK_TurnoTrabajo_HorarioValido CHECK (HoraSalida > HoraEntrada)
+    CONSTRAINT PK_TurnosTrabajo PRIMARY KEY (IdTurnoTrabajo),
+    CONSTRAINT UQ_TurnosTrabajo_Nombre UNIQUE (Nombre),
+    CONSTRAINT CK_TurnosTrabajo_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
+    CONSTRAINT CK_TurnosTrabajo_HorarioValido CHECK (HoraSalida > HoraEntrada)
 );
 GO
 
@@ -60,14 +60,14 @@ GO
    3 - CONFIGURACION DE TURNO
    ------------- */
 
-CREATE TABLE dbo.ConfiguracionTurno
+CREATE TABLE dbo.ConfiguracionesTurno
 (
     IdConfiguracionTurno INT IDENTITY(1,1) NOT NULL,
     DuracionMinutos INT NOT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_ConfiguracionTurno PRIMARY KEY (IdConfiguracionTurno),
-    CONSTRAINT CK_ConfiguracionTurno_DuracionMinutos_Valida CHECK (DuracionMinutos > 0)
+    CONSTRAINT PK_ConfiguracionesTurno PRIMARY KEY (IdConfiguracionTurno),
+    CONSTRAINT CK_ConfiguracionesTurno_DuracionMinutos_Valida CHECK (DuracionMinutos > 0)
 );
 GO
 
@@ -75,7 +75,7 @@ GO
    4 - PACIENTES
    ------------- */
 
-CREATE TABLE dbo.Paciente
+CREATE TABLE dbo.Pacientes
 (
     IdPaciente INT IDENTITY(1,1) NOT NULL,
     DNI VARCHAR(15) NOT NULL,
@@ -87,12 +87,12 @@ CREATE TABLE dbo.Paciente
     Direccion VARCHAR(200) NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_Paciente PRIMARY KEY (IdPaciente),
-    CONSTRAINT UQ_Paciente_DNI UNIQUE (DNI),
-    CONSTRAINT CK_Paciente_DNI_NoVacio CHECK (LEN(LTRIM(RTRIM(DNI))) > 0),
-    CONSTRAINT CK_Paciente_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
-    CONSTRAINT CK_Paciente_Apellido_NoVacio CHECK (LEN(LTRIM(RTRIM(Apellido))) > 0),
-    CONSTRAINT CK_Paciente_Email_Formato CHECK (Email LIKE '%_@_%._%')
+    CONSTRAINT PK_Pacientes PRIMARY KEY (IdPaciente),
+    CONSTRAINT UQ_Pacientes_DNI UNIQUE (DNI),
+    CONSTRAINT CK_Pacientes_DNI_NoVacio CHECK (LEN(LTRIM(RTRIM(DNI))) > 0),
+    CONSTRAINT CK_Pacientes_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
+    CONSTRAINT CK_Pacientes_Apellido_NoVacio CHECK (LEN(LTRIM(RTRIM(Apellido))) > 0),
+    CONSTRAINT CK_Pacientes_Email_Formato CHECK (Email LIKE '%_@_%._%')
 );
 GO
 
@@ -100,16 +100,16 @@ GO
    5 - ESPECIALIDADES
    ------------- */
 
-CREATE TABLE dbo.Especialidad
+CREATE TABLE dbo.Especialidades
 (
     IdEspecialidad INT IDENTITY(1,1) NOT NULL,
     Nombre VARCHAR(100) NOT NULL,
     Descripcion VARCHAR(300) NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_Especialidad PRIMARY KEY (IdEspecialidad),
-    CONSTRAINT UQ_Especialidad_Nombre UNIQUE (Nombre),
-    CONSTRAINT CK_Especialidad_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0)
+    CONSTRAINT PK_Especialidades PRIMARY KEY (IdEspecialidad),
+    CONSTRAINT UQ_Especialidades_Nombre UNIQUE (Nombre),
+    CONSTRAINT CK_Especialidades_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0)
 );
 GO
 
@@ -117,7 +117,7 @@ GO
    6 - MEDICOS
    ------------- */
 
-CREATE TABLE dbo.Medico
+CREATE TABLE dbo.Medicos
 (
     IdMedico INT IDENTITY(1,1) NOT NULL,
     Matricula VARCHAR(30) NOT NULL,
@@ -129,18 +129,18 @@ CREATE TABLE dbo.Medico
     IdTurnoTrabajo INT NOT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_Medico PRIMARY KEY (IdMedico),
-    CONSTRAINT UQ_Medico_Matricula UNIQUE (Matricula),
-    CONSTRAINT UQ_Medico_DNI UNIQUE (DNI),
-    CONSTRAINT CK_Medico_Matricula_NoVacia CHECK (LEN(LTRIM(RTRIM(Matricula))) > 0),
-    CONSTRAINT CK_Medico_DNI_NoVacio CHECK (LEN(LTRIM(RTRIM(DNI))) > 0),
-    CONSTRAINT CK_Medico_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
-    CONSTRAINT CK_Medico_Apellido_NoVacio CHECK (LEN(LTRIM(RTRIM(Apellido))) > 0),
-    CONSTRAINT CK_Medico_Email_Formato CHECK (Email LIKE '%_@_%._%'),
+    CONSTRAINT PK_Medicos PRIMARY KEY (IdMedico),
+    CONSTRAINT UQ_Medicos_Matricula UNIQUE (Matricula),
+    CONSTRAINT UQ_Medicos_DNI UNIQUE (DNI),
+    CONSTRAINT CK_Medicos_Matricula_NoVacia CHECK (LEN(LTRIM(RTRIM(Matricula))) > 0),
+    CONSTRAINT CK_Medicos_DNI_NoVacio CHECK (LEN(LTRIM(RTRIM(DNI))) > 0),
+    CONSTRAINT CK_Medicos_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
+    CONSTRAINT CK_Medicos_Apellido_NoVacio CHECK (LEN(LTRIM(RTRIM(Apellido))) > 0),
+    CONSTRAINT CK_Medicos_Email_Formato CHECK (Email LIKE '%_@_%._%'),
 
-    CONSTRAINT FK_Medico_TurnoTrabajo
+    CONSTRAINT FK_Medicos_TurnosTrabajo
         FOREIGN KEY (IdTurnoTrabajo)
-        REFERENCES dbo.TurnoTrabajo(IdTurnoTrabajo)
+        REFERENCES dbo.TurnosTrabajo(IdTurnoTrabajo)
 );
 GO
 
@@ -148,20 +148,20 @@ GO
    7 - MEDICO - ESPECIALIDAD
    ------------- */
 
-CREATE TABLE dbo.MedicoEspecialidad
+CREATE TABLE dbo.MedicosEspecialidades
 (
     IdMedico INT NOT NULL,
     IdEspecialidad INT NOT NULL,
 
-    CONSTRAINT PK_MedicoEspecialidad PRIMARY KEY (IdMedico, IdEspecialidad),
+    CONSTRAINT PK_MedicosEspecialidades PRIMARY KEY (IdMedico, IdEspecialidad),
 
-    CONSTRAINT FK_MedicoEspecialidad_Medico
+    CONSTRAINT FK_MedicosEspecialidades_Medicos
         FOREIGN KEY (IdMedico)
-        REFERENCES dbo.Medico(IdMedico),
+        REFERENCES dbo.Medicos(IdMedico),
 
-    CONSTRAINT FK_MedicoEspecialidad_Especialidad
+    CONSTRAINT FK_MedicosEspecialidades_Especialidades
         FOREIGN KEY (IdEspecialidad)
-        REFERENCES dbo.Especialidad(IdEspecialidad)
+        REFERENCES dbo.Especialidades(IdEspecialidad)
 );
 GO
 
@@ -169,7 +169,7 @@ GO
    8 - DIA DE ATENCION DEL MEDICO
    ------------- */
 
-CREATE TABLE dbo.DiaAtencionMedico
+CREATE TABLE dbo.DiasAtencionMedico
 (
     IdDiaAtencionMedico INT IDENTITY(1,1) NOT NULL,
     IdMedico INT NOT NULL,
@@ -178,14 +178,14 @@ CREATE TABLE dbo.DiaAtencionMedico
     HoraHasta TIME NOT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_DiaAtencionMedico PRIMARY KEY (IdDiaAtencionMedico),
+    CONSTRAINT PK_DiasAtencionMedico PRIMARY KEY (IdDiaAtencionMedico),
 
-    CONSTRAINT FK_DiaAtencionMedico_Medico
+    CONSTRAINT FK_DiasAtencionMedico_Medicos
         FOREIGN KEY (IdMedico)
-        REFERENCES dbo.Medico(IdMedico),
+        REFERENCES dbo.Medicos(IdMedico),
 
-    CONSTRAINT CK_DiaAtencionMedico_DiaSemana_Valido CHECK (DiaSemana BETWEEN 1 AND 7),
-    CONSTRAINT CK_DiaAtencionMedico_HorarioValido CHECK (HoraHasta > HoraDesde)
+    CONSTRAINT CK_DiasAtencionMedico_DiaSemana_Valido CHECK (DiaSemana BETWEEN 1 AND 7),
+    CONSTRAINT CK_DiasAtencionMedico_HorarioValido CHECK (HoraHasta > HoraDesde)
 );
 GO
 
@@ -193,7 +193,7 @@ GO
    9 - USUARIOS
    ------------- */
 
-CREATE TABLE dbo.Usuario
+CREATE TABLE dbo.Usuarios
 (
     IdUsuario INT IDENTITY(1,1) NOT NULL,
     NombreUsuario VARCHAR(50) NOT NULL,
@@ -203,20 +203,20 @@ CREATE TABLE dbo.Usuario
     IdMedico INT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_Usuario PRIMARY KEY (IdUsuario),
-    CONSTRAINT UQ_Usuario_NombreUsuario UNIQUE (NombreUsuario),
-    CONSTRAINT UQ_Usuario_Email UNIQUE (Email),
-    CONSTRAINT CK_Usuario_NombreUsuario_NoVacio CHECK (LEN(LTRIM(RTRIM(NombreUsuario))) > 0),
-    CONSTRAINT CK_Usuario_Email_Formato CHECK (Email LIKE '%_@_%._%'),
-    CONSTRAINT CK_Usuario_PasswordHash_NoVacio CHECK (LEN(LTRIM(RTRIM(PasswordHash))) > 0),
+    CONSTRAINT PK_Usuarios PRIMARY KEY (IdUsuario),
+    CONSTRAINT UQ_Usuarios_NombreUsuario UNIQUE (NombreUsuario),
+    CONSTRAINT UQ_Usuarios_Email UNIQUE (Email),
+    CONSTRAINT CK_Usuarios_NombreUsuario_NoVacio CHECK (LEN(LTRIM(RTRIM(NombreUsuario))) > 0),
+    CONSTRAINT CK_Usuarios_Email_Formato CHECK (Email LIKE '%_@_%._%'),
+    CONSTRAINT CK_Usuarios_PasswordHash_NoVacio CHECK (LEN(LTRIM(RTRIM(PasswordHash))) > 0),
 
-    CONSTRAINT FK_Usuario_Rol
+    CONSTRAINT FK_Usuarios_Roles
         FOREIGN KEY (IdRol)
-        REFERENCES dbo.Rol(IdRol),
+        REFERENCES dbo.Roles(IdRol),
 
-    CONSTRAINT FK_Usuario_Medico
+    CONSTRAINT FK_Usuarios_Medicos
         FOREIGN KEY (IdMedico)
-        REFERENCES dbo.Medico(IdMedico)
+        REFERENCES dbo.Medicos(IdMedico)
 );
 GO
 
@@ -224,7 +224,7 @@ GO
    10 - ESTADOS DE TURNO
    ------------- */
 
-CREATE TABLE dbo.EstadoTurno
+CREATE TABLE dbo.EstadosTurno
 (
     IdEstadoTurno INT IDENTITY(1,1) NOT NULL,
     Nombre VARCHAR(50) NOT NULL,
@@ -232,9 +232,9 @@ CREATE TABLE dbo.EstadoTurno
     EsFinal BIT NOT NULL DEFAULT 0,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_EstadoTurno PRIMARY KEY (IdEstadoTurno),
-    CONSTRAINT UQ_EstadoTurno_Nombre UNIQUE (Nombre),
-    CONSTRAINT CK_EstadoTurno_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0)
+    CONSTRAINT PK_EstadosTurno PRIMARY KEY (IdEstadoTurno),
+    CONSTRAINT UQ_EstadosTurno_Nombre UNIQUE (Nombre),
+    CONSTRAINT CK_EstadosTurno_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0)
 );
 GO
 
@@ -242,7 +242,7 @@ GO
    11 - TURNOS
    ------------- */
 
-CREATE TABLE dbo.Turno
+CREATE TABLE dbo.Turnos
 (
     IdTurno INT IDENTITY(1,1) NOT NULL,
     NumeroTurno VARCHAR(20) NOT NULL,
@@ -264,36 +264,36 @@ CREATE TABLE dbo.Turno
     FechaModificacion DATETIME NULL,
     IdUsuarioModificacion INT NULL,
 
-    CONSTRAINT PK_Turno PRIMARY KEY (IdTurno),
-    CONSTRAINT UQ_Turno_NumeroTurno UNIQUE (NumeroTurno),
+    CONSTRAINT PK_Turnos PRIMARY KEY (IdTurno),
+    CONSTRAINT UQ_Turnos_NumeroTurno UNIQUE (NumeroTurno),
 
-    CONSTRAINT FK_Turno_Paciente
+    CONSTRAINT FK_Turnos_Pacientes
         FOREIGN KEY (IdPaciente)
-        REFERENCES dbo.Paciente(IdPaciente),
+        REFERENCES dbo.Pacientes(IdPaciente),
 
-    CONSTRAINT FK_Turno_Medico
+    CONSTRAINT FK_Turnos_Medicos
         FOREIGN KEY (IdMedico)
-        REFERENCES dbo.Medico(IdMedico),
+        REFERENCES dbo.Medicos(IdMedico),
 
-    CONSTRAINT FK_Turno_Especialidad
+    CONSTRAINT FK_Turnos_Especialidades
         FOREIGN KEY (IdEspecialidad)
-        REFERENCES dbo.Especialidad(IdEspecialidad),
+        REFERENCES dbo.Especialidades(IdEspecialidad),
 
-    CONSTRAINT FK_Turno_EstadoTurno
+    CONSTRAINT FK_Turnos_EstadosTurno
         FOREIGN KEY (IdEstadoTurno)
-        REFERENCES dbo.EstadoTurno(IdEstadoTurno),
+        REFERENCES dbo.EstadosTurno(IdEstadoTurno),
 
-    CONSTRAINT FK_Turno_UsuarioAlta
+    CONSTRAINT FK_Turnos_UsuariosAlta
         FOREIGN KEY (IdUsuarioAlta)
-        REFERENCES dbo.Usuario(IdUsuario),
+        REFERENCES dbo.Usuarios(IdUsuario),
 
-    CONSTRAINT FK_Turno_UsuarioModificacion
+    CONSTRAINT FK_Turnos_UsuariosModificacion
         FOREIGN KEY (IdUsuarioModificacion)
-        REFERENCES dbo.Usuario(IdUsuario),
+        REFERENCES dbo.Usuarios(IdUsuario),
 
-    CONSTRAINT CK_Turno_NumeroTurno_NoVacio CHECK (LEN(LTRIM(RTRIM(NumeroTurno))) > 0),
-    CONSTRAINT CK_Turno_HorarioValido CHECK (HoraFin > HoraInicio),
-    CONSTRAINT CK_Turno_Observaciones_NoVacio CHECK (LEN(LTRIM(RTRIM(Observaciones))) > 0)
+    CONSTRAINT CK_Turnos_NumeroTurno_NoVacio CHECK (LEN(LTRIM(RTRIM(NumeroTurno))) > 0),
+    CONSTRAINT CK_Turnos_HorarioValido CHECK (HoraFin > HoraInicio),
+    CONSTRAINT CK_Turnos_Observaciones_NoVacio CHECK (LEN(LTRIM(RTRIM(Observaciones))) > 0)
 );
 GO
 
@@ -302,7 +302,7 @@ GO
    ------------- */
 
 /* Roles necesarios segun el enunciado */
-INSERT INTO dbo.Rol (Nombre, Descripcion)
+INSERT INTO dbo.Roles (Nombre, Descripcion)
 VALUES
 ('Administrador', 'Acceso total al sistema'),
 ('Recepcionista', 'Gestiona pacientes, medicos y turnos'),
@@ -310,7 +310,7 @@ VALUES
 GO
 
 /* Estados necesarios para el ciclo de vida del turno */
-INSERT INTO dbo.EstadoTurno (Nombre, Descripcion, EsFinal)
+INSERT INTO dbo.EstadosTurno (Nombre, Descripcion, EsFinal)
 VALUES
 ('Nuevo', 'Turno asignado', 0),
 ('Reprogramado', 'Turno reprogramado', 0),
@@ -320,7 +320,7 @@ VALUES
 GO
 
 /* Turnos de trabajo */
-INSERT INTO dbo.TurnoTrabajo (Nombre, HoraEntrada, HoraSalida)
+INSERT INTO dbo.TurnosTrabajo (Nombre, HoraEntrada, HoraSalida)
 VALUES
 ('Maniana', '08:00', '14:00'),
 ('Tarde', '14:00', '20:00'),
@@ -330,13 +330,13 @@ VALUES
 GO
 
 /* Configuracion global de duracion de turnos */
-INSERT INTO dbo.ConfiguracionTurno (DuracionMinutos)
+INSERT INTO dbo.ConfiguracionesTurno (DuracionMinutos)
 VALUES
 (60);
 GO
 
 /* Especialidades */
-INSERT INTO dbo.Especialidad (Nombre, Descripcion)
+INSERT INTO dbo.Especialidades (Nombre, Descripcion)
 VALUES
 ('Clinica Medica', 'Atencion general'),
 ('Cardiologia', 'Atencion de patologias cardiovasculares'),
@@ -346,7 +346,7 @@ VALUES
 GO
 
 /* Pacientes */
-INSERT INTO dbo.Paciente
+INSERT INTO dbo.Pacientes
 (
     DNI,
     Nombre,
@@ -365,7 +365,7 @@ VALUES
 GO
 
 /* Medicos */
-INSERT INTO dbo.Medico
+INSERT INTO dbo.Medicos
 (
     Matricula,
     DNI,
@@ -384,7 +384,7 @@ VALUES
 GO
 
 /* Relacion medico - especialidad */
-INSERT INTO dbo.MedicoEspecialidad
+INSERT INTO dbo.MedicosEspecialidades
 (
     IdMedico,
     IdEspecialidad
@@ -398,7 +398,7 @@ VALUES
 GO
 
 /* Dias de atencion de los medicos */
-INSERT INTO dbo.DiaAtencionMedico
+INSERT INTO dbo.DiasAtencionMedico
 (
     IdMedico,
     DiaSemana,
@@ -414,7 +414,7 @@ VALUES
 GO
 
 /* Usuarios */
-INSERT INTO dbo.Usuario
+INSERT INTO dbo.Usuarios
 (
     NombreUsuario,
     Email,
@@ -431,7 +431,7 @@ VALUES
 GO
 
 /* Turnos */
-INSERT INTO dbo.Turno
+INSERT INTO dbo.Turnos
 (
     NumeroTurno,
     IdPaciente,
