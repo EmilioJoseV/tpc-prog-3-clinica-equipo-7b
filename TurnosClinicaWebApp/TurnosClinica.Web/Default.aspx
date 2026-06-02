@@ -9,8 +9,11 @@
 <body>
     <form id="form1" runat="server">
         <div>
-            <h1>Hola equipo!</h1>
+            <h1>Clinica Medica</h1>
         </div>
+        <asp:Button ID="Button1" runat="server" OnClick="Button1_Click" Text="Gestion de Pacientes" />
+        <asp:Button ID="Button2" runat="server" Text="Gestion de Medicos" />
+        <asp:Button ID="Button3" runat="server" Text="Asignacion de Turnos" />
     </form>
 </body>
 </html>
