@@ -3,15 +3,15 @@ using System.Web.UI;
 
 namespace TurnosClinica.Web
 {
-    public partial class GestionPacientes : Page
+    public partial class Inicio : Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
         }
 
-        protected void BtnAltaPaciente_Click(object sender, EventArgs e)
+        protected void BtnIrLogin_Click(object sender, EventArgs e)
         {
-            Response.Redirect("AltaPaciente.aspx", false);
+            Response.Redirect("Login.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
     }
