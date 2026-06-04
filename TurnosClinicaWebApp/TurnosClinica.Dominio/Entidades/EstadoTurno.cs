@@ -6,7 +6,6 @@ namespace TurnosClinica.Dominio.Entidades
     {
         public EstadoTurno()
         {
-            Turnos = new List<Turno>();
         }
 
         public int IdEstadoTurno { get; set; }

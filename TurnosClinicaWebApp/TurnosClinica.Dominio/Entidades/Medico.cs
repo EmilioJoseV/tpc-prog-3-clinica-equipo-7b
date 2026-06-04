@@ -6,8 +6,8 @@ namespace TurnosClinica.Dominio.Entidades
     {
         public Medico()
         {
-            Especialidades = new List<Especialidades>();
-            HorariosDisponibilidad = new List<HorariosDisponibilidad>();
+            Especialidades = new List<Especialidad>();
+            HorariosDisponibilidad = new List<HorarioDisponibilidadMedico>();
             Turnos = new List<Turno>();
         }
 

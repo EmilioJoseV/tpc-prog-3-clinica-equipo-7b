@@ -6,7 +6,6 @@ namespace TurnosClinica.Dominio.Entidades
     {
         public Rol()
         {
-            Usuarios = new List<Usuario>();
         }
 
         public int IdRol { get; set; }
