@@ -42,16 +42,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entidades\ConfiguracionTurno.cs" />
-    <Compile Include="Entidades\DiaAtencionMedico.cs" />
+    <Compile Include="Entidades\HorarioDisponibilidadMedico.cs" />
     <Compile Include="Entidades\Especialidad.cs" />
     <Compile Include="Entidades\EstadoTurno.cs" />
     <Compile Include="Entidades\Medico.cs" />
-    <Compile Include="Entidades\MedicoEspecialidad.cs" />
     <Compile Include="Entidades\Paciente.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entidades\Rol.cs" />
     <Compile Include="Entidades\Turno.cs" />
-    <Compile Include="Entidades\TurnoTrabajo.cs" />
     <Compile Include="Entidades\Usuario.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

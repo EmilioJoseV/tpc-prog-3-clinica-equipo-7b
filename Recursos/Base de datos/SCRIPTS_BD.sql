@@ -20,10 +20,6 @@ GO
 USE TPC_TURNOS_CLINICA_P3_DB;
 GO
 
-/* -------------
-   1 - ROLES
-   ------------- */
-
 CREATE TABLE dbo.Roles
 (
     IdRol INT IDENTITY(1,1) NOT NULL,
@@ -37,29 +33,6 @@ CREATE TABLE dbo.Roles
 );
 GO
 
-/* -------------
-   2 - TURNOS DE TRABAJO
-   ------------- */
-
-CREATE TABLE dbo.TurnosTrabajo
-(
-    IdTurnoTrabajo INT IDENTITY(1,1) NOT NULL,
-    Nombre VARCHAR(80) NOT NULL,
-    HoraEntrada TIME NOT NULL,
-    HoraSalida TIME NOT NULL,
-    Activo BIT NOT NULL DEFAULT 1,
-
-    CONSTRAINT PK_TurnosTrabajo PRIMARY KEY (IdTurnoTrabajo),
-    CONSTRAINT UQ_TurnosTrabajo_Nombre UNIQUE (Nombre),
-    CONSTRAINT CK_TurnosTrabajo_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
-    CONSTRAINT CK_TurnosTrabajo_HorarioValido CHECK (HoraSalida > HoraEntrada)
-);
-GO
-
-/* -------------
-   3 - CONFIGURACION DE TURNO
-   ------------- */
-
 CREATE TABLE dbo.ConfiguracionesTurno
 (
     IdConfiguracionTurno INT IDENTITY(1,1) NOT NULL,
@@ -70,10 +43,6 @@ CREATE TABLE dbo.ConfiguracionesTurno
     CONSTRAINT CK_ConfiguracionesTurno_DuracionMinutos_Valida CHECK (DuracionMinutos > 0)
 );
 GO
-
-/* -------------
-   4 - PACIENTES
-   ------------- */
 
 CREATE TABLE dbo.Pacientes
 (
@@ -96,10 +65,6 @@ CREATE TABLE dbo.Pacientes
 );
 GO
 
-/* -------------
-   5 - ESPECIALIDADES
-   ------------- */
-
 CREATE TABLE dbo.Especialidades
 (
     IdEspecialidad INT IDENTITY(1,1) NOT NULL,
@@ -113,10 +78,6 @@ CREATE TABLE dbo.Especialidades
 );
 GO
 
-/* -------------
-   6 - MEDICOS
-   ------------- */
-
 CREATE TABLE dbo.Medicos
 (
     IdMedico INT IDENTITY(1,1) NOT NULL,
@@ -126,7 +87,6 @@ CREATE TABLE dbo.Medicos
     Apellido VARCHAR(100) NOT NULL,
     Telefono VARCHAR(50) NULL,
     Email VARCHAR(150) NOT NULL,
-    IdTurnoTrabajo INT NOT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
     CONSTRAINT PK_Medicos PRIMARY KEY (IdMedico),
@@ -137,16 +97,8 @@ CREATE TABLE dbo.Medicos
     CONSTRAINT CK_Medicos_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
     CONSTRAINT CK_Medicos_Apellido_NoVacio CHECK (LEN(LTRIM(RTRIM(Apellido))) > 0),
     CONSTRAINT CK_Medicos_Email_Formato CHECK (Email LIKE '%_@_%._%'),
-
-    CONSTRAINT FK_Medicos_TurnosTrabajo
-        FOREIGN KEY (IdTurnoTrabajo)
-        REFERENCES dbo.TurnosTrabajo(IdTurnoTrabajo)
 );
 GO
-
-/* -------------
-   7 - MEDICO - ESPECIALIDAD
-   ------------- */
 
 CREATE TABLE dbo.MedicosEspecialidades
 (
@@ -165,33 +117,25 @@ CREATE TABLE dbo.MedicosEspecialidades
 );
 GO
 
-/* -------------
-   8 - DIA DE ATENCION DEL MEDICO
-   ------------- */
-
-CREATE TABLE dbo.DiasAtencionMedico
+CREATE TABLE dbo.HorariosDisponiblidadMedicos
 (
-    IdDiaAtencionMedico INT IDENTITY(1,1) NOT NULL,
+    IdHorarioDisponiblidadMedico INT IDENTITY(1,1) NOT NULL,
     IdMedico INT NOT NULL,
     DiaSemana TINYINT NOT NULL,
     HoraDesde TIME NOT NULL,
     HoraHasta TIME NOT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
-    CONSTRAINT PK_DiasAtencionMedico PRIMARY KEY (IdDiaAtencionMedico),
+    CONSTRAINT PK_HorariosDisponiblidadMedicos PRIMARY KEY (IdHorarioDisponiblidadMedico),
 
-    CONSTRAINT FK_DiasAtencionMedico_Medicos
+    CONSTRAINT FK_HorariosDisponiblidadMedicos_Medicos
         FOREIGN KEY (IdMedico)
         REFERENCES dbo.Medicos(IdMedico),
 
-    CONSTRAINT CK_DiasAtencionMedico_DiaSemana_Valido CHECK (DiaSemana BETWEEN 1 AND 7),
-    CONSTRAINT CK_DiasAtencionMedico_HorarioValido CHECK (HoraHasta > HoraDesde)
+    CONSTRAINT CK_HorariosDisponiblidadMedicos_DiaSemana_Valido CHECK (DiaSemana BETWEEN 1 AND 7),
+    CONSTRAINT CK_HorariosDisponiblidadMedicos_HorarioValido CHECK (HoraHasta > HoraDesde)
 );
 GO
-
-/* -------------
-   9 - USUARIOS
-   ------------- */
 
 CREATE TABLE dbo.Usuarios
 (
@@ -220,10 +164,6 @@ CREATE TABLE dbo.Usuarios
 );
 GO
 
-/* -------------
-   10 - ESTADOS DE TURNO
-   ------------- */
-
 CREATE TABLE dbo.EstadosTurno
 (
     IdEstadoTurno INT IDENTITY(1,1) NOT NULL,
@@ -237,10 +177,6 @@ CREATE TABLE dbo.EstadosTurno
     CONSTRAINT CK_EstadosTurno_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0)
 );
 GO
-
-/* -------------
-   11 - TURNOS
-   ------------- */
 
 CREATE TABLE dbo.Turnos
 (
@@ -315,18 +251,8 @@ VALUES
 ('Nuevo', 'Turno asignado', 0),
 ('Reprogramado', 'Turno reprogramado', 0),
 ('Cancelado', 'Turno cancelado', 1),
-('NoAsistio', 'Paciente ausente', 1),
+('NoAsistio', 'Paciente no se presento', 1),
 ('Cerrado', 'Turno atendido y cerrado', 1);
-GO
-
-/* Turnos de trabajo */
-INSERT INTO dbo.TurnosTrabajo (Nombre, HoraEntrada, HoraSalida)
-VALUES
-('Maniana', '08:00', '14:00'),
-('Tarde', '14:00', '20:00'),
-('Jornada Completa', '08:00', '20:00'),
-('Intermedio', '10:00', '16:00'),
-('Noche', '18:00', '23:00');
 GO
 
 /* Configuracion global de duracion de turnos */
@@ -372,15 +298,14 @@ INSERT INTO dbo.Medicos
     Nombre,
     Apellido,
     Telefono,
-    Email,
-    IdTurnoTrabajo
+    Email
 )
 VALUES
-('MN-10001', '20111222', 'Laura', 'Gomez', '1122001100', 'laura.gomez@clinica.local', 1),
-('MN-10002', '21222333', 'Martin', 'Ruiz', '1133002200', 'martin.ruiz@clinica.local', 2),
-('MN-10003', '22333444', 'Ana', 'Torres', '1144003300', 'ana.torres@clinica.local', 3),
-('MN-10004', '23444555', 'Diego', 'Salas', '1155004400', 'diego.salas@clinica.local', 1),
-('MN-10005', '24555666', 'Valeria', 'Molina', '1166005500', 'valeria.molina@clinica.local', 4);
+('MN-10001', '20111222', 'Laura', 'Gomez', '1122001100', 'laura.gomez@clinica.local'),
+('MN-10002', '21222333', 'Martin', 'Ruiz', '1133002200', 'martin.ruiz@clinica.local'),
+('MN-10003', '22333444', 'Ana', 'Torres', '1144003300', 'ana.torres@clinica.local'),
+('MN-10004', '23444555', 'Diego', 'Salas', '1155004400', 'diego.salas@clinica.local'),
+('MN-10005', '24555666', 'Valeria', 'Molina', '1166005500', 'valeria.molina@clinica.local');
 GO
 
 /* Relacion medico - especialidad */
@@ -398,7 +323,7 @@ VALUES
 GO
 
 /* Dias de atencion de los medicos */
-INSERT INTO dbo.DiasAtencionMedico
+INSERT INTO dbo.HorariosDisponiblidadMedicos
 (
     IdMedico,
     DiaSemana,
@@ -423,11 +348,11 @@ INSERT INTO dbo.Usuarios
     IdMedico
 )
 VALUES
-('admin', 'admin@clinica.local', 'HASH_ADMIN', 1, NULL),
-('recepcion', 'recepcion@clinica.local', 'HASH_RECEPCION', 2, NULL),
-('lgomez', 'laura.gomez@clinica.local', 'HASH_MEDICO_1', 3, 1),
-('mruiz', 'martin.ruiz@clinica.local', 'HASH_MEDICO_2', 3, 2),
-('vmolina', 'valeria.molina@clinica.local', 'HASH_MEDICO_3', 3, 5);
+('admin', 'admin@clinica.local', 'hashadmin1', 1, NULL),
+('recepcion', 'recepcion@clinica.local', 'hashrecepcion', 2, NULL),
+('lgomez', 'laura.gomez@clinica.local', 'hashmedico1', 3, 1),
+('mruiz', 'martin.ruiz@clinica.local', 'hasmedico2', 3, 2),
+('vmolina', 'valeria.molina@clinica.local', 'hasmedico3', 3, 5);
 GO
 
 /* Turnos */

@@ -14,10 +14,7 @@ namespace TurnosClinica.Dominio.Entidades
         public string NombreUsuario { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
-        public int IdRol { get; set; }
-        public int? IdMedico { get; set; }
         public bool Activo { get; set; } = true;
-
         public Rol Rol { get; set; }
         public Medico Medico { get; set; }
         public List<Turno> TurnosAlta { get; set; }

@@ -65,7 +65,20 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Default.aspx" />
+    <Content Include="Inicio.aspx" />
+    <Content Include="Login.aspx" />
+    <Content Include="PanelPrincipal.aspx" />
     <Content Include="GestionPacientes.aspx" />
+    <Content Include="AltaPaciente.aspx" />
+    <Content Include="GestionMedicos.aspx" />
+    <Content Include="GestionEspecialidades.aspx" />
+    <Content Include="GestionHorariosMedicos.aspx" />
+    <Content Include="GestionUsuarios.aspx" />
+    <Content Include="GestionRoles.aspx" />
+    <Content Include="ConfiguracionTurnos.aspx" />
+    <Content Include="GestionTurnos.aspx" />
+    <Content Include="DetalleTurno.aspx" />
+    <Content Include="MisTurnos.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -77,12 +90,64 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Inicio.aspx.cs">
+      <DependentUpon>Inicio.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PanelPrincipal.aspx.cs">
+      <DependentUpon>PanelPrincipal.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="GestionPacientes.aspx.cs">
       <DependentUpon>GestionPacientes.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="GestionPacientes.aspx.designer.cs">
       <DependentUpon>GestionPacientes.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AltaPaciente.aspx.cs">
+      <DependentUpon>AltaPaciente.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestionMedicos.aspx.cs">
+      <DependentUpon>GestionMedicos.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestionEspecialidades.aspx.cs">
+      <DependentUpon>GestionEspecialidades.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestionHorariosMedicos.aspx.cs">
+      <DependentUpon>GestionHorariosMedicos.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestionUsuarios.aspx.cs">
+      <DependentUpon>GestionUsuarios.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestionRoles.aspx.cs">
+      <DependentUpon>GestionRoles.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ConfiguracionTurnos.aspx.cs">
+      <DependentUpon>ConfiguracionTurnos.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GestionTurnos.aspx.cs">
+      <DependentUpon>GestionTurnos.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DetalleTurno.aspx.cs">
+      <DependentUpon>DetalleTurno.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MisTurnos.aspx.cs">
+      <DependentUpon>MisTurnos.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

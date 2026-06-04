@@ -6,10 +6,9 @@ namespace TurnosClinica.Dominio.Entidades
     {
         public Medico()
         {
-            MedicoEspecialidades = new List<MedicoEspecialidad>();
-            DiasAtencion = new List<DiaAtencionMedico>();
+            Especialidades = new List<Especialidad>();
+            HorariosDisponibilidad = new List<HorarioDisponibilidadMedico>();
             Turnos = new List<Turno>();
-            Usuarios = new List<Usuario>();
         }
 
         public int IdMedico { get; set; }
@@ -19,13 +18,9 @@ namespace TurnosClinica.Dominio.Entidades
         public string Apellido { get; set; }
         public string Telefono { get; set; }
         public string Email { get; set; }
-        public int IdTurnoTrabajo { get; set; }
         public bool Activo { get; set; } = true;
-
-        public TurnoTrabajo TurnoTrabajo { get; set; }
-        public List<MedicoEspecialidad> MedicoEspecialidades { get; set; }
-        public List<DiaAtencionMedico> DiasAtencion { get; set; }
+        public List<Especialidad> Especialidades { get; set; }
+        public List<HorarioDisponibilidadMedico> HorariosDisponibilidad { get; set; }
         public List<Turno> Turnos { get; set; }
-        public List<Usuario> Usuarios { get; set; }
     }
 }
