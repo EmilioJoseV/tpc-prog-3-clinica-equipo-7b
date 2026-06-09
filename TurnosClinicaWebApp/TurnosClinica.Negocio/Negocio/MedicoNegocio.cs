@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TurnosClinica.Negocio
+namespace TurnosClinica.Negocio.Negocio
 {
-    public class Class1
+    internal class MedicoNegocio
     {
     }
 }
