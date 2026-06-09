@@ -1,15 +1,9 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="GestionMedicos.aspx.cs" Inherits="TurnosClinica.Web.GestionMedicos" %>
+<%@ Page Title="Gestion de Medicos" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="GestionMedicos.aspx.cs" Inherits="TurnosClinica.Web.GestionMedicos" %>
 
-<!DOCTYPE html>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+</asp:Content>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-    <title>Gestion de Medicos</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-        <h1>Gestion de Medicos</h1>
-        <p>Esta pagina esta pensada para la carga, consulta y mantenimiento de medicos.</p>
-    </form>
-</body>
-</html>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <h1 class="h3 mb-3">Gestion de Medicos</h1>
+    <p class="text-secondary">Esta pagina esta pensada para la carga, consulta y mantenimiento de medicos.</p>
+</asp:Content>

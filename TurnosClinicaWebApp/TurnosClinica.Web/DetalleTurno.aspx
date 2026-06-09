@@ -1,15 +1,9 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="DetalleTurno.aspx.cs" Inherits="TurnosClinica.Web.DetalleTurno" %>
+<%@ Page Title="Detalle de Turno" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="DetalleTurno.aspx.cs" Inherits="TurnosClinica.Web.DetalleTurno" %>
 
-<!DOCTYPE html>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+</asp:Content>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-    <title>Detalle de Turno</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-        <h1>Detalle de Turno</h1>
-        <p>Esta pagina esta pensada para mostrar la informacion completa de un turno.</p>
-    </form>
-</body>
-</html>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <h1 class="h3 mb-3">Detalle de Turno</h1>
+    <p class="text-secondary">Esta pagina esta pensada para mostrar la informacion completa de un turno.</p>
+</asp:Content>

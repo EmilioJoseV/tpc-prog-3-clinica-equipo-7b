@@ -1,15 +1,9 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="GestionHorariosMedicos.aspx.cs" Inherits="TurnosClinica.Web.GestionHorariosMedicos" %>
+<%@ Page Title="Gestion de Horarios Medicos" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="GestionHorariosMedicos.aspx.cs" Inherits="TurnosClinica.Web.GestionHorariosMedicos" %>
 
-<!DOCTYPE html>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+</asp:Content>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-    <title>Gestion de Horarios Medicos</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-        <h1>Gestion de Horarios Medicos</h1>
-        <p>Esta pagina esta pensada para definir la disponibilidad de cada medico.</p>
-    </form>
-</body>
-</html>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <h1 class="h3 mb-3">Gestion de Horarios Medicos</h1>
+    <p class="text-secondary">Esta pagina esta pensada para definir la disponibilidad de cada medico.</p>
+</asp:Content>
