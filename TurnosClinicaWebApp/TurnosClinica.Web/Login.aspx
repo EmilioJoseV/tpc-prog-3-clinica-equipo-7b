@@ -1,30 +1,27 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="TurnosClinica.Web.Login" %>
+<%@ Page Title="Login" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="TurnosClinica.Web.Login" %>
 
-<!DOCTYPE html>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+</asp:Content>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-    <title>Login</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-        <h1>Login</h1>
-        <div>
-            <asp:Label ID="LblUsuario" runat="server" AssociatedControlID="TxtUsuario" Text="Usuario" />
-            <br />
-            <asp:TextBox ID="TxtUsuario" runat="server" />
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h4 mb-3">Login</h1>
+                    <div class="mb-3">
+                        <asp:Label ID="LblUsuario" runat="server" AssociatedControlID="TxtUsuario" Text="Usuario" CssClass="form-label" />
+                        <asp:TextBox ID="TxtUsuario" runat="server" CssClass="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <asp:Label ID="LblContrasena" runat="server" AssociatedControlID="TxtContrasena" Text="Password" CssClass="form-label" />
+                        <asp:TextBox ID="TxtContrasena" runat="server" TextMode="Password" CssClass="form-control" />
+                    </div>
+                    <div class="d-grid gap-2">
+                        <asp:Button ID="BtnAcceder" runat="server" CssClass="btn btn-primary" Text="Acceder" OnClick="BtnAcceder_Click" />
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-            <asp:Label ID="LblContrasena" runat="server" AssociatedControlID="TxtContrasena" Text="Password" />
-            <br />
-            <asp:TextBox ID="TxtContrasena" runat="server" TextMode="Password" />
-        </div>
-        <div>
-            <asp:Button ID="BtnAcceder" runat="server" Text="Acceder" OnClick="BtnAcceder_Click" />
-        </div>
-        <div>
-            <asp:HyperLink ID="HlkOlvideMiPassword" runat="server" NavigateUrl="#" Text="Olvide mi password" />
-        </div>
-    </form>
-</body>
-</html>
+    </div>
+</asp:Content>

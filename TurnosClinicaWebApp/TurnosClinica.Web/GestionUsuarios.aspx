@@ -1,15 +1,9 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="GestionUsuarios.aspx.cs" Inherits="TurnosClinica.Web.GestionUsuarios" %>
+<%@ Page Title="Gestion de Usuarios" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="GestionUsuarios.aspx.cs" Inherits="TurnosClinica.Web.GestionUsuarios" %>
 
-<!DOCTYPE html>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+</asp:Content>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-    <title>Gestion de Usuarios</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-        <h1>Gestion de Usuarios</h1>
-        <p>Esta pagina esta pensada para administrar usuarios</p>
-    </form>
-</body>
-</html>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <h1 class="h3 mb-3">Gestion de Usuarios</h1>
+    <p class="text-secondary">Esta pagina esta pensada para administrar usuarios.</p>
+</asp:Content>
