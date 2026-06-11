@@ -16,7 +16,6 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <h1 class="h3 mb-3">Panel Principal</h1>
-    <p class="text-secondary">Esta pagina esta pensada para ser el acceso principal de la aplicacion.</p>
     <div class="d-flex flex-wrap gap-2 align-items-start">
         <div class="dropdown">
             <asp:Button ID="BtnPacientes" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Pacientes" UseSubmitBehavior="false" CausesValidation="false" data-bs-toggle="dropdown" aria-expanded="false" />

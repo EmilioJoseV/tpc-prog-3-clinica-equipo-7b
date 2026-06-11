@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class HorarioDisponibilidadMedicoDatos
+    public class HorarioDisponibilidadMedicoDatos : IMapeable<HorarioDisponibilidadMedico>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,77 +14,12 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<HorarioDisponibilidadMedico> Listar()
+        public List<HorarioDisponibilidadMedico> Listar(int idMedico, int diaSemana, TimeSpan horaDesde, TimeSpan horaHasta, bool activo)
         {
             List<HorarioDisponibilidadMedico> horarios = new List<HorarioDisponibilidadMedico>();
             try
             {
                 return horarios;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public HorarioDisponibilidadMedico ObtenerPorId(int idHorarioDisponibilidadMedico)
-        {
-            HorarioDisponibilidadMedico horario = new HorarioDisponibilidadMedico();
-            try
-            {
-                return horario;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<HorarioDisponibilidadMedico> ObtenerTodosActivos()
-        {
-            List<HorarioDisponibilidadMedico> horarios = new List<HorarioDisponibilidadMedico>();
-            try
-            {
-                return horarios;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<HorarioDisponibilidadMedico> ListarPorMedico(int idMedico)
-        {
-            List<HorarioDisponibilidadMedico> horarios = new List<HorarioDisponibilidadMedico>();
-            try
-            {
-                return horarios;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<HorarioDisponibilidadMedico> ListarPorDiaSemana(int diaSemana)
-        {
-            List<HorarioDisponibilidadMedico> horarios = new List<HorarioDisponibilidadMedico>();
-            try
-            {
-                return horarios;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public HorarioDisponibilidadMedico ObtenerPorMedicoYDia(int idMedico, int diaSemana)
-        {
-            HorarioDisponibilidadMedico horario = new HorarioDisponibilidadMedico();
-            try
-            {
-                return horario;
             }
             catch (Exception ex)
             {
@@ -113,6 +49,11 @@ namespace TurnosClinica.AccesoDatos
             {
                 throw ex;
             }
+        }
+
+        public HorarioDisponibilidadMedico MapearFilaAEntidad(SqlDataReader fila)
+        {
+            throw new NotImplementedException();
         }
     }
 }

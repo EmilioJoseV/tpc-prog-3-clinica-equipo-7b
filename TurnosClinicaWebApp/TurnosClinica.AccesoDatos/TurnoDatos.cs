@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class TurnoDatos
+    public class TurnoDatos : IMapeable<Turno>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,7 +14,7 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<Turno> Listar()
+        public List<Turno> Listar(int? idPaciente, int? idMedico, int? idUsuario, int? idUsuarioAlta, int? idUsuarioModificacion, bool? activo)
         {
             List<Turno> turnos = new List<Turno>();
             try
@@ -32,96 +33,6 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 return turno;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Turno ObtenerPorNumeroTurno(string numeroTurno)
-        {
-            Turno turno = new Turno();
-            try
-            {
-                return turno;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Turno> ListarPorPaciente(int idPaciente)
-        {
-            List<Turno> turnos = new List<Turno>();
-            try
-            {
-                return turnos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Turno> ListarPorMedico(int idMedico)
-        {
-            List<Turno> turnos = new List<Turno>();
-            try
-            {
-                return turnos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Turno> ListarPorFecha(DateTime fechaTurno)
-        {
-            List<Turno> turnos = new List<Turno>();
-            try
-            {
-                return turnos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Turno> ListarPorEstado(int idEstadoTurno)
-        {
-            List<Turno> turnos = new List<Turno>();
-            try
-            {
-                return turnos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Turno> ListarMisTurnos(int idMedico)
-        {
-            List<Turno> turnos = new List<Turno>();
-            try
-            {
-                return turnos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public string ObtenerSiguienteNumeroTurno()
-        {
-            try
-            {
-                return string.Empty;
             }
             catch (Exception ex)
             {
@@ -151,6 +62,11 @@ namespace TurnosClinica.AccesoDatos
             {
                 throw ex;
             }
+        }
+
+        public Turno MapearFilaAEntidad(SqlDataReader fila)
+        {
+            throw new NotImplementedException();
         }
     }
 }

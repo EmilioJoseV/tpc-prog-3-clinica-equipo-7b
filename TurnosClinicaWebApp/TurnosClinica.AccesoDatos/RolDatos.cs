@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class RolDatos
+    public class RolDatos : IMapeable<Rol>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,7 +14,7 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<Rol> Listar()
+        public List<Rol> Listar(bool activo)
         {
             List<Rol> roles = new List<Rol>();
             try
@@ -24,35 +25,14 @@ namespace TurnosClinica.AccesoDatos
             {
                 throw ex;
             }
+        }
+
+        public Rol MapearFilaAEntidad(SqlDataReader fila)
+        {
+            throw new NotImplementedException();
         }
 
         public Rol ObtenerPorId(int idRol)
-        {
-            Rol rol = new Rol();
-            try
-            {
-                return rol;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Rol> ObtenerTodosActivos()
-        {
-            List<Rol> roles = new List<Rol>();
-            try
-            {
-                return roles;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Rol ObtenerPorNombre(string nombre)
         {
             Rol rol = new Rol();
             try

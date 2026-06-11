@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class PacienteDatos
+    public class PacienteDatos : IFiltrable<Paciente>, IMapeable<Paciente>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,7 +14,7 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<Paciente> Listar()
+        public List<Paciente> Listar(bool activo)
         {
             List<Paciente> pacientes = new List<Paciente>();
             try
@@ -27,45 +28,6 @@ namespace TurnosClinica.AccesoDatos
         }
 
         public Paciente ObtenerPorId(int idPaciente)
-        {
-            Paciente paciente = new Paciente();
-            try
-            {
-                return paciente;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Paciente> ObtenerTodosActivos()
-        {
-            List<Paciente> pacientes = new List<Paciente>();
-            try
-            {
-                return pacientes;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Paciente ObtenerPorDni(string dni)
-        {
-            Paciente paciente = new Paciente();
-            try
-            {
-                return paciente;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Paciente ObtenerPorEmail(string email)
         {
             Paciente paciente = new Paciente();
             try
@@ -124,6 +86,16 @@ namespace TurnosClinica.AccesoDatos
             {
                 throw ex;
             }
+        }
+
+        public List<Paciente> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Paciente MapearFilaAEntidad(SqlDataReader fila)
+        {
+            throw new NotImplementedException();
         }
     }
 }

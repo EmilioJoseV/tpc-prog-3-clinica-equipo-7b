@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class EstadoTurnoDatos
+    public class EstadoTurnoDatos : IMapeable<EstadoTurno>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,46 +14,12 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<EstadoTurno> Listar()
+        public EstadoTurno MapearFilaAEntidad(SqlDataReader fila)
         {
-            List<EstadoTurno> estados = new List<EstadoTurno>();
-            try
-            {
-                return estados;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            throw new NotImplementedException();
         }
 
         public EstadoTurno ObtenerPorId(int idEstadoTurno)
-        {
-            EstadoTurno estadoTurno = new EstadoTurno();
-            try
-            {
-                return estadoTurno;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<EstadoTurno> ObtenerTodosActivos()
-        {
-            List<EstadoTurno> estados = new List<EstadoTurno>();
-            try
-            {
-                return estados;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public EstadoTurno ObtenerPorNombre(string nombre)
         {
             EstadoTurno estadoTurno = new EstadoTurno();
             try

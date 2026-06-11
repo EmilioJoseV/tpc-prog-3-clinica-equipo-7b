@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class EspecialidadDatos
+    public class EspecialidadDatos : IFiltrable<Especialidad>, IMapeable<Especialidad>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,7 +14,7 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<Especialidad> Listar()
+        public List<Especialidad> Listar(bool activo)
         {
             List<Especialidad> especialidades = new List<Especialidad>();
             try
@@ -27,32 +28,6 @@ namespace TurnosClinica.AccesoDatos
         }
 
         public Especialidad ObtenerPorId(int idEspecialidad)
-        {
-            Especialidad especialidad = new Especialidad();
-            try
-            {
-                return especialidad;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Especialidad> ObtenerTodosActivos()
-        {
-            List<Especialidad> especialidades = new List<Especialidad>();
-            try
-            {
-                return especialidades;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Especialidad ObtenerPorNombre(string nombre)
         {
             Especialidad especialidad = new Especialidad();
             try
@@ -99,6 +74,16 @@ namespace TurnosClinica.AccesoDatos
             {
                 throw ex;
             }
+        }
+
+        public List<Especialidad> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Especialidad MapearFilaAEntidad(SqlDataReader fila)
+        {
+            throw new NotImplementedException();
         }
     }
 }

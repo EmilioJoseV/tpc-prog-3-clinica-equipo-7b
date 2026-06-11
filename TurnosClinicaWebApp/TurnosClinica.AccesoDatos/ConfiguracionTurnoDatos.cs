@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class ConfiguracionTurnoDatos
+    public class ConfiguracionTurnoDatos : IMapeable<ConfiguracionTurno>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,8 +14,7 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-
-        public ConfiguracionTurno ObtenerConfiguracion()
+        public ConfiguracionTurno ObtenerConfiguracion(bool activo)
         {
             ConfiguracionTurno configuracionTurno = new ConfiguracionTurno();
             
@@ -38,6 +38,11 @@ namespace TurnosClinica.AccesoDatos
             {
                 throw ex;
             }
+        }
+
+        public ConfiguracionTurno MapearFilaAEntidad(SqlDataReader fila)
+        {
+            throw new NotImplementedException();
         }
     }
 }
