@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.5.11801.241 oobstable
+VisualStudioVersion = 18.5.11801.241
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TurnosClinica.Web", "TurnosClinica.Web.csproj", "{D00105A8-608E-48D1-B32B-8DC956BBF31D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C07A4199-FD72-409B-898F-E63F93AA1480} = {C07A4199-FD72-409B-898F-E63F93AA1480}
+		{D8807B12-360A-4477-84EE-6300BE30283B} = {D8807B12-360A-4477-84EE-6300BE30283B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TurnosClinica.AccesoDatos", "..\TurnosClinica.AccesoDatos\TurnosClinica.AccesoDatos.csproj", "{6665BA5F-0837-47B2-B8FB-3F6796A484C2}"
 EndProject

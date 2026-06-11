@@ -141,15 +141,17 @@ CREATE TABLE dbo.Usuarios
 (
     IdUsuario INT IDENTITY(1,1) NOT NULL,
     NombreUsuario VARCHAR(50) NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellido VARCHAR(100) NOT NULL,
     Email VARCHAR(150) NOT NULL,
     PasswordHash VARCHAR(256) NOT NULL,
+    Imagen VARBINARY(MAX) NULL,
     IdRol INT NOT NULL,
     IdMedico INT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
     CONSTRAINT PK_Usuarios PRIMARY KEY (IdUsuario),
     CONSTRAINT UQ_Usuarios_NombreUsuario UNIQUE (NombreUsuario),
-    CONSTRAINT UQ_Usuarios_Email UNIQUE (Email),
     CONSTRAINT CK_Usuarios_NombreUsuario_NoVacio CHECK (LEN(LTRIM(RTRIM(NombreUsuario))) > 0),
     CONSTRAINT CK_Usuarios_Email_Formato CHECK (Email LIKE '%_@_%._%'),
     CONSTRAINT CK_Usuarios_PasswordHash_NoVacio CHECK (LEN(LTRIM(RTRIM(PasswordHash))) > 0),
@@ -342,17 +344,20 @@ GO
 INSERT INTO dbo.Usuarios
 (
     NombreUsuario,
+    Nombre,
+    Apellido,
     Email,
     PasswordHash,
+    Imagen,
     IdRol,
     IdMedico
 )
 VALUES
-('admin', 'admin@clinica.local', 'hashadmin1', 1, NULL),
-('recepcion', 'recepcion@clinica.local', 'hashrecepcion', 2, NULL),
-('lgomez', 'laura.gomez@clinica.local', 'hashmedico1', 3, 1),
-('mruiz', 'martin.ruiz@clinica.local', 'hasmedico2', 3, 2),
-('vmolina', 'valeria.molina@clinica.local', 'hasmedico3', 3, 5);
+('admin', 'Admin', 'Sistema', 'admin@clinica.local', 'hashadmin1', NULL, 1, NULL),
+('recepcion', 'Recepcion', 'Clinica', 'recepcion@clinica.local', 'hashrecepcion', NULL, 2, NULL),
+('lgomez', 'Laura', 'Gomez', 'laura.gomez@clinica.local', 'hashmedico1', NULL, 3, 1),
+('mruiz', 'Martin', 'Ruiz', 'martin.ruiz@clinica.local', 'hasmedico2', NULL, 3, 2),
+('vmolina', 'Valeria', 'Molina', 'valeria.molina@clinica.local', 'hasmedico3', NULL, 3, 5);
 GO
 
 /* Turnos */
