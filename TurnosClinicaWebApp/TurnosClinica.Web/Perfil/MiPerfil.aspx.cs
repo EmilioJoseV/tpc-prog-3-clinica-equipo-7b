@@ -3,7 +3,7 @@ using System.Web.UI;
 
 namespace TurnosClinica.Web
 {
-    public partial class AltaPaciente : Page
+    public partial class MiPerfil : Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {

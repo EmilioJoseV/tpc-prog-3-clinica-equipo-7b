@@ -9,7 +9,6 @@
         <p class="text-secondary mb-3">
             Sistema de turnos medicos online.
         </p>
-        <asp:Button ID="BtnIrLogin" runat="server" CssClass="btn btn-primary" Text="Ir al login" OnClick="BtnIrLogin_Click" />
     </div>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">

@@ -1,4 +1,4 @@
-<%@ Page Title="Alta de Paciente" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="AltaPaciente.aspx.cs" Inherits="TurnosClinica.Web.AltaPaciente" %>
+<%@ Page Title="Alta de Paciente" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="FormularioPaciente.aspx.cs" Inherits="TurnosClinica.Web.FormularioPaciente" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>

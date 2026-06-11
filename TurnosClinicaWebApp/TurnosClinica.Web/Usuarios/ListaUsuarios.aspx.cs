@@ -3,7 +3,7 @@ using System.Web.UI;
 
 namespace TurnosClinica.Web
 {
-    public partial class GestionRoles : Page
+    public partial class ListaUsuarios : Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {

@@ -22,10 +22,5 @@ namespace TurnosClinica.Web
             }
         }
 
-        protected void BtnIrLogin_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("Login.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
-        }
     }
 }

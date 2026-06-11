@@ -15,75 +15,45 @@ namespace TurnosClinica.Web
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void BtnLogin_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("Login.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
-        }
-
         protected void BtnPacientes_Click(object sender, EventArgs e)
         {
-            Response.Redirect("GestionPacientes.aspx", false);
+            Response.Redirect("Pacientes/ListaPacientes.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
         protected void BtnMedicos_Click(object sender, EventArgs e)
         {
-            Response.Redirect("GestionMedicos.aspx", false);
+            Response.Redirect("Medicos/ListaMedicos.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
         protected void BtnEspecialidades_Click(object sender, EventArgs e)
         {
-            Response.Redirect("GestionEspecialidades.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
-        }
-
-        protected void BtnHorariosMedicos_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("GestionHorariosMedicos.aspx", false);
+            Response.Redirect("Especialidades/ListaEspecialidades.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
         protected void BtnUsuarios_Click(object sender, EventArgs e)
         {
-            Response.Redirect("GestionUsuarios.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
-        }
-
-        protected void BtnRoles_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("GestionRoles.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
-        }
-
-        protected void BtnConfiguracionTurnos_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("ConfiguracionTurnos.aspx", false);
+            Response.Redirect("Usuarios/ListaUsuarios.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
         protected void BtnTurnos_Click(object sender, EventArgs e)
         {
-            Response.Redirect("GestionTurnos.aspx", false);
+            Response.Redirect("Turnos/ListaTurnos.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
         protected void BtnDetalleTurno_Click(object sender, EventArgs e)
         {
-            Response.Redirect("DetalleTurno.aspx", false);
+            Response.Redirect("Turnos/DetalleTurno.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
         protected void BtnMisTurnos_Click(object sender, EventArgs e)
         {
-            Response.Redirect("MisTurnos.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
-        }
-
-        protected void BtnReportes_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("Reportes.aspx", false);
+            Response.Redirect("Turnos/MisTurnos.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
     }
