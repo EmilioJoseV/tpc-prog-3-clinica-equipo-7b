@@ -66,23 +66,23 @@
   <ItemGroup>
     <Content Include="Default.aspx" />
     <Content Include="Error.aspx" />
+    <Content Include="Especialidades\ListaEspecialidades.aspx" />
     <Content Include="Especialidades\FormularioEspecialidad.aspx" />
-    <Content Include="Especialidades\GestionEspecialidades.aspx" />
     <Content Include="Inicio.aspx" />
     <Content Include="Login.aspx" />
+    <Content Include="Medicos\ListaMedicos.aspx" />
     <Content Include="Medicos\FormularioMedico.aspx" />
-    <Content Include="Medicos\GestionMedicos.aspx" />
+    <Content Include="Pacientes\ListaPacientes.aspx" />
     <Content Include="Pacientes\FormularioPaciente.aspx" />
-    <Content Include="Pacientes\GestionPacientes.aspx" />
     <Content Include="PanelPrincipal.aspx" />
     <Content Include="Perfil\MiPerfil.aspx" />
+    <Content Include="Turnos\ListaTurnos.aspx" />
     <Content Include="Turnos\ConfiguracionTurnos.aspx" />
     <Content Include="Turnos\DetalleTurno.aspx" />
     <Content Include="Turnos\FormularioTurno.aspx" />
-    <Content Include="Turnos\GestionTurnos.aspx" />
     <Content Include="Turnos\MisTurnos.aspx" />
+    <Content Include="Usuarios\ListaUsuarios.aspx" />
     <Content Include="Usuarios\FormularioUsuario.aspx" />
-    <Content Include="Usuarios\GestionUsuarios.aspx" />
     <Content Include="**\*.master" Exclude="bin\**;obj\**;packages\**" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
@@ -98,6 +98,9 @@
     <Compile Include="Especialidades\FormularioEspecialidad.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Especialidades\ListaEspecialidades.aspx.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Global.asax.cs" />
     <Compile Include="Inicio.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
@@ -109,7 +112,13 @@
     <Compile Include="Master.Master.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Medicos\ListaMedicos.aspx.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Medicos\FormularioMedico.aspx.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pacientes\ListaPacientes.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Pacientes\FormularioPaciente.aspx.cs">
@@ -122,6 +131,9 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Turnos\ListaTurnos.aspx.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Turnos\ConfiguracionTurnos.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -132,6 +144,9 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Turnos\MisTurnos.aspx.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Usuarios\ListaUsuarios.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Usuarios\FormularioUsuario.aspx.cs">

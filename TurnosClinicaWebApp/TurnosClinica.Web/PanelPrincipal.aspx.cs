@@ -9,49 +9,67 @@ namespace TurnosClinica.Web
         {
         }
 
-        protected void BtnInicio_Click(object sender, EventArgs e)
+        protected void LnkAltaPaciente_Click(object sender, EventArgs e)
         {
-            Response.Redirect("Inicio.aspx", false);
+            Response.Redirect("Pacientes/FormularioPaciente.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void BtnPacientes_Click(object sender, EventArgs e)
+        protected void LnkListaPacientes_Click(object sender, EventArgs e)
         {
             Response.Redirect("Pacientes/ListaPacientes.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void BtnMedicos_Click(object sender, EventArgs e)
+        protected void LnkAltaMedico_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Medicos/FormularioMedico.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+        }
+
+        protected void LnkListaMedicos_Click(object sender, EventArgs e)
         {
             Response.Redirect("Medicos/ListaMedicos.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void BtnEspecialidades_Click(object sender, EventArgs e)
+        protected void LnkAltaEspecialidad_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Especialidades/FormularioEspecialidad.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+        }
+
+        protected void LnkListaEspecialidades_Click(object sender, EventArgs e)
         {
             Response.Redirect("Especialidades/ListaEspecialidades.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void BtnUsuarios_Click(object sender, EventArgs e)
+        protected void LnkAltaUsuario_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Usuarios/FormularioUsuario.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+        }
+
+        protected void LnkListaUsuarios_Click(object sender, EventArgs e)
         {
             Response.Redirect("Usuarios/ListaUsuarios.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void BtnTurnos_Click(object sender, EventArgs e)
+        protected void LnkConfiguracionTurnos_Click(object sender, EventArgs e)
         {
-            Response.Redirect("Turnos/ListaTurnos.aspx", false);
+            Response.Redirect("Turnos/ConfiguracionTurnos.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void BtnDetalleTurno_Click(object sender, EventArgs e)
+        protected void LnkAltaTurno_Click(object sender, EventArgs e)
         {
-            Response.Redirect("Turnos/DetalleTurno.aspx", false);
+            Response.Redirect("Turnos/FormularioTurno.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void BtnMisTurnos_Click(object sender, EventArgs e)
+        protected void LnkMisTurnos_Click(object sender, EventArgs e)
         {
             Response.Redirect("Turnos/MisTurnos.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
