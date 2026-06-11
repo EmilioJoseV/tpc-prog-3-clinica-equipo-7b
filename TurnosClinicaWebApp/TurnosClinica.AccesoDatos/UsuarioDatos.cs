@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class UsuarioDatos
+    public class UsuarioDatos : IFiltrable<Usuario>, IMapeable<Usuario>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,7 +14,7 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<Usuario> Listar()
+        public List<Usuario> Listar(int? idRol, int? idMedico, bool? activo)
         {
             List<Usuario> usuarios = new List<Usuario>();
             try
@@ -39,77 +40,12 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public List<Usuario> ObtenerTodosActivos()
-        {
-            List<Usuario> usuarios = new List<Usuario>();
-            try
-            {
-                return usuarios;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Usuario ObtenerPorNombreUsuario(string nombreUsuario)
+        public Usuario ValidarCredenciales(string nombreUsuario, string password)
         {
             Usuario usuario = new Usuario();
             try
             {
                 return usuario;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Usuario ObtenerPorEmail(string email)
-        {
-            Usuario usuario = new Usuario();
-            try
-            {
-                return usuario;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Usuario ValidarCredenciales(string nombreUsuario, string passwordHash)
-        {
-            Usuario usuario = new Usuario();
-            try
-            {
-                return usuario;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Usuario> ListarPorRol(int idRol)
-        {
-            List<Usuario> usuarios = new List<Usuario>();
-            try
-            {
-                return usuarios;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Usuario> ListarPorMedico(int idMedico)
-        {
-            List<Usuario> usuarios = new List<Usuario>();
-            try
-            {
-                return usuarios;
             }
             catch (Exception ex)
             {
@@ -163,6 +99,16 @@ namespace TurnosClinica.AccesoDatos
             {
                 throw ex;
             }
+        }
+
+        public Usuario MapearFilaAEntidad(SqlDataReader fila)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Usuario> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
+        {
+            throw new NotImplementedException();
         }
     }
 }

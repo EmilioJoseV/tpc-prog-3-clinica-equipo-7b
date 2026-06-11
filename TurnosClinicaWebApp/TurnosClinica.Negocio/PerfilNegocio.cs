@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TurnosClinica.Negocio
 {
-    internal class PerfilNegocio
+    public class PerfilNegocio
     {
     }
 }

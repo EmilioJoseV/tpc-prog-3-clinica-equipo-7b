@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class MedicoDatos
+    public class MedicoDatos : IFiltrable<Medico>, IMapeable<Medico>
     {
         private readonly AccesoDatos accesoDatos;
 
@@ -13,7 +14,7 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<Medico> Listar()
+        public List<Medico> Listar(bool activo)
         {
             List<Medico> medicos = new List<Medico>();
             try
@@ -32,84 +33,6 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 return medico;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Medico> ObtenerTodosActivos()
-        {
-            List<Medico> medicos = new List<Medico>();
-            try
-            {
-                return medicos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Medico ObtenerPorDni(string dni)
-        {
-            Medico medico = new Medico();
-            try
-            {
-                return medico;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Medico ObtenerPorMatricula(string matricula)
-        {
-            Medico medico = new Medico();
-            try
-            {
-                return medico;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public Medico ObtenerPorEmail(string email)
-        {
-            Medico medico = new Medico();
-            try
-            {
-                return medico;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Medico> ListarPorEspecialidad(int idEspecialidad)
-        {
-            List<Medico> medicos = new List<Medico>();
-            try
-            {
-                return medicos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<HorarioDisponibilidadMedico> ListarHorariosDisponibilidad(int idMedico)
-        {
-            List<HorarioDisponibilidadMedico> horarios = new List<HorarioDisponibilidadMedico>();
-            try
-            {
-                return horarios;
             }
             catch (Exception ex)
             {
@@ -175,6 +98,16 @@ namespace TurnosClinica.AccesoDatos
             {
                 throw ex;
             }
+        }
+
+        public List<Medico> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Medico MapearFilaAEntidad(SqlDataReader fila)
+        {
+            throw new NotImplementedException();
         }
     }
 }
