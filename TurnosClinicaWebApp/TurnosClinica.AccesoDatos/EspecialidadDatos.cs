@@ -27,6 +27,19 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
+        public List<Especialidad> ListarPorMedico(int idMedico, bool? activo)
+        {
+            List<Especialidad> especialidades = new List<Especialidad>();
+            try
+            {
+                return especialidades;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public Especialidad ObtenerPorId(int idEspecialidad)
         {
             Especialidad especialidad = new Especialidad();
