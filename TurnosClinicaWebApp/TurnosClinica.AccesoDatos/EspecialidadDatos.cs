@@ -30,13 +30,18 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.ejecutarLectura();
 
                
-                while (accesoDatos.Lector.Read())
-                {
-                    Especialidad aux = new Especialidad();
+               
 
-                    //  seguiiiir
+                    while (accesoDatos.Lector.Read())
+                    {
+                        Especialidad aux = new Especialidad();
 
-                    especialidades.Add(aux);
+                        
+                        aux.IdEspecialidad = (int)accesoDatos.Lector["IdEspecialidad"];
+                        aux.Nombre = (string)accesoDatos.Lector["Nombre"];
+                        aux.Activo = (bool)accesoDatos.Lector["Activo"];
+
+                        especialidades.Add(aux);
                 }
 
                 return especialidades;
