@@ -19,6 +19,7 @@ namespace TurnosClinica.AccesoDatos
         public List<Especialidad> Listar(bool? activo)
         {
             List<Especialidad> especialidades = new List<Especialidad>();
+
             try
             {
                 string consulta = "SELECT IdEspecialidad, Nombre, Descripcion, Activo"
@@ -87,14 +88,7 @@ namespace TurnosClinica.AccesoDatos
 
         public bool ExisteNombre(string nombre)
         {
-            try
-            {
-                return false;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            try { return false; } catch (Exception ex) { throw ex; }
         }
 
         public void Agregar(Especialidad especialidad)
