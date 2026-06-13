@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 
 namespace TurnosClinica.AccesoDatos
 {
     public class AccesoDatos
     {
-        private SqlConnection conexion;
-        private SqlCommand comando;
+        private readonly SqlConnection conexion;
+        private readonly SqlCommand comando;
         private SqlDataReader lector;
 
         public SqlDataReader Lector
@@ -20,11 +17,11 @@ namespace TurnosClinica.AccesoDatos
 
         public AccesoDatos()
         {
-            conexion = new SqlConnection("server=.\\SQLEXPRESS; database=TPC_TURNOS_CLINICA_P3_DB; integrated security=true");
+            conexion = new SqlConnection(ConfigurationManager.AppSettings["cadenaConexion"]);
             comando = new SqlCommand();
         }
 
-        public void setearConsulta(string consulta)
+        public void setearConsulta(string consulta) 
         {
             comando.Parameters.Clear();
             comando.CommandType = System.Data.CommandType.Text;
@@ -42,7 +39,6 @@ namespace TurnosClinica.AccesoDatos
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
@@ -62,18 +58,14 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public int ejecutarCreacionRetornandoId()
+        public int ejecutarAccionScalar()
         {
             comando.Connection = conexion;
 
             try
             {
                 conexion.Open();
-                object resultado = comando.ExecuteScalar();
-                if (resultado != null && resultado != DBNull.Value)
-                    return Convert.ToInt32(resultado);
-
-                return 0;
+                return int.Parse(comando.ExecuteScalar().ToString());
             }
             catch (Exception ex)
             {
