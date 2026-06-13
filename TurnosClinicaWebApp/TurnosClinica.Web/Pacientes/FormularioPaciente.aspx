@@ -9,31 +9,31 @@
 
     <div class="row g-3">
         <div class="col-12 col-md-6">
-            <asp:Label ID="LblDni" runat="server" AssociatedControlID="TxtDni" Text="DNI" CssClass="form-label" />
+            <asp:Label ID="LblDni" runat="server" Text="DNI" CssClass="form-label" />
             <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" />
         </div>
         <div class="col-12 col-md-6">
-            <asp:Label ID="LblNombre" runat="server" AssociatedControlID="TxtNombre" Text="Nombre" CssClass="form-label" />
+            <asp:Label ID="LblNombre" runat="server" Text="Nombre" CssClass="form-label" />
             <asp:TextBox ID="TxtNombre" runat="server" CssClass="form-control" />
         </div>
         <div class="col-12 col-md-6">
-            <asp:Label ID="LblApellido" runat="server" AssociatedControlID="TxtApellido" Text="Apellido" CssClass="form-label" />
+            <asp:Label ID="LblApellido" runat="server" Text="Apellido" CssClass="form-label" />
             <asp:TextBox ID="TxtApellido" runat="server" CssClass="form-control" />
         </div>
         <div class="col-12 col-md-6">
-            <asp:Label ID="LblFechaNacimiento" runat="server" AssociatedControlID="TxtFechaNacimiento" Text="Fecha de nacimiento" CssClass="form-label" />
-            <asp:TextBox ID="TxtFechaNacimiento" runat="server" TextMode="Date" CssClass="form-control" />
+            <asp:Label ID="LblFechaNacimiento" runat="server" Text="Fecha de nacimiento" CssClass="form-label" />
+            <asp:TextBox ID="TxtFechaNacimiento" runat="server" CssClass="form-control" />
         </div>
         <div class="col-12 col-md-6">
-            <asp:Label ID="LblTelefono" runat="server" AssociatedControlID="TxtTelefono" Text="Telefono" CssClass="form-label" />
+            <asp:Label ID="LblTelefono" runat="server" Text="Telefono" CssClass="form-label" />
             <asp:TextBox ID="TxtTelefono" runat="server" CssClass="form-control" />
         </div>
         <div class="col-12 col-md-6">
-            <asp:Label ID="LblEmail" runat="server" AssociatedControlID="TxtEmail" Text="Email" CssClass="form-label" />
-            <asp:TextBox ID="TxtEmail" runat="server" TextMode="Email" CssClass="form-control" />
+            <asp:Label ID="LblEmail" runat="server" Text="Email" CssClass="form-label" />
+            <asp:TextBox ID="TxtEmail" runat="server" CssClass="form-control" />
         </div>
         <div class="col-12">
-            <asp:Label ID="LblDireccion" runat="server" AssociatedControlID="TxtDireccion" Text="Direccion" CssClass="form-label" />
+            <asp:Label ID="LblDireccion" runat="server" Text="Direccion" CssClass="form-label" />
             <asp:TextBox ID="TxtDireccion" runat="server" CssClass="form-control" />
         </div>
         <div class="col-12">

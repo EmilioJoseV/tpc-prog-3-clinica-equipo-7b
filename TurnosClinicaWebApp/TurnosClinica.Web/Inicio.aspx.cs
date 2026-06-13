@@ -6,11 +6,23 @@ namespace TurnosClinica.Web
 {
     public partial class Inicio : Page
     {
-        private static readonly IReadOnlyList<object> Resumen = new[]
+        private static readonly IReadOnlyList<InicioResumenItem> Resumen = new[]
         {
-            new { Titulo = "Turnos", Descripcion = "Alta, reprogramacion y seguimiento de turnos de la clinica." },
-            new { Titulo = "Pacientes", Descripcion = "Gestionar datos personales y contacto para gestionar la atencion." },
-            new { Titulo = "Medicos y especialidades", Descripcion = "Gestionar y eliger difentes medicos y especialidades." }
+            new InicioResumenItem
+            {
+                Titulo = "Turnos",
+                Descripcion = "Alta, reprogramacion y seguimiento de turnos de la clinica."
+            },
+            new InicioResumenItem
+            {
+                Titulo = "Pacientes",
+                Descripcion = "Gestionar datos personales y contacto para gestionar la atencion."
+            },
+            new InicioResumenItem
+            {
+                Titulo = "Medicos y especialidades",
+                Descripcion = "Gestionar y elegir diferentes medicos y especialidades."
+            }
         };
 
         protected void Page_Load(object sender, EventArgs e)
@@ -22,5 +34,10 @@ namespace TurnosClinica.Web
             }
         }
 
+        private class InicioResumenItem
+        {
+            public string Titulo { get; set; }
+            public string Descripcion { get; set; }
+        }
     }
 }

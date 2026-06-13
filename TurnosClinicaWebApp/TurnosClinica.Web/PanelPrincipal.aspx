@@ -16,9 +16,10 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <h1 class="h3 mb-3">Panel Principal</h1>
-    <div class="d-flex flex-wrap gap-2 align-items-start">
-        <div class="dropdown">
-            <asp:Button ID="BtnPacientes" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Pacientes" UseSubmitBehavior="false" CausesValidation="false" data-bs-toggle="dropdown" aria-expanded="false" />
+    <div class="row">
+        <div class="col-12">
+        <div class="dropdown d-inline-block me-2 mb-2">
+            <asp:Button ID="BtnPacientes" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Pacientes" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
                     <asp:LinkButton ID="LnkAltaPaciente" runat="server" CssClass="dropdown-item" OnClick="LnkAltaPaciente_Click">Alta de paciente</asp:LinkButton>
@@ -29,20 +30,20 @@
             </ul>
         </div>
 
-        <div class="dropdown">
-            <asp:Button ID="BtnMedicos" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Medicos" UseSubmitBehavior="false" CausesValidation="false" data-bs-toggle="dropdown" aria-expanded="false" />
+        <div class="dropdown d-inline-block me-2 mb-2">
+            <asp:Button ID="BtnMedicos" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Medicos" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
                     <asp:LinkButton ID="LnkAltaMedico" runat="server" CssClass="dropdown-item" OnClick="LnkAltaMedico_Click">Alta de medico</asp:LinkButton>
                 </li>
                 <li>
-                    <asp:LinkButton ID="LnkListaMedicos" runat="server" CssClass="dropdown-item" OnClick="LnkListaMedicos_Click">Ver medicos</asp:LinkButton>
+                    <asp:HyperLink ID="LnkListaMedicos" runat="server" CssClass="dropdown-item" NavigateUrl="Medicos/ListaMedicos.aspx">Ver medicos</asp:HyperLink>
                 </li>
             </ul>
         </div>
 
-        <div class="dropdown">
-            <asp:Button ID="BtnEspecialidades" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Especialidades" UseSubmitBehavior="false" CausesValidation="false" data-bs-toggle="dropdown" aria-expanded="false" />
+        <div class="dropdown d-inline-block me-2 mb-2">
+            <asp:Button ID="BtnEspecialidades" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Especialidades" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
                     <asp:LinkButton ID="LnkAltaEspecialidad" runat="server" CssClass="dropdown-item" OnClick="LnkAltaEspecialidad_Click">Alta de especialidad</asp:LinkButton>
@@ -53,8 +54,8 @@
             </ul>
         </div>
 
-        <div class="dropdown">
-            <asp:Button ID="BtnUsuarios" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Usuarios" UseSubmitBehavior="false" CausesValidation="false" data-bs-toggle="dropdown" aria-expanded="false" />
+        <div class="dropdown d-inline-block me-2 mb-2">
+            <asp:Button ID="BtnUsuarios" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Usuarios" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
                     <asp:LinkButton ID="LnkAltaUsuario" runat="server" CssClass="dropdown-item" OnClick="LnkAltaUsuario_Click">Alta de usuario</asp:LinkButton>
@@ -65,8 +66,8 @@
             </ul>
         </div>
 
-        <div class="dropdown">
-            <asp:Button ID="BtnTurnos" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Turnos" UseSubmitBehavior="false" CausesValidation="false" data-bs-toggle="dropdown" aria-expanded="false" />
+        <div class="dropdown d-inline-block me-2 mb-2">
+            <asp:Button ID="BtnTurnos" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Turnos" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
                     <asp:LinkButton ID="LnkConfiguracionTurnos" runat="server" CssClass="dropdown-item" OnClick="LnkConfiguracionTurnos_Click">Configuracion global de turnos</asp:LinkButton>
@@ -78,6 +79,7 @@
                     <asp:LinkButton ID="LnkMisTurnos" runat="server" CssClass="dropdown-item" OnClick="LnkMisTurnos_Click">Mis turnos asignados</asp:LinkButton>
                 </li>
             </ul>
+        </div>
         </div>
     </div>
 </asp:Content>

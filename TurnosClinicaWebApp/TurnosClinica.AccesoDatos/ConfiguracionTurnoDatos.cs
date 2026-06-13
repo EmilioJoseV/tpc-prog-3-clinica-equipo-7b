@@ -28,11 +28,11 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool Modificar(ConfiguracionTurno configuracionTurno)
+        public void Modificar(ConfiguracionTurno configuracionTurno)
         {
             try
             {
-                return false;
+                return;
             }
             catch (Exception ex)
             {

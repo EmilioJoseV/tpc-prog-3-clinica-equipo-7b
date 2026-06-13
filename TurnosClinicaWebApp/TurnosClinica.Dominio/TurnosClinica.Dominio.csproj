@@ -47,7 +47,9 @@
     <Compile Include="Entidades\EstadoTurno.cs" />
     <Compile Include="Entidades\Medico.cs" />
     <Compile Include="Entidades\Paciente.cs" />
+    <Compile Include="Enums\DiaSemanaEnum.cs" />
     <Compile Include="Enums\EstadoTurnoEnum.cs" />
+    <Compile Include="Enums\RolEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entidades\Rol.cs" />
     <Compile Include="Entidades\Turno.cs" />

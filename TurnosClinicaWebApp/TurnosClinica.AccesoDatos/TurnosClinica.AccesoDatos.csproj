@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -46,6 +47,7 @@
     <Compile Include="IFiltrable.cs" />
     <Compile Include="ConfiguracionTurnoDatos.cs" />
     <Compile Include="EspecialidadDatos.cs" />
+    <Compile Include="MedicoEspecialidadesDatos.cs" />
     <Compile Include="MedicoDatos.cs" />
     <Compile Include="RolDatos.cs" />
     <Compile Include="EstadoTurnoDatos.cs" />

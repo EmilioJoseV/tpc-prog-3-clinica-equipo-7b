@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head runat="server">
     <title>Turnos Clinica</title>
     <asp:ContentPlaceHolder ID="head" runat="server">
@@ -11,34 +11,33 @@
 </head>
 <body>
     <form id="form1" runat="server">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="Inicio.aspx">Turnos Clinica</a>
+                <a class="navbar-brand" href="/Inicio.aspx">Turnos Clinica</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="Inicio.aspx">Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="Login.aspx">Login</a>
-                        </li>
-                    </ul>
+                    <div class="d-flex me-auto">
+                        <a class="btn btn-warning" href="/PanelPrincipal.aspx">Panel principal</a>
+                    </div>
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="Perfil/MiPerfil.aspx">Mi perfil</a>
+                            <a class="nav-link" href="/Perfil/MiPerfil.aspx">Mi Perfil</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="Inicio.aspx">Salir</a>
+                            <a class="nav-link" href="/Ingresar.aspx">Ingresar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Inicio.aspx">Salir</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <div class="container py-4">
+        <div class="container">
+            <hr />
             <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
             </asp:ContentPlaceHolder>
         </div>
