@@ -64,12 +64,30 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\\TurnosClinica.AccesoDatos\\TurnosClinica.AccesoDatos.csproj">
+      <Project>{6665BA5F-0837-47B2-B8FB-3F6796A484C2}</Project>
+      <Name>TurnosClinica.AccesoDatos</Name>
+      <Private>True</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\\TurnosClinica.Dominio\\TurnosClinica.Dominio.csproj">
+      <Project>{C07A4199-FD72-409B-898F-E63F93AA1480}</Project>
+      <Name>TurnosClinica.Dominio</Name>
+      <Private>True</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\\TurnosClinica.Negocio\\TurnosClinica.Negocio.csproj">
+      <Project>{D8807B12-360A-4477-84EE-6300BE30283B}</Project>
+      <Name>TurnosClinica.Negocio</Name>
+      <Private>True</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
     <Content Include="Default.aspx" />
     <Content Include="Error.aspx" />
     <Content Include="Especialidades\ListaEspecialidades.aspx" />
     <Content Include="Especialidades\FormularioEspecialidad.aspx" />
     <Content Include="Inicio.aspx" />
-    <Content Include="Login.aspx" />
+    <Content Include="Ingresar.aspx" />
     <Content Include="Medicos\ListaMedicos.aspx" />
     <Content Include="Medicos\FormularioMedico.aspx" />
     <Content Include="Pacientes\ListaPacientes.aspx" />
@@ -89,68 +107,146 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Default.aspx.designer.cs" />
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Error.aspx.cs">
+      <DependentUpon>Error.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Error.aspx.designer.cs">
+      <DependentUpon>Error.aspx</DependentUpon>
     </Compile>
     <Compile Include="Especialidades\FormularioEspecialidad.aspx.cs">
+      <DependentUpon>FormularioEspecialidad.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Especialidades\FormularioEspecialidad.aspx.designer.cs">
+      <DependentUpon>FormularioEspecialidad.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Especialidades\ListaEspecialidades.aspx.cs">
+      <DependentUpon>ListaEspecialidades.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Especialidades\ListaEspecialidades.aspx.designer.cs">
+      <DependentUpon>ListaEspecialidades.aspx</DependentUpon>
     </Compile>
     <Compile Include="Global.asax.cs" />
     <Compile Include="Inicio.aspx.cs">
+      <DependentUpon>Inicio.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Inicio.aspx.designer.cs" />
-    <Compile Include="Login.aspx.cs">
+    <Compile Include="Inicio.aspx.designer.cs">
+      <DependentUpon>Inicio.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Ingresar.aspx.cs">
+      <DependentUpon>Ingresar.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Ingresar.aspx.designer.cs">
+      <DependentUpon>Ingresar.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Medicos\FormularioMedico.aspx.designer.cs">
+      <DependentUpon>FormularioMedico.aspx</DependentUpon>
     </Compile>
     <Compile Include="Master.Master.cs">
+      <DependentUpon>Master.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Master.Master.designer.cs">
+      <DependentUpon>Master.Master</DependentUpon>
     </Compile>
     <Compile Include="Medicos\ListaMedicos.aspx.cs">
+      <DependentUpon>ListaMedicos.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Medicos\ListaMedicos.aspx.designer.cs">
+      <DependentUpon>ListaMedicos.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Medicos\FormularioMedico.aspx.cs">
+      <DependentUpon>FormularioMedico.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Pacientes\ListaPacientes.aspx.cs">
+      <DependentUpon>ListaPacientes.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pacientes\ListaPacientes.aspx.designer.cs">
+      <DependentUpon>ListaPacientes.aspx</DependentUpon>
     </Compile>
     <Compile Include="Pacientes\FormularioPaciente.aspx.cs">
+      <DependentUpon>FormularioPaciente.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pacientes\FormularioPaciente.aspx.designer.cs">
+      <DependentUpon>FormularioPaciente.aspx</DependentUpon>
     </Compile>
     <Compile Include="PanelPrincipal.aspx.cs">
+      <DependentUpon>PanelPrincipal.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="PanelPrincipal.aspx.designer.cs">
+      <DependentUpon>PanelPrincipal.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Perfil\MiPerfil.aspx.cs">
+      <DependentUpon>MiPerfil.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Perfil\MiPerfil.aspx.designer.cs">
+      <DependentUpon>MiPerfil.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Turnos\ListaTurnos.aspx.cs">
+      <DependentUpon>ListaTurnos.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Turnos\ListaTurnos.aspx.designer.cs">
+      <DependentUpon>ListaTurnos.aspx</DependentUpon>
     </Compile>
     <Compile Include="Turnos\ConfiguracionTurnos.aspx.cs">
+      <DependentUpon>ConfiguracionTurnos.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Turnos\ConfiguracionTurnos.aspx.designer.cs">
+      <DependentUpon>ConfiguracionTurnos.aspx</DependentUpon>
     </Compile>
     <Compile Include="Turnos\DetalleTurno.aspx.cs">
+      <DependentUpon>DetalleTurno.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Turnos\DetalleTurno.aspx.designer.cs">
+      <DependentUpon>DetalleTurno.aspx</DependentUpon>
     </Compile>
     <Compile Include="Turnos\FormularioTurno.aspx.cs">
+      <DependentUpon>FormularioTurno.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Turnos\FormularioTurno.aspx.designer.cs">
+      <DependentUpon>FormularioTurno.aspx</DependentUpon>
     </Compile>
     <Compile Include="Turnos\MisTurnos.aspx.cs">
+      <DependentUpon>MisTurnos.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Turnos\MisTurnos.aspx.designer.cs">
+      <DependentUpon>MisTurnos.aspx</DependentUpon>
     </Compile>
     <Compile Include="Usuarios\ListaUsuarios.aspx.cs">
+      <DependentUpon>ListaUsuarios.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Usuarios\ListaUsuarios.aspx.designer.cs">
+      <DependentUpon>ListaUsuarios.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Usuarios\FormularioUsuario.aspx.cs">
+      <DependentUpon>FormularioUsuario.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Usuarios\FormularioUsuario.aspx.designer.cs">
+      <DependentUpon>FormularioUsuario.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

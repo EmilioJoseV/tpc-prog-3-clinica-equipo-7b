@@ -32,6 +32,18 @@ namespace TurnosClinica.AccesoDatos
             Usuario usuario = new Usuario();
             try
             {
+                accesoDatos.setearConsulta(
+                    "SELECT IdUsuario, NombreUsuario, Email, PasswordHash, Activo, IdRol, IdMedico"
+                    + " FROM Usuarios"
+                    + " WHERE IdUsuario = @idUsuario");
+                accesoDatos.setearParametro("@idUsuario", idUsuario);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    usuario = MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
                 return usuario;
             }
             catch (Exception ex)
@@ -77,11 +89,11 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public int Agregar(Usuario usuario)
+        public void Agregar(Usuario usuario)
         {
             try
             {
-                return 0;
+                return;
             }
             catch (Exception ex)
             {
@@ -89,11 +101,11 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool Modificar(Usuario usuario)
+        public void Modificar(Usuario usuario)
         {
             try
             {
-                return false;
+                return;
             }
             catch (Exception ex)
             {
@@ -103,7 +115,30 @@ namespace TurnosClinica.AccesoDatos
 
         public Usuario MapearFilaAEntidad(SqlDataReader fila)
         {
-            throw new NotImplementedException();
+            Usuario usuario = new Usuario();
+            usuario.IdUsuario = Convert.ToInt32(fila["IdUsuario"]);
+            usuario.NombreUsuario = fila["NombreUsuario"].ToString();
+            usuario.Email = fila["Email"].ToString();
+            usuario.PasswordHash = fila["PasswordHash"] is DBNull ? string.Empty : fila["PasswordHash"].ToString();
+            usuario.Activo = Convert.ToBoolean(fila["Activo"]);
+
+            if (fila["IdRol"] != DBNull.Value)
+            {
+                usuario.Rol = new Rol
+                {
+                    IdRol = Convert.ToInt32(fila["IdRol"])
+                };
+            }
+
+            if (fila["IdMedico"] != DBNull.Value)
+            {
+                usuario.Medico = new Medico
+                {
+                    IdMedico = Convert.ToInt32(fila["IdMedico"])
+                };
+            }
+
+            return usuario;
         }
 
         public List<Usuario> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)

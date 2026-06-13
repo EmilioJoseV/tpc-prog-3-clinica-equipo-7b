@@ -27,12 +27,6 @@ namespace TurnosClinica.Web
             Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void LnkListaMedicos_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("Medicos/ListaMedicos.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
-        }
-
         protected void LnkAltaEspecialidad_Click(object sender, EventArgs e)
         {
             Response.Redirect("Especialidades/FormularioEspecialidad.aspx", false);

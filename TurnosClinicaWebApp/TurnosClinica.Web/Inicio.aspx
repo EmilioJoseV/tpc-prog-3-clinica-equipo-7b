@@ -4,21 +4,17 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <div class="mb-4">
-        <h1 class="display-6 fw-semibold">Turnos Clinica</h1>
-        <p class="text-secondary mb-3">
-            Sistema de turnos medicos online.
-        </p>
-    </div>
+    <h1>Turnos Clinica</h1>
+    <p>Sistema de turnos medicos online.</p>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
         <asp:Repeater runat="server" ID="RptResumen">
             <ItemTemplate>
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card">
                         <div class="card-body">
-                            <h2 class="h5 card-title"><%# Eval("Titulo") %></h2>
-                            <p class="card-text text-secondary mb-0"><%# Eval("Descripcion") %></p>
+                            <h5 class="card-title"><%# Eval("Titulo") %></h5>
+                            <p class="card-text"><%# Eval("Descripcion") %></p>
                         </div>
                     </div>
                 </div>

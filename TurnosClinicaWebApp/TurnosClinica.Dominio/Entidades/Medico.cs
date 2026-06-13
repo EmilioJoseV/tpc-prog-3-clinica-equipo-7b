@@ -8,7 +8,6 @@ namespace TurnosClinica.Dominio.Entidades
         {
             Especialidades = new List<Especialidad>();
             HorariosDisponibilidad = new List<HorarioDisponibilidadMedico>();
-            Turnos = new List<Turno>();
         }
 
         public int IdMedico { get; set; }
@@ -21,6 +20,5 @@ namespace TurnosClinica.Dominio.Entidades
         public bool Activo { get; set; } = true;
         public List<Especialidad> Especialidades { get; set; }
         public List<HorarioDisponibilidadMedico> HorariosDisponibilidad { get; set; }
-        public List<Turno> Turnos { get; set; }
     }
 }
