@@ -13,35 +13,37 @@ namespace TurnosClinica.AccesoDatos
         {
             accesoDatos = new AccesoDatos();
         }
-        public List<Especialidad> Listar(bool activo = true)
+
+        
+        public List<Especialidad> Listar(bool activo)
         {
             List<Especialidad> especialidades = new List<Especialidad>();
+
             try
             {
-                
                 string consulta = "SELECT IdEspecialidad, Nombre, Descripcion, Activo FROM Especialidades";
                 if (activo)
                 {
                     consulta += " WHERE Activo = 1";
                 }
 
-              
                 accesoDatos.setearConsulta(consulta);
                 accesoDatos.ejecutarLectura();
 
-               
-               
+                while (accesoDatos.Lector.Read())
+                {
+                    Especialidad aux = new Especialidad();
 
-                    while (accesoDatos.Lector.Read())
+                    aux.IdEspecialidad = (int)accesoDatos.Lector["IdEspecialidad"];
+                    aux.Nombre = (string)accesoDatos.Lector["Nombre"];
+                    aux.Activo = (bool)accesoDatos.Lector["Activo"];
+
+                    if (!(accesoDatos.Lector["Descripcion"] is DBNull))
                     {
-                        Especialidad aux = new Especialidad();
+                        aux.Descripcion = (string)accesoDatos.Lector["Descripcion"];
+                    }
 
-                        
-                        aux.IdEspecialidad = (int)accesoDatos.Lector["IdEspecialidad"];
-                        aux.Nombre = (string)accesoDatos.Lector["Nombre"];
-                        aux.Activo = (bool)accesoDatos.Lector["Activo"];
-
-                        especialidades.Add(aux);
+                    especialidades.Add(aux);
                 }
 
                 return especialidades;
@@ -56,55 +58,25 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-
-
         public Especialidad ObtenerPorId(int idEspecialidad)
         {
             Especialidad especialidad = new Especialidad();
-            try
-            {
-                return especialidad;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            try { return especialidad; } catch (Exception ex) { throw ex; }
         }
 
         public bool ExisteNombre(string nombre)
         {
-            try
-            {
-                return false;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            try { return false; } catch (Exception ex) { throw ex; }
         }
 
         public int Agregar(Especialidad especialidad)
         {
-            try
-            {
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            try { return 0; } catch (Exception ex) { throw ex; }
         }
 
         public bool Modificar(Especialidad especialidad)
         {
-            try
-            {
-                return false;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            try { return false; } catch (Exception ex) { throw ex; }
         }
 
         public List<Especialidad> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
