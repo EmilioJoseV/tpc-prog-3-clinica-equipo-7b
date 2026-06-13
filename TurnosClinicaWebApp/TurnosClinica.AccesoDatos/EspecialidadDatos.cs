@@ -13,19 +13,45 @@ namespace TurnosClinica.AccesoDatos
         {
             accesoDatos = new AccesoDatos();
         }
-
-        public List<Especialidad> Listar(bool activo)
+        public List<Especialidad> Listar(bool activo = true)
         {
             List<Especialidad> especialidades = new List<Especialidad>();
             try
             {
+                
+                string consulta = "SELECT IdEspecialidad, Nombre, Descripcion, Activo FROM Especialidades";
+                if (activo)
+                {
+                    consulta += " WHERE Activo = 1";
+                }
+
+              
+                accesoDatos.setearConsulta(consulta);
+                accesoDatos.ejecutarLectura();
+
+               
+                while (accesoDatos.Lector.Read())
+                {
+                    Especialidad aux = new Especialidad();
+
+                    //  seguiiiir
+
+                    especialidades.Add(aux);
+                }
+
                 return especialidades;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
         }
+
+
 
         public Especialidad ObtenerPorId(int idEspecialidad)
         {
