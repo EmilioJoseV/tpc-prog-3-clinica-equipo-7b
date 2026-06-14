@@ -4,5 +4,17 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <div>Implementar formulario especialidad.</div>
+  <h2>Nueva Especialidad</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="txtNombre" class="form-label">Nombre de la Especialidad</label>
+                <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control"></asp:TextBox>
+            </div>
+            <div class="mb-3">
+                <label for="txtDescripcion" class="form-label">Descripción</label>
+                <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3"></asp:TextBox>
+            </div>
+        </div>
+    </div>
 </asp:Content>
