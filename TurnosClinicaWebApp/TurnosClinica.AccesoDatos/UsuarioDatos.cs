@@ -138,7 +138,52 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
+                accesoDatos.setearConsulta(
+                    "UPDATE Usuarios SET NombreUsuario = @nombreUsuario, Email = @email, " +
+                    "PasswordHash = @passwordHash, Activo = @activo, IdRol = @idRol, IdMedico = @idMedico " +
+                    "WHERE IdUsuario = @idUsuario");
+
+                accesoDatos.setearParametro("@idUsuario", usuario.IdUsuario);
+                accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
+                accesoDatos.setearParametro("@email", usuario.Email);
+                accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
+                accesoDatos.setearParametro("@activo", usuario.Activo);
+
+                accesoDatos.setearParametro("@idRol", usuario.Rol != null ? (object)usuario.Rol.IdRol : DBNull.Value);
+                accesoDatos.setearParametro("@idMedico", usuario.Medico != null ? (object)usuario.Medico.IdMedico : DBNull.Value);
+
+                accesoDatos.ejecutarAccion();
                 return;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void EliminarFisico(int idUsuario)
+        {
+            try
+            {
+                accesoDatos.setearConsulta("DELETE FROM Usuarios WHERE IdUsuario = @idUsuario");
+                accesoDatos.setearParametro("@idUsuario", idUsuario);
+
+                accesoDatos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void EliminarLogico(int idUsuario)
+        {
+            try
+            {
+                accesoDatos.setearConsulta("UPDATE Usuarios SET Activo = 0 WHERE IdUsuario = @idUsuario");
+                accesoDatos.setearParametro("@idUsuario", idUsuario);
+
+                accesoDatos.ejecutarAccion();
             }
             catch (Exception ex)
             {
