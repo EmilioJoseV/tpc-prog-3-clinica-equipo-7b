@@ -1,30 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
 {
-    public partial class ListaUsuarios : System.Web.UI.Page
+    public partial class ListaUsuarios : Page
     {
         public List<Usuario> ListaUsuariosProp { get; set; }
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            ListaUsuariosProp = new List<Usuario>();
-
-            if (!IsPostBack)
+            try
             {
-                try
-                {
-                    UsuarioNegocio negocio = new UsuarioNegocio();
+                UsuarioNegocio negocio = new UsuarioNegocio();
 
-                    ListaUsuariosProp = negocio.ListarTodos();
-                }
-                catch (Exception ex)
+                ListaUsuariosProp = negocio.ListarTodos();
+
+                if (ListaUsuariosProp == null)
                 {
-                    Session.Add("Error", ex.ToString());
+                    ListaUsuariosProp = new List<Usuario>();
                 }
+            }
+            catch (Exception ex)
+            {
+                Session.Add("Error", ex.ToString());
             }
         }
     }

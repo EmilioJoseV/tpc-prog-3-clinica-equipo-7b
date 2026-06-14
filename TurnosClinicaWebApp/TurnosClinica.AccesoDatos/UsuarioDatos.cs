@@ -19,11 +19,17 @@ namespace TurnosClinica.AccesoDatos
             List<Usuario> usuarios = new List<Usuario>();
             try
             {
-                string consulta = "SELECT IdUsuario, NombreUsuario, Email, PasswordHash, Activo, IdRol, IdMedico FROM Usuarios WHERE 1=1";
+                string consulta = @"
+            SELECT U.IdUsuario, U.NombreUsuario, U.Nombre, U.Apellido, U.Email, 
+                   U.PasswordHash, U.Imagen, U.Activo, U.IdRol, U.IdMedico,
+                   R.Nombre AS NombreRol 
+            FROM Usuarios U
+            INNER JOIN Roles R ON U.IdRol = R.IdRol
+            WHERE 1=1";
 
-                if (idRol.HasValue) consulta += " AND IdRol = @idRol";
-                if (idMedico.HasValue) consulta += " AND IdMedico = @idMedico";
-                if (activo.HasValue) consulta += " AND Activo = @activo";
+                if (idRol.HasValue) consulta += " AND U.IdRol = @idRol";
+                if (idMedico.HasValue) consulta += " AND U.IdMedico = @idMedico";
+                if (activo.HasValue) consulta += " AND U.Activo = @activo";
 
                 accesoDatos.setearConsulta(consulta);
 
