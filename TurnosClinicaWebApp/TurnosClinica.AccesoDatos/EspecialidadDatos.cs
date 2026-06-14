@@ -91,17 +91,37 @@ namespace TurnosClinica.AccesoDatos
             try { return false; } catch (Exception ex) { throw ex; }
         }
 
-        public void Agregar(Especialidad especialidad)
+        public int Agregar(Especialidad especialidad)
         {
             try
             {
-                return;
+              
+                string consulta = "INSERT INTO Especialidades (Nombre, Descripcion, Activo) OUTPUT INSERTED.IdEspecialidad VALUES (@Nombre, @Descripcion, 1)";
+                accesoDatos.setearConsulta(consulta);
+
+                
+                accesoDatos.setearParametro("@Nombre", especialidad.Nombre);
+
+                
+                if (string.IsNullOrWhiteSpace(especialidad.Descripcion))
+                {
+                    accesoDatos.setearParametro("@Descripcion", DBNull.Value);
+                }
+                else
+                {
+                    accesoDatos.setearParametro("@Descripcion", especialidad.Descripcion);
+                }
+
+                
+                return accesoDatos.ejecutarCreacionRetornandoId();
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+             
         }
+
 
         public void Modificar(Especialidad especialidad)
         {
