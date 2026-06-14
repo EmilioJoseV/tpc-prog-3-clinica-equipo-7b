@@ -97,5 +97,31 @@ namespace TurnosClinica.Negocio
                 throw ex;
             }
         }
+
+        public List<Usuario> ListarConFiltros(int? idRol, int? idMedico, bool? activo)
+        {
+            try
+            {
+                return usuarioDatos.Listar(idRol, idMedico, activo);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public Usuario ObtenerPorId(int idUsuario)
+        {
+            try
+            {
+                if (idUsuario <= 0)
+                    throw new ArgumentException("El ID de usuario no es válido.");
+
+                return usuarioDatos.ObtenerPorId(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

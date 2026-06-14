@@ -23,7 +23,7 @@
                     <th scope="col">Nombre de Usuario</th>
                     <th scope="col">Email</th>
                     <th scope="col">Rol (ID)</th>
-                    <th scope="col">Médico (ID)</th>
+                    <th scope="col">Medico (ID)</th>
                     <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
                 </tr>
