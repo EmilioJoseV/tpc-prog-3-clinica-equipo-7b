@@ -51,5 +51,19 @@ namespace TurnosClinica.Negocio
                 throw ex;
             }
         }
+
+        public void Agregar(Especialidad nueva)
+        {
+            try
+            {
+                especialidadDatos.Agregar(nueva);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
 }
