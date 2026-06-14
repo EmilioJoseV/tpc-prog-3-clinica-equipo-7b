@@ -10,6 +10,15 @@ namespace TurnosClinica.Web
         }
         protected void btnAceptar_Click(object sender, EventArgs e)
         {
+            TurnosClinica.Dominio.Entidades.Especialidad nuevaEspecialidad = new TurnosClinica.Dominio.Entidades.Especialidad();
+            nuevaEspecialidad.Nombre = txtNombre.Text;
+            nuevaEspecialidad.Descripcion = txtDescripcion.Text;
+
+            
+            TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
+            negocio.Agregar(nuevaEspecialidad);
+            
+            Response.Redirect("ListaEspecialidades.aspx", false);
 
         }
         protected void btnCancelar_Click(object sender, EventArgs e)
