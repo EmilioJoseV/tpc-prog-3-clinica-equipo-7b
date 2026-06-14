@@ -111,6 +111,21 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
+                accesoDatos.setearConsulta(
+                    "INSERT INTO Usuarios (NombreUsuario, Nombre, Apellido, Email, PasswordHash, Imagen, Activo, IdRol, IdMedico) " +
+                    "VALUES (@nombreUsuario, @nombreDefecto, @apellidoDefecto, @email, @passwordHash, NULL, @activo, @idRol, @idMedico)");
+
+                accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
+                accesoDatos.setearParametro("@nombreDefecto", string.Empty);
+                accesoDatos.setearParametro("@apellidoDefecto", string.Empty);
+                accesoDatos.setearParametro("@email", usuario.Email);
+                accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
+                accesoDatos.setearParametro("@activo", usuario.Activo);
+
+                accesoDatos.setearParametro("@idRol", usuario.Rol != null ? (object)usuario.Rol.IdRol : DBNull.Value);
+                accesoDatos.setearParametro("@idMedico", usuario.Medico != null ? (object)usuario.Medico.IdMedico : DBNull.Value);
+
+                accesoDatos.ejecutarAccion();
                 return;
             }
             catch (Exception ex)
