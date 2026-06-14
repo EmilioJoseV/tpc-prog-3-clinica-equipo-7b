@@ -17,4 +17,15 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+    <div class="col-md-6">
+        <div class="mb-3">
+            <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" OnClick="btnAceptar_Click" />
+            <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
+        </div>
+    </div>
+</div>
+
+
 </asp:Content>
