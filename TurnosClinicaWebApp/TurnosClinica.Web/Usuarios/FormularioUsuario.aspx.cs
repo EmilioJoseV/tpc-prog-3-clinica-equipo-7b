@@ -1,12 +1,11 @@
 using System;
-using System.Web.UI.WebControls;
+using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Negocio;
-using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Web
 {
-    public partial class FormularioUsuario : System.Web.UI.Page
+    public partial class FormularioUsuario : Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -25,8 +24,13 @@ namespace TurnosClinica.Web
                         if (usuario != null)
                         {
                             lblTitulo.InnerText = "Modificar Usuario";
+
+                            txtNombre.Text = usuario.Nombre;
+                            txtApellido.Text = usuario.Apellido;
+
                             txtNombreUsuario.Text = usuario.NombreUsuario;
                             txtEmail.Text = usuario.Email;
+
                             txtPassword.Text = usuario.PasswordHash;
                             chkActivo.Checked = usuario.Activo;
 
@@ -45,32 +49,6 @@ namespace TurnosClinica.Web
             }
         }
 
-        private void CargarDesplegables()
-        {
-            try
-            {
-                ddlRol.Items.Clear();
-
-                foreach (string nombreRol in Enum.GetNames(typeof(RolEnum)))
-                {
-                    int valorRol = (int)Enum.Parse(typeof(RolEnum), nombreRol);
-
-                    ListItem item = new ListItem(nombreRol, (valorRol + 1).ToString());
-                    ddlRol.Items.Add(item);
-                }
-
-                ddlRol.Items.Insert(0, new ListItem("-- Seleccione un Rol --", "0"));
-
-                ddlMedico.Items.Clear();
-
-                ddlMedico.Items.Insert(0, new ListItem("-- No asignado (No es médico) --", "0"));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
         protected void btnAceptar_Click(object sender, EventArgs e)
         {
             try
@@ -81,24 +59,47 @@ namespace TurnosClinica.Web
                 }
 
                 UsuarioNegocio negocio = new UsuarioNegocio();
-                Usuario nuevoUsuario = new Usuario();
+                Usuario usuario = new Usuario();
 
-                nuevoUsuario.NombreUsuario = txtNombreUsuario.Text;
-                nuevoUsuario.Email = txtEmail.Text;
-                nuevoUsuario.PasswordHash = txtPassword.Text;
-                nuevoUsuario.Activo = chkActivo.Checked;
+                if (Request.QueryString["id"] != null)
+                    usuario.IdUsuario = int.Parse(Request.QueryString["id"]);
 
-                nuevoUsuario.Rol = new Rol { IdRol = int.Parse(ddlRol.SelectedValue) };
+                usuario.Nombre = txtNombre.Text.Trim();
+                usuario.Apellido = txtApellido.Text.Trim();
+                usuario.NombreUsuario = txtNombreUsuario.Text.Trim();
+                usuario.Email = txtEmail.Text.Trim();
+                usuario.PasswordHash = txtPassword.Text;
+                usuario.Activo = chkActivo.Checked;
 
-                if (ddlMedico.SelectedValue != "0")
+                if (fileImagen.HasFile)
                 {
-                    nuevoUsuario.Medico = new Medico { IdMedico = int.Parse(ddlMedico.SelectedValue) };
+                    usuario.Imagen = fileImagen.FileBytes;
+                }
+                else if (usuario.IdUsuario > 0)
+                {
+                    Usuario usuarioActual = negocio.ObtenerPorId(usuario.IdUsuario);
+                    usuario.Imagen = usuarioActual?.Imagen;
                 }
                 else
                 {
-                    nuevoUsuario.Medico = null;
+                    usuario.Imagen = null;
                 }
-                negocio.Agregar(nuevoUsuario);
+
+                usuario.Rol = new Rol { IdRol = int.Parse(ddlRol.SelectedValue) };
+
+                if (ddlMedico.SelectedValue != "0")
+                    usuario.Medico = new Medico { IdMedico = int.Parse(ddlMedico.SelectedValue) };
+                else
+                    usuario.Medico = null;
+
+                if (usuario.IdUsuario > 0)
+                {
+                    negocio.Modificar(usuario);
+                }
+                else
+                {
+                    negocio.Agregar(usuario);
+                }
 
                 Response.Redirect("ListaUsuarios.aspx", false);
             }
@@ -111,6 +112,20 @@ namespace TurnosClinica.Web
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
             Response.Redirect("ListaUsuarios.aspx");
+        }
+
+        private void CargarDesplegables()
+        {
+            ddlRol.DataSource = Enum.GetValues(typeof(TurnosClinica.Dominio.Enums.RolEnum));
+            ddlRol.DataBind();
+            ddlRol.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Seleccione un Rol --", "0"));
+
+            MedicoNegocio medicoNegocio = new MedicoNegocio();
+            ddlMedico.DataSource = medicoNegocio.Listar();
+            ddlMedico.DataValueField = "IdMedico";
+            ddlMedico.DataTextField = "Apellido";
+            ddlMedico.DataBind();
+            ddlMedico.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Seleccione un Médico --", "0"));
         }
     }
 }
