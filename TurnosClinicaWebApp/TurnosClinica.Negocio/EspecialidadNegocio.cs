@@ -51,5 +51,24 @@ namespace TurnosClinica.Negocio
                 throw ex;
             }
         }
+
+        public void Agregar(Especialidad nueva)
+        {
+            try
+            {
+
+                if (string.IsNullOrWhiteSpace(nueva.Nombre))
+                {
+                    throw new Exception("El nombre de la especialidad es obligatorio.");
+                }
+
+                especialidadDatos.Agregar(nueva);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
