@@ -113,20 +113,21 @@ namespace TurnosClinica.AccesoDatos
             {
                 accesoDatos.setearConsulta(
                     "INSERT INTO Usuarios (NombreUsuario, Nombre, Apellido, Email, PasswordHash, Imagen, Activo, IdRol, IdMedico) " +
-                    "VALUES (@nombreUsuario, @nombreDefecto, @apellidoDefecto, @email, @passwordHash, NULL, @activo, @idRol, @idMedico)");
+                    "VALUES (@nombreUsuario, @nombre, @apellido, @email, @passwordHash, @imagen, @activo, @idRol, @idMedico)");
 
                 accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
-                accesoDatos.setearParametro("@nombreDefecto", string.Empty);
-                accesoDatos.setearParametro("@apellidoDefecto", string.Empty);
+                accesoDatos.setearParametro("@nombre", usuario.Nombre);
+                accesoDatos.setearParametro("@apellido", usuario.Apellido);
                 accesoDatos.setearParametro("@email", usuario.Email);
                 accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
                 accesoDatos.setearParametro("@activo", usuario.Activo);
 
-                accesoDatos.setearParametro("@idRol", usuario.Rol != null ? (object)usuario.Rol.IdRol : DBNull.Value);
-                accesoDatos.setearParametro("@idMedico", usuario.Medico != null ? (object)usuario.Medico.IdMedico : DBNull.Value);
+                accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
+
+                accesoDatos.setearParametro("@idRol", (usuario.Rol != null && usuario.Rol.IdRol > 0) ? (object)usuario.Rol.IdRol : DBNull.Value);
+                accesoDatos.setearParametro("@idMedico", (usuario.Medico != null && usuario.Medico.IdMedico > 0) ? (object)usuario.Medico.IdMedico : DBNull.Value);
 
                 accesoDatos.ejecutarAccion();
-                return;
             }
             catch (Exception ex)
             {
@@ -139,21 +140,33 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "UPDATE Usuarios SET NombreUsuario = @nombreUsuario, Email = @email, " +
-                    "PasswordHash = @passwordHash, Activo = @activo, IdRol = @idRol, IdMedico = @idMedico " +
+                    "UPDATE Usuarios SET " +
+                    "NombreUsuario = @nombreUsuario, " +
+                    "Nombre = @nombre, " +
+                    "Apellido = @apellido, " +
+                    "Email = @email, " +
+                    "PasswordHash = @passwordHash, " +
+                    "Imagen = @imagen, " +
+                    "Activo = @activo, " +
+                    "IdRol = @idRol, " +
+                    "IdMedico = @idMedico " +
                     "WHERE IdUsuario = @idUsuario");
 
                 accesoDatos.setearParametro("@idUsuario", usuario.IdUsuario);
+
                 accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
+                accesoDatos.setearParametro("@nombre", usuario.Nombre);
+                accesoDatos.setearParametro("@apellido", usuario.Apellido);
                 accesoDatos.setearParametro("@email", usuario.Email);
                 accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
                 accesoDatos.setearParametro("@activo", usuario.Activo);
 
-                accesoDatos.setearParametro("@idRol", usuario.Rol != null ? (object)usuario.Rol.IdRol : DBNull.Value);
-                accesoDatos.setearParametro("@idMedico", usuario.Medico != null ? (object)usuario.Medico.IdMedico : DBNull.Value);
+                accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
+
+                accesoDatos.setearParametro("@idRol", (usuario.Rol != null && usuario.Rol.IdRol > 0) ? (object)usuario.Rol.IdRol : DBNull.Value);
+                accesoDatos.setearParametro("@idMedico", (usuario.Medico != null && usuario.Medico.IdMedico > 0) ? (object)usuario.Medico.IdMedico : DBNull.Value);
 
                 accesoDatos.ejecutarAccion();
-                return;
             }
             catch (Exception ex)
             {

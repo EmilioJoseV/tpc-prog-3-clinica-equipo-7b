@@ -15,7 +15,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="txtEmail" class="form-label">Correo Electronico</label>
+                    <label for="txtEmail" class="form-label">Correo Electrónico</label>
                     <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email"></asp:TextBox>
                 </div>
 
@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="ddlMedico" class="form-label">Medico Asociado (Opcional)</label>
+                    <label for="ddlMedico" class="form-label">Médico Asociado (Opcional)</label>
                     <asp:DropDownList ID="ddlMedico" runat="server" CssClass="form-select"></asp:DropDownList>
                 </div>
 

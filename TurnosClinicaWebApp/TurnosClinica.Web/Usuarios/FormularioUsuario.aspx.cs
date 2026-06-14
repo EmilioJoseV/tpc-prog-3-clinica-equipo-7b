@@ -14,7 +14,6 @@ namespace TurnosClinica.Web
             {
                 if (!IsPostBack)
                 {
-                    
                     CargarDesplegables();
 
                     if (Request.QueryString["id"] != null)
@@ -26,7 +25,6 @@ namespace TurnosClinica.Web
                         if (usuario != null)
                         {
                             lblTitulo.InnerText = "Modificar Usuario";
-
                             txtNombreUsuario.Text = usuario.NombreUsuario;
                             txtEmail.Text = usuario.Email;
                             txtPassword.Text = usuario.PasswordHash;
@@ -77,30 +75,30 @@ namespace TurnosClinica.Web
         {
             try
             {
+                if (ddlRol.SelectedValue == "0")
+                {
+                    return;
+                }
+
                 UsuarioNegocio negocio = new UsuarioNegocio();
-                Usuario usuario = new Usuario();
+                Usuario nuevoUsuario = new Usuario();
 
-                usuario.NombreUsuario = txtNombreUsuario.Text;
-                usuario.Email = txtEmail.Text;
-                usuario.PasswordHash = txtPassword.Text;
-                usuario.Activo = chkActivo.Checked;
+                nuevoUsuario.NombreUsuario = txtNombreUsuario.Text;
+                nuevoUsuario.Email = txtEmail.Text;
+                nuevoUsuario.PasswordHash = txtPassword.Text;
+                nuevoUsuario.Activo = chkActivo.Checked;
 
-                usuario.Rol = new Rol { IdRol = int.Parse(ddlRol.SelectedValue) };
+                nuevoUsuario.Rol = new Rol { IdRol = int.Parse(ddlRol.SelectedValue) };
 
                 if (ddlMedico.SelectedValue != "0")
                 {
-                    usuario.Medico = new Medico { IdMedico = int.Parse(ddlMedico.SelectedValue) };
-                }
-
-                if (Request.QueryString["id"] != null)
-                {
-                    usuario.IdUsuario = int.Parse(Request.QueryString["id"]);
-                    negocio.Modificar(usuario);
+                    nuevoUsuario.Medico = new Medico { IdMedico = int.Parse(ddlMedico.SelectedValue) };
                 }
                 else
                 {
-                    negocio.Agregar(usuario);
+                    nuevoUsuario.Medico = null;
                 }
+                negocio.Agregar(nuevoUsuario);
 
                 Response.Redirect("ListaUsuarios.aspx", false);
             }
