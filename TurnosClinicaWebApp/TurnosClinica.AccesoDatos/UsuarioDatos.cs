@@ -19,6 +19,24 @@ namespace TurnosClinica.AccesoDatos
             List<Usuario> usuarios = new List<Usuario>();
             try
             {
+                string consulta = "SELECT IdUsuario, NombreUsuario, Email, PasswordHash, Activo, IdRol, IdMedico FROM Usuarios WHERE 1=1";
+
+                if (idRol.HasValue) consulta += " AND IdRol = @idRol";
+                if (idMedico.HasValue) consulta += " AND IdMedico = @idMedico";
+                if (activo.HasValue) consulta += " AND Activo = @activo";
+
+                accesoDatos.setearConsulta(consulta);
+
+                if (idRol.HasValue) accesoDatos.setearParametro("@idRol", idRol.Value);
+                if (idMedico.HasValue) accesoDatos.setearParametro("@idMedico", idMedico.Value);
+                if (activo.HasValue) accesoDatos.setearParametro("@activo", activo.Value);
+
+                accesoDatos.ejecutarLectura();
+
+                while (accesoDatos.Lector.Read())
+                {
+                    usuarios.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
                 return usuarios;
             }
             catch (Exception ex)
