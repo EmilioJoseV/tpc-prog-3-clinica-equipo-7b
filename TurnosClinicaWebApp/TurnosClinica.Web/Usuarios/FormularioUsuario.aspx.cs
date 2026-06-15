@@ -119,7 +119,8 @@ namespace TurnosClinica.Web
         {
             var roles = Enum.GetValues(typeof(TurnosClinica.Dominio.Enums.RolEnum))
                             .Cast<TurnosClinica.Dominio.Enums.RolEnum>()
-                            .Select(r => new {
+                            .Select(r => new
+                            {
                                 Id = (int)r,
                                 Nombre = r.ToString()
                             }).ToList();
@@ -136,6 +137,48 @@ namespace TurnosClinica.Web
             ddlMedico.DataTextField = "Apellido";
             ddlMedico.DataBind();
             ddlMedico.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Médico", "0"));
+        }
+        protected void btnInactivar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (Request.QueryString["id"] != null)
+                {
+                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
+
+                    // TODO: Agregar acá la llamada a tu capa de negocio para la baja lógica
+                    // UsuarioNegocio negocio = new UsuarioNegocio();
+                    // negocio.cambiarEstadoLogico(idUsuario);
+
+                    Response.Redirect("ListaUsuarios.aspx");
+                }
+            }
+            catch (Exception ex)
+            {
+                Session.Add("Error", ex.ToString());
+                // O el manejo de errores que ya tengas implementado
+            }
+        }
+
+        protected void btnEliminar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (Request.QueryString["id"] != null)
+                {
+                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
+
+                    // TODO: Agregar acá la llamada a tu capa de negocio para la eliminación física
+                    // UsuarioNegocio negocio = new UsuarioNegocio();
+                    // negocio.eliminarFisico(idUsuario);
+
+                    Response.Redirect("ListaUsuarios.aspx");
+                }
+            }
+            catch (Exception ex)
+            {
+                Session.Add("Error", ex.ToString());
+            }
         }
     }
 }

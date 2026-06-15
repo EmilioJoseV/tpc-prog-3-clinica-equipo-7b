@@ -1,6 +1,7 @@
 <%@ Page Title="Formulario de Usuario" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="FormularioUsuario.aspx.cs" Inherits="TurnosClinica.Web.FormularioUsuario" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server"></asp:Content>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+</asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-4">
@@ -14,12 +15,12 @@
                 
                 <div class="mb-3">
                     <label for="txtNombre" class="form-label">Nombre</label>
-                    <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" placeholder="Ej: Mauricio"></asp:TextBox>
+                    <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control"></asp:TextBox>
                 </div>
 
                 <div class="mb-3">
                     <label for="txtApellido" class="form-label">Apellido</label>
-                    <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control" placeholder="Ej: Almada"></asp:TextBox>
+                    <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control"></asp:TextBox>
                 </div>
 
                 <div class="mb-3">
@@ -38,7 +39,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="txtEmail" class="form-label">Correo Electrónico</label>
+                    <label for="txtEmail" class="form-label">Correo Electronico</label>
                     <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email"></asp:TextBox>
                 </div>
 
@@ -54,7 +55,7 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label for="ddlMedico" class="form-label">Médico Asociado (Opcional)</label>
+                        <label for="ddlMedico" class="form-label">Medico Asociado (Opcional)</label>
                         <asp:DropDownList ID="ddlMedico" runat="server" CssClass="form-select"></asp:DropDownList>
                     </div>
                 </div>
@@ -68,8 +69,14 @@
 
         <div class="row mt-3">
             <div class="col-12">
-                <div class="mb-3">
-                    <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary me-2" OnClick="btnAceptar_Click" />
+                <div class="mb-3 d-flex gap-2">
+                    <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" OnClick="btnAceptar_Click" />
+                    
+                    <asp:Button ID="btnInactivar" runat="server" Text="Inactivar" CssClass="btn btn-warning" OnClick="btnInactivar_Click"/>
+                    
+                    <asp:Button ID="btnEliminar" runat="server" Text="Eliminar" CssClass="btn btn-danger" OnClick="btnEliminar_Click"
+                                OnClientClick="return confirm('¿Estás seguro de que deseas eliminar permanentemente a este usuario?');" />
+                    
                     <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
                 </div>
             </div>
