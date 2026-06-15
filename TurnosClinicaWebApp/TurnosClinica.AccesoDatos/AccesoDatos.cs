@@ -1,6 +1,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.Data;
 
 namespace TurnosClinica.AccesoDatos
 {
@@ -8,6 +9,8 @@ namespace TurnosClinica.AccesoDatos
     {
         private readonly SqlConnection conexion;
         private readonly SqlCommand comando;
+        private readonly SqlTransaction transaccion;
+        private readonly bool esContextoExterno;
         private SqlDataReader lector;
 
         public SqlDataReader Lector
@@ -21,20 +24,33 @@ namespace TurnosClinica.AccesoDatos
             comando = new SqlCommand();
         }
 
-        public void setearConsulta(string consulta) 
+        public AccesoDatos(SqlConnection conexionCompartida, SqlTransaction transaccionCompartida)
+        {
+            conexion = conexionCompartida;
+            transaccion = transaccionCompartida;
+            esContextoExterno = true;
+            comando = new SqlCommand();
+        }
+
+        public void setearConsulta(string consulta)
         {
             comando.Parameters.Clear();
-            comando.CommandType = System.Data.CommandType.Text;
+            comando.CommandType = CommandType.Text;
             comando.CommandText = consulta;
         }
 
         public void ejecutarLectura()
         {
             comando.Connection = conexion;
+            comando.Transaction = transaccion;
 
             try
             {
-                conexion.Open();
+                if (conexion.State != ConnectionState.Open)
+                {
+                    conexion.Open();
+                }
+
                 lector = comando.ExecuteReader();
             }
             catch (Exception ex)
@@ -46,10 +62,15 @@ namespace TurnosClinica.AccesoDatos
         public void ejecutarAccion()
         {
             comando.Connection = conexion;
+            comando.Transaction = transaccion;
 
             try
             {
-                conexion.Open();
+                if (conexion.State != ConnectionState.Open)
+                {
+                    conexion.Open();
+                }
+
                 comando.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -60,21 +81,7 @@ namespace TurnosClinica.AccesoDatos
 
         public int ejecutarAccionScalar()
         {
-            comando.Connection = conexion;
-
-            try
-            {
-                conexion.Open();
-                return int.Parse(comando.ExecuteScalar().ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conexion.Close();
-            }
+            return ejecutarScalarInt();
         }
 
         public void setearParametro(string nombreParam, object valorParam)
@@ -87,9 +94,46 @@ namespace TurnosClinica.AccesoDatos
             if (lector != null)
             {
                 lector.Close();
+                lector = null;
             }
 
-            conexion.Close();
+            if (transaccion != null)
+            {
+                return;
+            }
+
+            if (!esContextoExterno)
+            {
+                conexion.Close();
+            }
+        }
+
+        private int ejecutarScalarInt()
+        {
+            comando.Connection = conexion;
+            comando.Transaction = transaccion;
+
+            try
+            {
+                bool debeCerrar = conexion.State != ConnectionState.Open;
+                if (debeCerrar)
+                {
+                    conexion.Open();
+                }
+
+                return int.Parse(comando.ExecuteScalar().ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (transaccion == null && !esContextoExterno)
+                {
+                    conexion.Close();
+                }
+            }
         }
     }
 }

@@ -18,6 +18,13 @@ namespace TurnosClinica.AccesoDatos
             horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos();
         }
 
+        public MedicoDatos(AccesoDatos accesoDatosCompartido)
+        {
+            accesoDatos = accesoDatosCompartido;
+            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos();
+            horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos();
+        }
+
         public List<Medico> Listar(bool? activo)
         {
             List<Medico> medicos = new List<Medico>();
@@ -157,6 +164,7 @@ namespace TurnosClinica.AccesoDatos
             {
                 accesoDatos.setearConsulta(
                     "INSERT INTO Medicos (Matricula, DNI, Nombre, Apellido, Telefono, Email, Activo)"
+                    + " OUTPUT INSERTED.IdMedico"
                     + " VALUES (@matricula, @dni, @nombre, @apellido, @telefono, @email, @activo)");
                 accesoDatos.setearParametro("@matricula", medico.Matricula);
                 accesoDatos.setearParametro("@dni", medico.DNI);
@@ -165,28 +173,7 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@telefono", string.IsNullOrWhiteSpace(medico.Telefono) ? (object)DBNull.Value : medico.Telefono);
                 accesoDatos.setearParametro("@email", medico.Email);
                 accesoDatos.setearParametro("@activo", medico.Activo);
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
-        public int ObtenerIdPorMatricula(string matricula)
-        {
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT IdMedico"
-                    + " FROM Medicos"
-                    + " WHERE Matricula = @matricula");
-                accesoDatos.setearParametro("@matricula", matricula);
-                return accesoDatos.ejecutarAccionScalar();
+                medico.IdMedico = accesoDatos.ejecutarAccionScalar();
             }
             catch (Exception ex)
             {
