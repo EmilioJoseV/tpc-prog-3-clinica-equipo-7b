@@ -75,7 +75,7 @@
                     <asp:Button ID="btnInactivar" runat="server" Text="Inactivar" CssClass="btn btn-warning" OnClick="btnInactivar_Click"/>
                     
                     <asp:Button ID="btnEliminar" runat="server" Text="Eliminar" CssClass="btn btn-danger" OnClick="btnEliminar_Click"
-                                OnClientClick="return confirm('¿Estás seguro de que deseas eliminar permanentemente a este usuario?');" />
+                                OnClientClick="return confirm('¿Estas seguro de que deseas eliminar permanentemente a este usuario?');" />
                     
                     <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
                 </div>

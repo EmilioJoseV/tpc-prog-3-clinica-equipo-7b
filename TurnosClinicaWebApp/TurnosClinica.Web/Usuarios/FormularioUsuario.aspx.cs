@@ -146,9 +146,9 @@ namespace TurnosClinica.Web
                 {
                     int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
 
-                    // TODO: Agregar acá la llamada a tu capa de negocio para la baja lógica
-                    // UsuarioNegocio negocio = new UsuarioNegocio();
-                    // negocio.cambiarEstadoLogico(idUsuario);
+                    TurnosClinica.AccesoDatos.UsuarioDatos datos = new TurnosClinica.AccesoDatos.UsuarioDatos();
+
+                    datos.EliminarLogico(idUsuario);
 
                     Response.Redirect("ListaUsuarios.aspx");
                 }
@@ -156,7 +156,6 @@ namespace TurnosClinica.Web
             catch (Exception ex)
             {
                 Session.Add("Error", ex.ToString());
-                // O el manejo de errores que ya tengas implementado
             }
         }
 
@@ -168,9 +167,9 @@ namespace TurnosClinica.Web
                 {
                     int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
 
-                    // TODO: Agregar acá la llamada a tu capa de negocio para la eliminación física
-                    // UsuarioNegocio negocio = new UsuarioNegocio();
-                    // negocio.eliminarFisico(idUsuario);
+                    TurnosClinica.AccesoDatos.UsuarioDatos datos = new TurnosClinica.AccesoDatos.UsuarioDatos();
+
+                    datos.EliminarFisico(idUsuario);
 
                     Response.Redirect("ListaUsuarios.aspx");
                 }
