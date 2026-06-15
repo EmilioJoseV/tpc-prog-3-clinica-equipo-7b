@@ -81,35 +81,6 @@ namespace TurnosClinica.AccesoDatos
 
         public int ejecutarAccionScalar()
         {
-            return ejecutarScalarInt();
-        }
-
-        public void setearParametro(string nombreParam, object valorParam)
-        {
-            comando.Parameters.AddWithValue(nombreParam, valorParam);
-        }
-
-        public void cerrarConexion()
-        {
-            if (lector != null)
-            {
-                lector.Close();
-                lector = null;
-            }
-
-            if (transaccion != null)
-            {
-                return;
-            }
-
-            if (!esContextoExterno)
-            {
-                conexion.Close();
-            }
-        }
-
-        private int ejecutarScalarInt()
-        {
             comando.Connection = conexion;
             comando.Transaction = transaccion;
 
@@ -136,25 +107,28 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public int ejecutarCreacionRetornandoId()
+        public void setearParametro(string nombreParam, object valorParam)
         {
-            comando.Connection = conexion;
+            comando.Parameters.AddWithValue(nombreParam, valorParam);
+        }
 
-            try
+        public void cerrarConexion()
+        {
+            if (lector != null)
             {
-                conexion.Open();
-               
-                return (int)comando.ExecuteScalar();
+                lector.Close();
+                lector = null;
             }
-            catch (Exception ex)
+
+            if (transaccion != null)
             {
-                throw ex;
+                return;
             }
-            finally
+
+            if (!esContextoExterno)
             {
                 conexion.Close();
             }
         }
-
     }
 }
