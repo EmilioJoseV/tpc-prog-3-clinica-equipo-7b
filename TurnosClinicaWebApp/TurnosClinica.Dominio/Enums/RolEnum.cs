@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TurnosClinica.Dominio.Enums
 {
-    enum RolEnum
+    public enum RolEnum
     {
         Administrador,
         Medico,
