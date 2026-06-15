@@ -130,8 +130,7 @@ namespace TurnosClinica.AccesoDatos
                     accesoDatos.setearParametro("@Descripcion", especialidad.Descripcion);
                 }
 
-                
-                return accesoDatos.ejecutarCreacionRetornandoId();
+                return accesoDatos.ejecutarAccionScalar();
             }
             catch (Exception ex)
             {

@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccesoDatos.cs" />
+    <Compile Include="TransaccionDatos.cs" />
     <Compile Include="IMapeable.cs" />
     <Compile Include="IFiltrable.cs" />
     <Compile Include="ConfiguracionTurnoDatos.cs" />

@@ -15,6 +15,11 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
+        public MedicoEspecialidadesDatos(AccesoDatos accesoDatosCompartido)
+        {
+            accesoDatos = accesoDatosCompartido;
+        }
+
         public List<Especialidad> ListarPorMedico(int idMedico)
         {
             List<Especialidad> especialidades = new List<Especialidad>();
@@ -48,14 +53,19 @@ namespace TurnosClinica.AccesoDatos
 
         public void Agregar(int idMedico, int idEspecialidad)
         {
+            Agregar(accesoDatos, idMedico, idEspecialidad);
+        }
+
+        public void Agregar(AccesoDatos datosCompartidos, int idMedico, int idEspecialidad)
+        {
             try
             {
-                accesoDatos.setearConsulta(
+                datosCompartidos.setearConsulta(
                     "INSERT INTO MedicosEspecialidades (IdMedico, IdEspecialidad)"
                     + " VALUES (@idMedico, @idEspecialidad)");
-                accesoDatos.setearParametro("@idMedico", idMedico);
-                accesoDatos.setearParametro("@idEspecialidad", idEspecialidad);
-                accesoDatos.ejecutarAccion();
+                datosCompartidos.setearParametro("@idMedico", idMedico);
+                datosCompartidos.setearParametro("@idEspecialidad", idEspecialidad);
+                datosCompartidos.ejecutarAccion();
             }
             catch (Exception ex)
             {
@@ -63,19 +73,27 @@ namespace TurnosClinica.AccesoDatos
             }
             finally
             {
-                accesoDatos.cerrarConexion();
+                if (ReferenceEquals(datosCompartidos, accesoDatos))
+                {
+                    accesoDatos.cerrarConexion();
+                }
             }
         }
 
         public bool EliminarPorMedico(int idMedico)
         {
+            return EliminarPorMedico(accesoDatos, idMedico);
+        }
+
+        public bool EliminarPorMedico(AccesoDatos datosCompartidos, int idMedico)
+        {
             try
             {
-                accesoDatos.setearConsulta(
+                datosCompartidos.setearConsulta(
                     "DELETE FROM MedicosEspecialidades"
                     + " WHERE IdMedico = @idMedico");
-                accesoDatos.setearParametro("@idMedico", idMedico);
-                accesoDatos.ejecutarAccion();
+                datosCompartidos.setearParametro("@idMedico", idMedico);
+                datosCompartidos.ejecutarAccion();
                 return true;
             }
             catch (Exception ex)
@@ -84,24 +102,26 @@ namespace TurnosClinica.AccesoDatos
             }
             finally
             {
-                accesoDatos.cerrarConexion();
+                if (ReferenceEquals(datosCompartidos, accesoDatos))
+                {
+                    accesoDatos.cerrarConexion();
+                }
             }
         }
-
-        public bool ReemplazarPorMedico(int idMedico, List<Especialidad> especialidades)
+        public bool AgregarActualizarPorMedico(int idMedico, List<Especialidad> especialidadesRequeridas)
         {
-            List<Especialidad> lista = especialidades == null
+            List<Especialidad> especialidadesFiltradas = especialidadesRequeridas == null
                 ? new List<Especialidad>()
-                : especialidades.Where(especialidad => especialidad != null && especialidad.IdEspecialidad > 0)
+                : especialidadesRequeridas.Where(especialidad => especialidad != null && especialidad.IdEspecialidad > 0)
                     .GroupBy(especialidad => especialidad.IdEspecialidad)
                     .Select(grupo => grupo.First())
                     .ToList();
 
-            EliminarPorMedico(idMedico);
+            EliminarPorMedico(accesoDatos, idMedico);
 
-            foreach (Especialidad especialidad in lista)
+            foreach (Especialidad especialidad in especialidadesFiltradas)
             {
-                Agregar(idMedico, especialidad.IdEspecialidad);
+                Agregar(accesoDatos, idMedico, especialidad.IdEspecialidad);
             }
 
             return true;

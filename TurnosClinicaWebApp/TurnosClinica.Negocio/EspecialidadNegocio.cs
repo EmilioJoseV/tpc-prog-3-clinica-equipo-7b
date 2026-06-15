@@ -8,12 +8,10 @@ namespace TurnosClinica.Negocio
     public class EspecialidadNegocio
     {
         private readonly EspecialidadDatos especialidadDatos;
-        private readonly MedicoEspecialidadesDatos medicoEspecialidadesDatos;
 
         public EspecialidadNegocio()
         {
             especialidadDatos = new EspecialidadDatos();
-            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos();
         }
 
         public List<Especialidad> Listar(bool activo)
@@ -21,18 +19,6 @@ namespace TurnosClinica.Negocio
             try
             {
                 return especialidadDatos.Listar(activo);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Especialidad> ListarPorMedico(int idMedico, bool? activo = null)
-        {
-            try
-            {
-                return medicoEspecialidadesDatos.ListarPorMedico(idMedico);
             }
             catch (Exception ex)
             {
