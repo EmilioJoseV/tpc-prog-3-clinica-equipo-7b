@@ -79,7 +79,16 @@ namespace TurnosClinica.AccesoDatos
 
         public void setearParametro(string nombreParam, object valorParam)
         {
-            comando.Parameters.AddWithValue(nombreParam, valorParam);
+            if (nombreParam.ToLower() == "@imagen" && (valorParam == null || valorParam == DBNull.Value))
+            {
+                SqlParameter param = new SqlParameter(nombreParam, System.Data.SqlDbType.VarBinary);
+                param.Value = DBNull.Value;
+                comando.Parameters.Add(param);
+            }
+            else
+            {
+                comando.Parameters.AddWithValue(nombreParam, valorParam ?? DBNull.Value);
+            }
         }
 
         public void cerrarConexion()
