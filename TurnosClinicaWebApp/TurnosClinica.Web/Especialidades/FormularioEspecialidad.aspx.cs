@@ -7,7 +7,27 @@ namespace TurnosClinica.Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            try
+            {
+                string id = Request.QueryString["id"];
+
+                if (id != null && !IsPostBack)
+                {
+                    TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
+                    TurnosClinica.Dominio.Entidades.Especialidad seleccionada = negocio.ObtenerPorId(int.Parse(id));
+                    txtNombre.Text = seleccionada.Nombre;
+                    txtDescripcion.Text = seleccionada.Descripcion;
+                }
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.Message);
+                Response.Redirect("Error.aspx", false);
+            }
         }
+
+
+
         protected void btnAceptar_Click(object sender, EventArgs e)
         {
             try
