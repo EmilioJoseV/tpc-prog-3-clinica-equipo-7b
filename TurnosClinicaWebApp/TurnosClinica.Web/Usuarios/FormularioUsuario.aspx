@@ -59,11 +59,6 @@
                         <asp:DropDownList ID="ddlMedico" runat="server" CssClass="form-select"></asp:DropDownList>
                     </div>
                 </div>
-
-                <div class="mb-3 form-check form-switch mt-4">
-                    <asp:CheckBox ID="chkActivo" runat="server" CssClass="form-check-input" Checked="true" />
-                    <label class="form-check-label" for="<%= chkActivo.ClientID %>">Usuario Activo</label>
-                </div>
             </div>
         </div>
 
