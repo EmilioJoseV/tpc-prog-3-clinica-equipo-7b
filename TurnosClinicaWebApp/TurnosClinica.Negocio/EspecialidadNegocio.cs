@@ -52,17 +52,19 @@ namespace TurnosClinica.Negocio
             }
         }
 
-        public void Agregar(Especialidad nueva)
+        public void Agregar(Especialidad especialidad)
         {
             try
             {
 
-                if (string.IsNullOrWhiteSpace(nueva.Nombre))
+                if (string.IsNullOrWhiteSpace(especialidad.Nombre))
                 {
                     throw new Exception("El nombre de la especialidad es obligatorio.");
                 }
 
-                especialidadDatos.Agregar(nueva);
+                ValidarNombreDuplicado(especialidad);
+
+                especialidadDatos.Agregar(especialidad);
             }
             catch (Exception ex)
             {
@@ -76,7 +78,11 @@ namespace TurnosClinica.Negocio
                 if (string.IsNullOrWhiteSpace(especialidad.Nombre))
                 {
                     throw new Exception("El nombre es obligatorio.");
+
                 }
+
+                ValidarNombreDuplicado(especialidad);
+
                 especialidadDatos.Modificar(especialidad);
             }
             catch (Exception ex)
@@ -84,6 +90,15 @@ namespace TurnosClinica.Negocio
                 throw ex;
             }
         }
+
+        private void ValidarNombreDuplicado(Especialidad especialidad)
+        {
+            if (especialidadDatos.ExisteNombre(especialidad.Nombre, especialidad.IdEspecialidad))
+            {
+                throw new Exception("ya existe una especialidad registrada con ese nombre");
+            }
+        }
+
 
 
 
