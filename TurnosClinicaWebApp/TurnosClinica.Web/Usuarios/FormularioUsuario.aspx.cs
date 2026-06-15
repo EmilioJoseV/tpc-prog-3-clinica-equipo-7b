@@ -42,6 +42,10 @@ namespace TurnosClinica.Web
                                 ddlMedico.SelectedValue = usuario.Medico.IdMedico.ToString();
                             }
 
+                            // SI ES MODIFICACIÓN: El botón SIEMPRE tiene que ser visible
+                            btnInactivar.Visible = true;
+                            btnEliminar.Visible = true;
+
                             if (usuario.Activo == true)
                             {
                                 btnInactivar.Text = "Inactivar";
@@ -53,6 +57,18 @@ namespace TurnosClinica.Web
                                 btnInactivar.CssClass = "btn btn-success";
                             }
                         }
+                    }
+                    else
+                    {
+                        // SI ES UN ALTA NUEVA (No hay ID en la URL)
+                        if (!IsPostBack)
+                        {
+                            CargarDesplegables();
+                            lblTitulo.InnerText = "Nuevo Usuario";
+                        }
+
+                        btnInactivar.Visible = false;
+                        btnEliminar.Visible = false;
                     }
                 }
             }
@@ -75,7 +91,21 @@ namespace TurnosClinica.Web
                 Usuario usuario = new Usuario();
 
                 if (Request.QueryString["id"] != null)
-                    usuario.IdUsuario = int.Parse(Request.QueryString["id"]);
+                {
+                    usuario.IdUsuario = Convert.ToInt32(Request.QueryString["id"]);
+
+                    // Si modificamos, mantenemos el estado Activo que ya tenía en la DB
+                    Usuario usuarioExistente = negocio.ObtenerPorId(usuario.IdUsuario);
+                    if (usuarioExistente != null)
+                    {
+                        usuario.Activo = usuarioExistente.Activo;
+                    }
+                }
+                else
+                {
+                    // Si es un usuario nuevo, forzamos que nazca ACTIVO (true)
+                    usuario.Activo = true;
+                }
 
                 usuario.Nombre = txtNombre.Text.Trim();
                 usuario.Apellido = txtApellido.Text.Trim();
@@ -97,12 +127,18 @@ namespace TurnosClinica.Web
                     usuario.Imagen = null;
                 }
 
-                usuario.Rol = new Rol { IdRol = int.Parse(ddlRol.SelectedValue) };
+                usuario.Rol = new Rol();
+                usuario.Rol.IdRol = Convert.ToInt32(ddlRol.SelectedValue);
 
                 if (ddlMedico.SelectedValue != "0")
-                    usuario.Medico = new Medico { IdMedico = int.Parse(ddlMedico.SelectedValue) };
+                {
+                    usuario.Medico = new Medico();
+                    usuario.Medico.IdMedico = Convert.ToInt32(ddlMedico.SelectedValue);
+                }
                 else
+                {
                     usuario.Medico = null;
+                }
 
                 if (usuario.IdUsuario > 0)
                 {
@@ -113,7 +149,7 @@ namespace TurnosClinica.Web
                     negocio.Agregar(usuario);
                 }
 
-                Response.Redirect("ListaUsuarios.aspx", false);
+                Response.Redirect("ListaUsuarios.aspx");
             }
             catch (Exception ex)
             {
