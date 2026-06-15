@@ -8,14 +8,10 @@ namespace TurnosClinica.Negocio
     public class MedicoNegocio
     {
         private readonly MedicoDatos medicoDatos;
-        private readonly MedicoEspecialidadesDatos medicoEspecialidadesDatos;
-        private readonly HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos;
 
         public MedicoNegocio()
         {
             medicoDatos = new MedicoDatos();
-            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos();
-            horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos();
         }
 
         public List<Medico> Listar(bool? activo = null)
@@ -56,30 +52,55 @@ namespace TurnosClinica.Negocio
 
         public void Agregar(Medico medico)
         {
-            try
+            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
             {
-                medicoDatos.Agregar(medico);
-                medico.IdMedico = medicoDatos.ObtenerIdPorMatricula(medico.Matricula);
-                GuardarRelaciones(medico);
-                return;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                try
+                {
+                    transaccionDatos.IniciarTransaccion();
+
+                    MedicoDatos medicoDatos = new MedicoDatos(transaccionDatos.AccesoDatos);
+                    MedicoEspecialidadesDatos medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(transaccionDatos.AccesoDatos);
+                    HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(transaccionDatos.AccesoDatos);
+
+                    medicoDatos.Agregar(medico);
+                    medicoEspecialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
+                    horarioDisponibilidadMedicoDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
+
+                    transaccionDatos.Confirmar();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    transaccionDatos.Cancelar();
+                    throw ex;
+                }
             }
         }
 
         public void Modificar(Medico medico)
         {
-            try
+            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
             {
-                medicoDatos.Modificar(medico);
-                GuardarRelaciones(medico);
-                return;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                try
+                {
+                    transaccionDatos.IniciarTransaccion();
+
+                    MedicoDatos medicoDatosTransaccional = new MedicoDatos(transaccionDatos.AccesoDatos);
+                    MedicoEspecialidadesDatos medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(transaccionDatos.AccesoDatos);
+                    HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(transaccionDatos.AccesoDatos);
+
+                    medicoDatosTransaccional.Modificar(medico);
+                    medicoEspecialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
+                    horarioDisponibilidadMedicoDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
+
+                    transaccionDatos.Confirmar();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    transaccionDatos.Cancelar();
+                    throw ex;
+                }
             }
         }
 
@@ -93,12 +114,6 @@ namespace TurnosClinica.Negocio
             {
                 throw ex;
             }
-        }
-
-        private void GuardarRelaciones(Medico medico)
-        {
-            medicoEspecialidadesDatos.ReemplazarPorMedico(medico.IdMedico, medico.Especialidades);
-            horarioDisponibilidadMedicoDatos.ReemplazarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
         }
     }
 }

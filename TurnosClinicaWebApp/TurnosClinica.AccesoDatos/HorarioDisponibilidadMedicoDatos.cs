@@ -16,6 +16,11 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
+        public HorarioDisponibilidadMedicoDatos(AccesoDatos accesoDatosCompartido)
+        {
+            accesoDatos = accesoDatosCompartido;
+        }
+
         public List<HorarioDisponibilidadMedico> Listar(int? idMedico, DiaSemanaEnum? diaSemana, TimeSpan? horaDesde, TimeSpan? horaHasta, bool? activo)
         {
             List<HorarioDisponibilidadMedico> horarios = new List<HorarioDisponibilidadMedico>();
@@ -104,17 +109,22 @@ namespace TurnosClinica.AccesoDatos
 
         public void Agregar(HorarioDisponibilidadMedico horarioDisponibilidadMedico)
         {
+            Agregar(accesoDatos, horarioDisponibilidadMedico);
+        }
+
+        public void Agregar(AccesoDatos datosCompartidos, HorarioDisponibilidadMedico horarioDisponibilidadMedico)
+        {
             try
             {
-                accesoDatos.setearConsulta(
+                datosCompartidos.setearConsulta(
                     "INSERT INTO HorariosDisponiblidadMedicos (IdMedico, DiaSemana, HoraDesde, HoraHasta, Activo)"
                     + " VALUES (@idMedico, @diaSemana, @horaDesde, @horaHasta, @activo)");
-                accesoDatos.setearParametro("@idMedico", horarioDisponibilidadMedico.IdMedico);
-                accesoDatos.setearParametro("@diaSemana", horarioDisponibilidadMedico.DiaSemana);
-                accesoDatos.setearParametro("@horaDesde", horarioDisponibilidadMedico.HoraDesde);
-                accesoDatos.setearParametro("@horaHasta", horarioDisponibilidadMedico.HoraHasta);
-                accesoDatos.setearParametro("@activo", horarioDisponibilidadMedico.Activo);
-                accesoDatos.ejecutarAccion();
+                datosCompartidos.setearParametro("@idMedico", horarioDisponibilidadMedico.IdMedico);
+                datosCompartidos.setearParametro("@diaSemana", horarioDisponibilidadMedico.DiaSemana);
+                datosCompartidos.setearParametro("@horaDesde", horarioDisponibilidadMedico.HoraDesde);
+                datosCompartidos.setearParametro("@horaHasta", horarioDisponibilidadMedico.HoraHasta);
+                datosCompartidos.setearParametro("@activo", horarioDisponibilidadMedico.Activo);
+                datosCompartidos.ejecutarAccion();
                 return;
             }
             catch (Exception ex)
@@ -123,19 +133,27 @@ namespace TurnosClinica.AccesoDatos
             }
             finally
             {
-                accesoDatos.cerrarConexion();
+                if (ReferenceEquals(datosCompartidos, accesoDatos))
+                {
+                    accesoDatos.cerrarConexion();
+                }
             }
         }
 
         public bool EliminarPorMedico(int idMedico)
         {
+            return EliminarPorMedico(accesoDatos, idMedico);
+        }
+
+        public bool EliminarPorMedico(AccesoDatos datosCompartidos, int idMedico)
+        {
             try
             {
-                accesoDatos.setearConsulta(
+                datosCompartidos.setearConsulta(
                     "DELETE FROM HorariosDisponiblidadMedicos"
                     + " WHERE IdMedico = @idMedico");
-                accesoDatos.setearParametro("@idMedico", idMedico);
-                accesoDatos.ejecutarAccion();
+                datosCompartidos.setearParametro("@idMedico", idMedico);
+                datosCompartidos.ejecutarAccion();
                 return true;
             }
             catch (Exception ex)
@@ -144,23 +162,31 @@ namespace TurnosClinica.AccesoDatos
             }
             finally
             {
-                accesoDatos.cerrarConexion();
+                if (ReferenceEquals(datosCompartidos, accesoDatos))
+                {
+                    accesoDatos.cerrarConexion();
+                }
             }
         }
 
-        public bool ReemplazarPorMedico(int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
+        public bool AgregarActualizarPorMedico(int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
+        {
+            return ReemplazarPorMedico(accesoDatos, idMedico, horarios);
+        }
+
+        public bool ReemplazarPorMedico(AccesoDatos datosCompartidos, int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
         {
             List<HorarioDisponibilidadMedico> lista = horarios == null
                 ? new List<HorarioDisponibilidadMedico>()
                 : horarios.Where(horario => horario != null)
                     .ToList();
 
-            EliminarPorMedico(idMedico);
+            EliminarPorMedico(datosCompartidos, idMedico);
 
             foreach (HorarioDisponibilidadMedico horario in lista)
             {
                 horario.IdMedico = idMedico;
-                Agregar(horario);
+                Agregar(datosCompartidos, horario);
             }
 
             return true;
