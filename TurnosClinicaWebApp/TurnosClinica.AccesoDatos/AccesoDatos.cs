@@ -92,9 +92,25 @@ namespace TurnosClinica.AccesoDatos
             conexion.Close();
         }
 
-        internal int ejecutarCreacionRetornandoId()
+        public int ejecutarCreacionRetornandoId()
         {
-            throw new NotImplementedException();
+            comando.Connection = conexion;
+
+            try
+            {
+                conexion.Open();
+               
+                return (int)comando.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                conexion.Close();
+            }
         }
+
     }
 }

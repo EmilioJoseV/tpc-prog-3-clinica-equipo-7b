@@ -86,10 +86,28 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool ExisteNombre(string nombre)
+        public bool ExisteNombre(string nombre, int excluirId = 0)
         {
-            try { return false; } catch (Exception ex) { throw ex; }
+            try
+            {
+                // Cuento si hayotra especialidad con este nombre,pero excluyendo el id actual
+                accesoDatos.setearConsulta("SELECT COUNT(*) FROM Especialidades WHERE Nombre = @Nombre AND IdEspecialidad != @Id");
+                accesoDatos.setearParametro("@Nombre", nombre);
+                accesoDatos.setearParametro("@Id", excluirId);
+
+                int cantidad = accesoDatos.ejecutarAccionScalar();
+                return cantidad > 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
         }
+
 
         public int Agregar(Especialidad especialidad)
         {
@@ -127,13 +145,23 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                return;
+                accesoDatos.setearConsulta("UPDATE Especialidades SET Nombre = @Nombre, Descripcion = @Descripcion WHERE IdEspecialidad = @Id");
+                accesoDatos.setearParametro("@Nombre", especialidad.Nombre); 
+                accesoDatos.setearParametro("@Descripcion", string.IsNullOrWhiteSpace(especialidad.Descripcion) ? (object)DBNull.Value : especialidad.Descripcion);
+                accesoDatos.setearParametro("@Id", especialidad.IdEspecialidad);
+
+                accesoDatos.ejecutarAccion();
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
         }
+
 
         public List<Especialidad> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
         {

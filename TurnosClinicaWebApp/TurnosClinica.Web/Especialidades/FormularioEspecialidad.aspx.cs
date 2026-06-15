@@ -7,36 +7,57 @@ namespace TurnosClinica.Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            try
+            {
+                string id = Request.QueryString["id"];
+
+                if (id != null && !IsPostBack)
+                {
+                    TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
+                    TurnosClinica.Dominio.Entidades.Especialidad seleccionada = negocio.ObtenerPorId(int.Parse(id));
+
+                    txtNombre.Text = seleccionada.Nombre;
+                    txtDescripcion.Text = seleccionada.Descripcion;
+                }
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.Message);
+                Response.Redirect("../Error.aspx", false);
+            }
         }
         protected void btnAceptar_Click(object sender, EventArgs e)
         {
             try
             {
-                TurnosClinica.Dominio.Entidades.Especialidad nuevaEspecialidad = new TurnosClinica.Dominio.Entidades.Especialidad();
-                nuevaEspecialidad.Nombre = txtNombre.Text;
-                nuevaEspecialidad.Descripcion = txtDescripcion.Text;
+                TurnosClinica.Dominio.Entidades.Especialidad especialidad = new TurnosClinica.Dominio.Entidades.Especialidad();
+                especialidad.Nombre = txtNombre.Text;
+                especialidad.Descripcion = txtDescripcion.Text;
 
                 TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
-                negocio.Agregar(nuevaEspecialidad);
+
+                if (Request.QueryString["id"] != null)
+                {
+                    especialidad.IdEspecialidad = int.Parse(Request.QueryString["id"]);
+                    negocio.Modificar(especialidad);
+                }
+                else
+                {
+                    negocio.Agregar(especialidad);
+                }
 
                 Response.Redirect("ListaEspecialidades.aspx", false);
             }
             catch (Exception ex)
             {
-                
                 Session.Add("error", ex.Message);
-
-                
                 Response.Redirect("../Error.aspx", false);
             }
-
         }
 
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
-            
             Response.Redirect("ListaEspecialidades.aspx");
         }
-
     }
 }
