@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Negocio;
@@ -116,16 +117,25 @@ namespace TurnosClinica.Web
 
         private void CargarDesplegables()
         {
-            ddlRol.DataSource = Enum.GetValues(typeof(TurnosClinica.Dominio.Enums.RolEnum));
+            var roles = Enum.GetValues(typeof(TurnosClinica.Dominio.Enums.RolEnum))
+                            .Cast<TurnosClinica.Dominio.Enums.RolEnum>()
+                            .Select(r => new {
+                                Id = (int)r,
+                                Nombre = r.ToString()
+                            }).ToList();
+
+            ddlRol.DataSource = roles;
+            ddlRol.DataValueField = "Id";
+            ddlRol.DataTextField = "Nombre";
             ddlRol.DataBind();
-            ddlRol.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Seleccione un Rol --", "0"));
+            ddlRol.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Rol", "0"));
 
             MedicoNegocio medicoNegocio = new MedicoNegocio();
             ddlMedico.DataSource = medicoNegocio.Listar();
             ddlMedico.DataValueField = "IdMedico";
             ddlMedico.DataTextField = "Apellido";
             ddlMedico.DataBind();
-            ddlMedico.Items.Insert(0, new System.Web.UI.WebControls.ListItem("-- Seleccione un Médico --", "0"));
+            ddlMedico.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Médico", "0"));
         }
     }
 }
