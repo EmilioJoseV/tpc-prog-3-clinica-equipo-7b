@@ -127,13 +127,23 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                return;
+                accesoDatos.setearConsulta("UPDATE Especialidades SET Nombre = @Nombre, Descripcion = @Descripcion WHERE IdEspecialidad = @Id");
+                accesoDatos.setearParametro("@Nombre", especialidad.Nombre); 
+                accesoDatos.setearParametro("@Descripcion", string.IsNullOrWhiteSpace(especialidad.Descripcion) ? (object)DBNull.Value : especialidad.Descripcion);
+                accesoDatos.setearParametro("@Id", especialidad.IdEspecialidad);
+
+                accesoDatos.ejecutarAccion();
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
         }
+
 
         public List<Especialidad> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
         {
