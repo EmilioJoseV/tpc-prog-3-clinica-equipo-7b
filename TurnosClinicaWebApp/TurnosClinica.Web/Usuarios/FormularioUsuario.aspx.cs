@@ -12,20 +12,21 @@ namespace TurnosClinica.Web
         {
             try
             {
-                if (!IsPostBack)
+                // 1. Preguntamos si viene un ID por la URL (Modificación)
+                if (Request.QueryString["id"] != null)
                 {
-                    CargarDesplegables();
+                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
+                    UsuarioNegocio negocio = new UsuarioNegocio();
+                    Usuario usuario = negocio.ObtenerPorId(idUsuario);
 
-                    if (Request.QueryString["id"] != null)
+                    if (usuario != null)
                     {
-                        int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
-                        UsuarioNegocio negocio = new UsuarioNegocio();
-                        Usuario usuario = negocio.ObtenerPorId(idUsuario);
-
-                        if (usuario != null)
+                        // SOLO cargamos los datos en los controles la PRIMERA VEZ
+                        if (!IsPostBack)
                         {
-                            lblTitulo.InnerText = "Modificar Usuario";
+                            CargarDesplegables();
 
+                            lblTitulo.InnerText = "Modificar Usuario";
                             txtNombre.Text = usuario.Nombre;
                             txtApellido.Text = usuario.Apellido;
                             txtNombreUsuario.Text = usuario.NombreUsuario;
@@ -41,35 +42,36 @@ namespace TurnosClinica.Web
                             {
                                 ddlMedico.SelectedValue = usuario.Medico.IdMedico.ToString();
                             }
-
-                            // SI ES MODIFICACIÓN: El botón SIEMPRE tiene que ser visible
-                            btnInactivar.Visible = true;
-                            btnEliminar.Visible = true;
-
-                            if (usuario.Activo == true)
-                            {
-                                btnInactivar.Text = "Inactivar";
-                                btnInactivar.CssClass = "btn btn-warning";
-                            }
-                            else
-                            {
-                                btnInactivar.Text = "Activar";
-                                btnInactivar.CssClass = "btn btn-success";
-                            }
                         }
-                    }
-                    else
-                    {
-                        // SI ES UN ALTA NUEVA (No hay ID en la URL)
-                        if (!IsPostBack)
+
+                        // ESTO SE EJECUTA SIEMPRE (En la primera carga y en cada PostBack)
+                        btnInactivar.Visible = true;
+                        btnEliminar.Visible = true;
+
+                        if (usuario.Activo == true)
                         {
-                            CargarDesplegables();
-                            lblTitulo.InnerText = "Nuevo Usuario";
+                            btnInactivar.Text = "Inactivar";
+                            btnInactivar.CssClass = "btn btn-warning";
                         }
-
-                        btnInactivar.Visible = false;
-                        btnEliminar.Visible = false;
+                        else
+                        {
+                            btnInactivar.Text = "Activar";
+                            btnInactivar.CssClass = "btn btn-success";
+                        }
                     }
+                }
+                else
+                {
+                    // 2. SI ES UN ALTA NUEVA (No hay ID en la URL)
+                    if (!IsPostBack)
+                    {
+                        CargarDesplegables();
+                        lblTitulo.InnerText = "Nuevo Usuario";
+                    }
+
+                    // ESTO SE EJECUTA SIEMPRE PARA EL ALTA
+                    btnInactivar.Visible = false;
+                    btnEliminar.Visible = false;
                 }
             }
             catch (Exception ex)
