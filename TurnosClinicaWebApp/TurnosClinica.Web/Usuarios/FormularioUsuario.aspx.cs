@@ -18,7 +18,7 @@ namespace TurnosClinica.Web
 
                     if (Request.QueryString["id"] != null)
                     {
-                        int idUsuario = int.Parse(Request.QueryString["id"]);
+                        int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
                         UsuarioNegocio negocio = new UsuarioNegocio();
                         Usuario usuario = negocio.ObtenerPorId(idUsuario);
 
@@ -28,10 +28,8 @@ namespace TurnosClinica.Web
 
                             txtNombre.Text = usuario.Nombre;
                             txtApellido.Text = usuario.Apellido;
-
                             txtNombreUsuario.Text = usuario.NombreUsuario;
                             txtEmail.Text = usuario.Email;
-
                             txtPassword.Text = usuario.PasswordHash;
 
                             if (usuario.Rol != null)
@@ -44,7 +42,7 @@ namespace TurnosClinica.Web
                                 ddlMedico.SelectedValue = usuario.Medico.IdMedico.ToString();
                             }
 
-                            if (usuario.Activo)
+                            if (usuario.Activo == true)
                             {
                                 btnInactivar.Text = "Inactivar";
                                 btnInactivar.CssClass = "btn btn-warning";
@@ -55,11 +53,6 @@ namespace TurnosClinica.Web
                                 btnInactivar.CssClass = "btn btn-success";
                             }
                         }
-                    }
-                    else
-                    {
-                        btnInactivar.Text = "Inactivar";
-                        btnInactivar.CssClass = "btn btn-warning";
                     }
                 }
             }
@@ -163,7 +156,6 @@ namespace TurnosClinica.Web
                 if (Request.QueryString["id"] != null)
                 {
                     int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
-
                     UsuarioNegocio negocio = new UsuarioNegocio();
 
                     Usuario usuario = negocio.ObtenerPorId(idUsuario);
@@ -172,14 +164,12 @@ namespace TurnosClinica.Web
                     {
                         if (usuario.Activo == true)
                         {
-                            usuario.Activo = false;
+                            negocio.EliminarLogico(idUsuario);
                         }
                         else
                         {
-                            usuario.Activo = true;
+                            negocio.AltaLogica(idUsuario);
                         }
-
-                        negocio.Modificar(usuario);
 
                         Response.Redirect("ListaUsuarios.aspx");
                     }

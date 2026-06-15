@@ -8,11 +8,11 @@
         <h2 id="lblTitulo" runat="server">Nuevo Usuario</h2>
         <p class="text-secondary">Ingresa los datos correspondientes para el usuario.</p>
         <hr />
-        
+
         <div class="row">
             <div class="col-md-6">
                 <h5 class="text-primary mb-3">Datos Personales</h5>
-                
+
                 <div class="mb-3">
                     <label for="txtNombre" class="form-label">Nombre</label>
                     <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control"></asp:TextBox>
@@ -61,17 +61,16 @@
                 </div>
             </div>
         </div>
-
         <div class="row mt-3">
             <div class="col-12">
                 <div class="mb-3 d-flex gap-2">
                     <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" OnClick="btnAceptar_Click" />
-                    
-                    <asp:Button ID="btnInactivar" runat="server" Text="Inactivar" CssClass="btn btn-warning" OnClick="btnInactivar_Click"/>
-                    
+
+                    <asp:Button ID="btnInactivar" runat="server" Text="Inactivar" CssClass="btn btn-warning" OnClick="btnInactivar_Click" />
+
                     <asp:Button ID="btnEliminar" runat="server" Text="Eliminar" CssClass="btn btn-danger" OnClick="btnEliminar_Click"
-                                OnClientClick="return confirm('¿Estas seguro de que deseas eliminar permanentemente a este usuario?');" />
-                    
+                        OnClientClick="return confirm('¿Estás seguro de que deseas eliminar permanentemente a este usuario?');" />
+
                     <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
                 </div>
             </div>
