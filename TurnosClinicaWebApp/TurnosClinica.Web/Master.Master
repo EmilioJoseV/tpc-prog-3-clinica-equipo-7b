@@ -14,6 +14,10 @@
 </head>
 <body>
     <form id="form1" runat="server" enctype="multipart/form-data">
+        <asp:ScriptManager ID="ScripManager1" runat="server">
+
+        </asp:ScriptManager>
+
         <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="/Inicio.aspx">Turnos Clinica</a>

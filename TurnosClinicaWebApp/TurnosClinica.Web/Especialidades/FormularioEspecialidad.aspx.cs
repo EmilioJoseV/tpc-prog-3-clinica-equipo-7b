@@ -5,8 +5,11 @@ namespace TurnosClinica.Web
 {
     public partial class FormularioEspecialidad : Page
     {
+
+        public bool ConfirmaEliminacion { get; set; }
         protected void Page_Load(object sender, EventArgs e)
         {
+            ConfirmaEliminacion = false;
             try
             {
                 string id = Request.QueryString["id"];
@@ -18,6 +21,14 @@ namespace TurnosClinica.Web
 
                     txtNombre.Text = seleccionada.Nombre;
                     txtDescripcion.Text = seleccionada.Descripcion;
+                }
+
+
+                // Si el id es nulo,quiere decir que estoy agregando entonces Oculto el botón eliminar.
+                if (id == null)
+                {
+                   
+                    UpdatePanel1.Visible = false;
                 }
             }
             catch (Exception ex)
@@ -59,5 +70,33 @@ namespace TurnosClinica.Web
         {
             Response.Redirect("ListaEspecialidades.aspx");
         }
-    }
+
+        protected void btnEliminar_Click(object sender, EventArgs e)
+        {
+            ConfirmaEliminacion = true;
+        }
+
+        protected void btnConfirmaEliminar_Click(object sender, EventArgs e)
+        {
+
+
+            try
+            {
+                if (chkConfirmaEliminacion.Checked)
+                {
+
+                    int id = int.Parse(Request.QueryString["id"]);
+                    TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
+                    negocio.Eliminar(id);
+                    Response.Redirect("ListaEspecialidades.aspx", false);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Session.Add("error", ex.Message);
+                Response.Redirect("../Error.aspx", false);
+            }
+        } 
+    }  
 }

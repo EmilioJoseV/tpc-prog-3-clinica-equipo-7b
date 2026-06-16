@@ -86,6 +86,26 @@ namespace TurnosClinica.Negocio
         }
 
 
+        public void Eliminar(int id)
+        {
+            try
+            {
+                // verifico si tiene un id
+                if (especialidadDatos.EstaAsociadaAMedico(id))
+                {
+                    // y le envio mensaje
+                    throw new Exception(" Accion incorrecta !! No se puede eliminar la especialidad porque esta asignada a uno o más médicos.");
+                }
+
+                especialidadDatos.Eliminar(id);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
 
 
     }
