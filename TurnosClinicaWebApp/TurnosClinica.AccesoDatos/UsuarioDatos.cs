@@ -210,6 +210,21 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
+        public void AltaLogica(int idUsuario)
+        {
+            try
+            {
+                accesoDatos.setearConsulta("UPDATE Usuarios SET Activo = 1 WHERE IdUsuario = @idUsuario");
+                accesoDatos.setearParametro("@idUsuario", idUsuario);
+
+                accesoDatos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public Usuario MapearFilaAEntidad(SqlDataReader fila)
         {
             Usuario usuario = new Usuario();
