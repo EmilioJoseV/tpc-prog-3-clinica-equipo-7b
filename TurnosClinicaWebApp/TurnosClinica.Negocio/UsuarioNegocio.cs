@@ -83,6 +83,20 @@ namespace TurnosClinica.Negocio
             }
         }
 
+        public void AltaLogica(int idUsuario)
+        {
+            try
+            {
+                UsuarioDatos datos = new UsuarioDatos();
+
+                datos.AltaLogica(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void EliminarFisico(int idUsuario)
         {
             try
