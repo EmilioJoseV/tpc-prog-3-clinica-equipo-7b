@@ -22,6 +22,14 @@ namespace TurnosClinica.Web
                     txtNombre.Text = seleccionada.Nombre;
                     txtDescripcion.Text = seleccionada.Descripcion;
                 }
+
+
+                // Si el id es nulo,quiere decir que estoy agregando entonces Oculto el botón eliminar.
+                if (id == null)
+                {
+                   
+                    UpdatePanel1.Visible = false;
+                }
             }
             catch (Exception ex)
             {
@@ -68,5 +76,27 @@ namespace TurnosClinica.Web
             ConfirmaEliminacion = true;
         }
 
-    }
+        protected void btnConfirmaEliminar_Click(object sender, EventArgs e)
+        {
+
+
+            try
+            {
+                if (chkConfirmaEliminacion.Checked)
+                {
+
+                    int id = int.Parse(Request.QueryString["id"]);
+                    TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
+                    negocio.Eliminar(id);
+                    Response.Redirect("ListaEspecialidades.aspx", false);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Session.Add("error", ex);
+                Response.Redirect("../Error.aspx", false);
+            }
+        } 
+    }  
 }

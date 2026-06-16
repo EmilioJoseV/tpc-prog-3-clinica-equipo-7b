@@ -85,6 +85,17 @@ namespace TurnosClinica.Negocio
             }
         }
 
+        public void Eliminar(int id)
+        {
+            try
+            {
+                especialidadDatos.Eliminar(id); 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 

@@ -160,6 +160,25 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.cerrarConexion();
             }
         }
+        public void Eliminar(int idEspecialidad)
+        {
+            try
+            { 
+                accesoDatos.setearConsulta("UPDATE Especialidades SET Activo = 0 WHERE IdEspecialidad = @Id");
+                accesoDatos.setearParametro("@Id", idEspecialidad);
+
+                accesoDatos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
 
 
         public List<Especialidad> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
@@ -176,5 +195,29 @@ namespace TurnosClinica.AccesoDatos
             especialidad.Activo = Convert.ToBoolean(fila["Activo"]);
             return especialidad;
         }
+
+        public bool EstaAsociadaAMedico(int idEspecialidad)
+        {
+            try
+            {
+                //cuenta cuantos registros hay
+                accesoDatos.setearConsulta("SELECT COUNT(*) FROM MedicosEspecialidades WHERE IdEspecialidad = @Id");
+                accesoDatos.setearParametro("@Id", idEspecialidad);
+
+                int cantidad = accesoDatos.ejecutarAccionScalar();
+                return cantidad > 0; // SI HAY MAS DE UNO ES  ESTA ASOCIADO A UN MEDICO
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+
+
     }
 }
