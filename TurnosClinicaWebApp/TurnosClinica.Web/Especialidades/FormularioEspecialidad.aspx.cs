@@ -5,8 +5,11 @@ namespace TurnosClinica.Web
 {
     public partial class FormularioEspecialidad : Page
     {
+
+        public bool ConfirmaEliminacion { get; set; }
         protected void Page_Load(object sender, EventArgs e)
         {
+            ConfirmaEliminacion = false;
             try
             {
                 string id = Request.QueryString["id"];
@@ -59,5 +62,11 @@ namespace TurnosClinica.Web
         {
             Response.Redirect("ListaEspecialidades.aspx");
         }
+
+        protected void btnEliminar_Click(object sender, EventArgs e)
+        {
+            ConfirmaEliminacion = true;
+        }
+
     }
 }
