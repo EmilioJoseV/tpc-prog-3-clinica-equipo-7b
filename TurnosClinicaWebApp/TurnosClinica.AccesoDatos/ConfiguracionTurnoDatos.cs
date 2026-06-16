@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
 
@@ -14,17 +13,31 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public ConfiguracionTurno ObtenerConfiguracion(bool activo)
+        public ConfiguracionTurno ObtenerConfiguracion()
         {
-            ConfiguracionTurno configuracionTurno = new ConfiguracionTurno();
-            
             try
             {
-                return configuracionTurno;
+                string consulta = "SELECT TOP 1 IdConfiguracionTurno, DuracionMinutos, Activo"
+                    + " FROM ConfiguracionesTurno"
+                    + " WHERE Activo = 1"
+                    + " ORDER BY IdConfiguracionTurno DESC";
+                accesoDatos.setearConsulta(consulta);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    return MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
+                return new ConfiguracionTurno();
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -32,17 +45,42 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                return;
+                if (configuracionTurno.IdConfiguracionTurno > 0)
+                {
+                    accesoDatos.setearConsulta(
+                        "UPDATE ConfiguracionesTurno"
+                        + " SET DuracionMinutos = @duracionMinutos"
+                        + " WHERE IdConfiguracionTurno = @idConfiguracionTurno");
+                    accesoDatos.setearParametro("@duracionMinutos", configuracionTurno.DuracionMinutos);
+                    accesoDatos.setearParametro("@idConfiguracionTurno", configuracionTurno.IdConfiguracionTurno);
+                    accesoDatos.ejecutarAccion();
+                    return;
+                }
+
+                accesoDatos.setearConsulta(
+                    "INSERT INTO ConfiguracionesTurno (DuracionMinutos, Activo)"
+                    + " VALUES (@duracionMinutos, @activo)");
+                accesoDatos.setearParametro("@duracionMinutos", configuracionTurno.DuracionMinutos);
+                accesoDatos.setearParametro("@activo", configuracionTurno.Activo);
+                accesoDatos.ejecutarAccion();
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
         }
 
         public ConfiguracionTurno MapearFilaAEntidad(SqlDataReader fila)
         {
-            throw new NotImplementedException();
+            ConfiguracionTurno configuracion = new ConfiguracionTurno();
+            configuracion.IdConfiguracionTurno = Convert.ToInt32(fila["IdConfiguracionTurno"]);
+            configuracion.DuracionMinutos = Convert.ToInt32(fila["DuracionMinutos"]);
+            configuracion.Activo = Convert.ToBoolean(fila["Activo"]);
+            return configuracion;
         }
     }
 }
