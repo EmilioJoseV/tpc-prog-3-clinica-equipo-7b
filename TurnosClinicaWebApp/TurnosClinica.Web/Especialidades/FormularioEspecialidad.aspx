@@ -28,22 +28,28 @@
 </div>
     <div class="row">
         <div class="col-6">
-            <div class="mb-3">
-            
-                <asp:Button Text="Eliminar" ID="btnEliminar" OnClick="btnEliminar_Click" CssClass="btn btn-danger" runat="server" />
+            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                <ContentTemplate>
 
 
-            </div>
-            <%if (ConfirmaEliminacion)
-                { %>
 
-            <div class="mb-3">
-                <asp:CheckBox Text="Confirmar Eliminacion" ID="chkConfirmaEliminacion" runat="server" />
-                <asp:Button Text="Eliminar" ID="btnConfirmaEliminar" CssClass="btn btn-outline-danger" runat="server" />
+                    <div class="mb-3">
 
-            </div>
-            <%  } %>
-            
+                        <asp:Button Text="Eliminar" ID="btnEliminar" OnClick="btnEliminar_Click" CssClass="btn btn-danger" runat="server" />
+
+
+                    </div>
+                    <%if (ConfirmaEliminacion)
+                        { %>
+
+                    <div class="mb-3">
+                        <asp:CheckBox Text="Confirmar Eliminacion" ID="chkConfirmaEliminacion" runat="server" />
+                        <asp:Button Text="Eliminar" ID="btnConfirmaEliminar" CssClass="btn btn-outline-danger" runat="server" />
+
+                    </div>
+                    <%  } %>
+                </ContentTemplate>
+            </asp:UpdatePanel>
         </div
     </div>
 
