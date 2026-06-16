@@ -26,6 +26,11 @@
         </div>
     </div>
 </div>
+    <div class="row">
+        <div class="col-6">
+            <asp:Button Text="Eliminar" ID="btnEliminar" CssClass ="btn btn-danger" runat="server" />
+        </div
+    </div>
 
 
 </asp:Content>
