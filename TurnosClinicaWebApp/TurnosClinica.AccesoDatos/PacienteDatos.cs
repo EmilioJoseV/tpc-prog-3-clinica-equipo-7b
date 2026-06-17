@@ -126,11 +126,20 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                return false;
+                accesoDatos.setearConsulta(
+                    "SELECT COUNT(1)"
+                    + " FROM Pacientes"
+                    + " WHERE DNI = @dni");
+                accesoDatos.setearParametro("@dni", dni);
+                return accesoDatos.ejecutarAccionScalar() > 0;
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -138,11 +147,20 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                return false;
+                accesoDatos.setearConsulta(
+                    "SELECT COUNT(1)"
+                    + " FROM Pacientes"
+                    + " WHERE Email = @email");
+                accesoDatos.setearParametro("@email", email);
+                return accesoDatos.ejecutarAccionScalar() > 0;
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -150,11 +168,26 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                return;
+                accesoDatos.setearConsulta(
+                    "INSERT INTO Pacientes (DNI, Nombre, Apellido, FechaNacimiento, Telefono, Email, Direccion, Activo)"
+                    + " VALUES (@dni, @nombre, @apellido, @fechaNacimiento, @telefono, @email, @direccion, @activo)");
+                accesoDatos.setearParametro("@dni", paciente.DNI);
+                accesoDatos.setearParametro("@nombre", paciente.Nombre);
+                accesoDatos.setearParametro("@apellido", paciente.Apellido);
+                accesoDatos.setearParametro("@fechaNacimiento", paciente.FechaNacimiento);
+                accesoDatos.setearParametro("@telefono", string.IsNullOrWhiteSpace(paciente.Telefono) ? (object)DBNull.Value : paciente.Telefono);
+                accesoDatos.setearParametro("@email", paciente.Email);
+                accesoDatos.setearParametro("@direccion", string.IsNullOrWhiteSpace(paciente.Direccion) ? (object)DBNull.Value : paciente.Direccion);
+                accesoDatos.setearParametro("@activo", paciente.Activo);
+                accesoDatos.ejecutarAccion();
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -162,11 +195,28 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                return;
+                accesoDatos.setearConsulta(
+                    "UPDATE Pacientes"
+                    + " SET DNI = @dni, Nombre = @nombre, Apellido = @apellido, FechaNacimiento = @fechaNacimiento, Telefono = @telefono, Email = @email, Direccion = @direccion, Activo = @activo"
+                    + " WHERE IdPaciente = @idPaciente");
+                accesoDatos.setearParametro("@dni", paciente.DNI);
+                accesoDatos.setearParametro("@nombre", paciente.Nombre);
+                accesoDatos.setearParametro("@apellido", paciente.Apellido);
+                accesoDatos.setearParametro("@fechaNacimiento", paciente.FechaNacimiento);
+                accesoDatos.setearParametro("@telefono", string.IsNullOrWhiteSpace(paciente.Telefono) ? (object)DBNull.Value : paciente.Telefono);
+                accesoDatos.setearParametro("@email", paciente.Email);
+                accesoDatos.setearParametro("@direccion", string.IsNullOrWhiteSpace(paciente.Direccion) ? (object)DBNull.Value : paciente.Direccion);
+                accesoDatos.setearParametro("@activo", paciente.Activo);
+                accesoDatos.setearParametro("@idPaciente", paciente.IdPaciente);
+                accesoDatos.ejecutarAccion();
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 

@@ -62,6 +62,30 @@ namespace TurnosClinica.Negocio
             }
         }
 
+        public void Agregar(Paciente paciente)
+        {
+            try
+            {
+                pacienteDatos.Agregar(paciente);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void Modificar(Paciente paciente)
+        {
+            try
+            {
+                pacienteDatos.Modificar(paciente);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public bool Desactivar(int idPaciente)
         {
             try
