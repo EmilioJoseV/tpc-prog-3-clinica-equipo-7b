@@ -8,6 +8,16 @@ namespace TurnosClinica.Web
 {
     public partial class ListaPacientes
     {
-        protected global::System.Web.UI.WebControls.Button BtnAltaPaciente;
+        protected global::System.Web.UI.WebControls.TextBox txtFiltro;
+        protected global::System.Web.UI.WebControls.CheckBox chkAvanzado;
+        protected global::System.Web.UI.WebControls.Label lblCampo;
+        protected global::System.Web.UI.WebControls.DropDownList ddlCampo;
+        protected global::System.Web.UI.WebControls.DropDownList ddlCriterio;
+        protected global::System.Web.UI.WebControls.TextBox txtFiltroAvanzado;
+        protected global::System.Web.UI.WebControls.DropDownList ddlEstado;
+        protected global::System.Web.UI.WebControls.Button btnBuscar;
+        protected global::System.Web.UI.WebControls.Button btnLimpiar;
+        protected global::System.Web.UI.WebControls.GridView dgvPacientes;
+        protected global::System.Web.UI.WebControls.Button btnLimpiarRapido;
     }
 }

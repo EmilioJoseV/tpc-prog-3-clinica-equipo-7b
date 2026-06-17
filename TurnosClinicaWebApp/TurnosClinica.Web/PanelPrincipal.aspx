@@ -78,6 +78,9 @@
                 <li>
                     <asp:LinkButton ID="LnkMisTurnos" runat="server" CssClass="dropdown-item" OnClick="LnkMisTurnos_Click">Mis turnos asignados</asp:LinkButton>
                 </li>
+                <li>
+                    <asp:LinkButton ID="LnkListaTurnos" runat="server" CssClass="dropdown-item" OnClick="LnkListaTurnos_Click">Ver turnos tomados</asp:LinkButton>
+                </li>
             </ul>
         </div>
         </div>

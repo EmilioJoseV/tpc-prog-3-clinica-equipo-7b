@@ -26,6 +26,18 @@ namespace TurnosClinica.Negocio
             }
         }
 
+        public List<Medico> ListarFiltroRapido(string filtro)
+        {
+            try
+            {
+                return medicoDatos.ListarFiltroRapido(filtro);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public List<Medico> ListarConFiltros(string campo, string criterio, string filtro, bool? activo = null)
         {
             try

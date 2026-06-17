@@ -4,8 +4,10 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <h1 class="h3 mb-3">Alta de Paciente</h1>
-    <p class="text-secondary">Esta pagina esta pensada para cargar todos los datos necesarios para dar de alta un paciente.</p>
+    <h1 class="h3 mb-3">Formulario de Paciente</h1>
+    <p class="text-secondary">Complete los datos requeridos</p>
+
+    <asp:HiddenField ID="HfIdPaciente" runat="server" />
 
     <div class="row g-3">
         <div class="col-12 col-md-6">
@@ -22,7 +24,7 @@
         </div>
         <div class="col-12 col-md-6">
             <asp:Label ID="LblFechaNacimiento" runat="server" Text="Fecha de nacimiento" CssClass="form-label" />
-            <asp:TextBox ID="TxtFechaNacimiento" runat="server" CssClass="form-control" />
+            <asp:TextBox ID="TxtFechaNacimiento" runat="server" CssClass="form-control" placeholder="yyyy-MM-dd" />
         </div>
         <div class="col-12 col-md-6">
             <asp:Label ID="LblTelefono" runat="server" Text="Telefono" CssClass="form-label" />
@@ -39,5 +41,10 @@
         <div class="col-12">
             <asp:CheckBox ID="ChkActivo" runat="server" Text="Activo" Checked="true" />
         </div>
+    </div>
+
+    <div class="mt-4">
+        <asp:Button ID="BtnGuardar" runat="server" CssClass="btn btn-primary" Text="Guardar" OnClick="BtnGuardar_Click" />
+        <asp:Button ID="BtnCancelar" runat="server" CssClass="btn btn-outline-primary" Text="Cancelar" OnClick="BtnCancelar_Click" />
     </div>
 </asp:Content>
