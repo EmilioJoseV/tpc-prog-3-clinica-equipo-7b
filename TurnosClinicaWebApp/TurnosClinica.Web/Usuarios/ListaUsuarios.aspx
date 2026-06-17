@@ -23,7 +23,6 @@
                 <tr>
                     <th scope="col"># ID</th>
                     <th scope="col" style="width: 50px;">Foto</th>
-                    <th scope="col">Nombre de Usuario</th>
                     <th scope="col">Nombre y Apellido</th>
                     <th scope="col">Email</th>
                     <th scope="col">Rol</th>
@@ -46,7 +45,6 @@
                                 </div>
                             <% } %>
                         </td>
-                        <td class="fw-bold"><%: user.NombreUsuario %></td>
                         <td>
                             <%: !string.IsNullOrEmpty(user.Nombre) || !string.IsNullOrEmpty(user.Apellido) 
                                 ? $"{user.Nombre} {user.Apellido}".Trim() 
