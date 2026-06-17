@@ -7,7 +7,7 @@
         <div class="row mb-3">
             <div class="col">
                 <h1 class="h3 mb-3">Lista de Usuarios</h1>
-                <p class="text-secondary">Esta página está pensada para administrar usuarios.</p>
+                <p class="text-secondary">Esta pagina esta pensada para administrar usuarios.</p>
             </div>
 
 
@@ -26,7 +26,7 @@
                     <th scope="col">Nombre y Apellido</th>
                     <th scope="col">Email</th>
                     <th scope="col">Rol</th>
-                    <th scope="col">Médico (ID)</th>
+                    <th scope="col">Medico (ID)</th>
                     <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
                 </tr>
