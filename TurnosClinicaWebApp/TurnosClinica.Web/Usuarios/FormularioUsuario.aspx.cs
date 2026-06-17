@@ -185,7 +185,7 @@ namespace TurnosClinica.Web
             ddlMedico.DataValueField = "IdMedico";
             ddlMedico.DataTextField = "Apellido";
             ddlMedico.DataBind();
-            ddlMedico.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Médico", "0"));
+            ddlMedico.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Medico", "0"));
         }
         protected void btnInactivar_Click(object sender, EventArgs e)
         {

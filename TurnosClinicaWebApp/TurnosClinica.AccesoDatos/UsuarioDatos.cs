@@ -230,6 +230,8 @@ namespace TurnosClinica.AccesoDatos
             Usuario usuario = new Usuario();
             usuario.IdUsuario = Convert.ToInt32(fila["IdUsuario"]);
             usuario.NombreUsuario = fila["NombreUsuario"].ToString();
+            usuario.Nombre = fila["Nombre"] is DBNull ? string.Empty : fila["Nombre"].ToString();
+            usuario.Apellido = fila["Apellido"] is DBNull ? string.Empty : fila["Apellido"].ToString();
             usuario.Email = fila["Email"].ToString();
             usuario.PasswordHash = fila["PasswordHash"] is DBNull ? string.Empty : fila["PasswordHash"].ToString();
             usuario.Activo = Convert.ToBoolean(fila["Activo"]);
@@ -238,7 +240,7 @@ namespace TurnosClinica.AccesoDatos
             {
                 usuario.Rol = new Rol
                 {
-                    IdRol = Convert.ToInt32(fila["IdRol"])
+                    IdRol = Convert.ToInt32(fila["IdRol"]), Nombre = fila["NombreRol"] is DBNull ? string.Empty : fila["NombreRol"].ToString()
                 };
             }
 

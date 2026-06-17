@@ -7,7 +7,7 @@
         <div class="row mb-3">
             <div class="col">
                 <h1 class="h3 mb-3">Lista de Usuarios</h1>
-                <p class="text-secondary">Esta página está pensada para administrar usuarios.</p>
+                <p class="text-secondary">Esta pagina esta pensada para administrar usuarios.</p>
             </div>
 
 
@@ -23,11 +23,10 @@
                 <tr>
                     <th scope="col"># ID</th>
                     <th scope="col" style="width: 50px;">Foto</th>
-                    <th scope="col">Nombre de Usuario</th>
                     <th scope="col">Nombre y Apellido</th>
                     <th scope="col">Email</th>
                     <th scope="col">Rol</th>
-                    <th scope="col">Médico (ID)</th>
+                    <th scope="col">Medico (ID)</th>
                     <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
                 </tr>
@@ -46,7 +45,6 @@
                                 </div>
                             <% } %>
                         </td>
-                        <td class="fw-bold"><%: user.NombreUsuario %></td>
                         <td>
                             <%: !string.IsNullOrEmpty(user.Nombre) || !string.IsNullOrEmpty(user.Apellido) 
                                 ? $"{user.Nombre} {user.Apellido}".Trim() 
