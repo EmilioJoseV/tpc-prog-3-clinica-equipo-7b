@@ -7,7 +7,7 @@ namespace TurnosClinica.Web
 {
     public partial class ConfiguracionTurnos : Page
     {
-        private readonly TurnoNegocio turnoNegocio = new TurnoNegocio();
+        private readonly ConfiguracionTurnoNegocio configuracionTurnoNegocio = new ConfiguracionTurnoNegocio();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -28,7 +28,7 @@ namespace TurnosClinica.Web
 
         private void CargarConfiguracion()
         {
-            ConfiguracionTurno configuracionTurno = turnoNegocio.obtenerConfiguracionTurno();
+            ConfiguracionTurno configuracionTurno = configuracionTurnoNegocio.ObtenerConfiguracionTurno();
 
             HfIdConfiguracionTurno.Value = configuracionTurno.IdConfiguracionTurno.ToString();
             TxtDuracionMinutos.Text = configuracionTurno.DuracionMinutos > 0
@@ -47,7 +47,7 @@ namespace TurnosClinica.Web
                     Activo = true
                 };
 
-                turnoNegocio.modificarConfiguracionTurno(configuracionTurno);
+                configuracionTurnoNegocio.ModificarConfiguracionTurno(configuracionTurno);
                 Response.Redirect("../PanelPrincipal.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
             }
