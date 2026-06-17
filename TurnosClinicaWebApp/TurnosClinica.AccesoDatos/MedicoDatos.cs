@@ -305,16 +305,11 @@ namespace TurnosClinica.AccesoDatos
                             tieneCondicion = true;
                             break;
                         case "DNI":
-                            if (!int.TryParse(filtro, out _))
-                            {
-                                return medicos;
-                            }
-
                             consulta += criterio == "Igual a"
-                                ? (tieneCondicion ? " AND TRY_CONVERT(INT, DNI) = @filtroNumerico" : " WHERE TRY_CONVERT(INT, DNI) = @filtroNumerico")
+                                ? (tieneCondicion ? " AND DNI = @filtro" : " WHERE DNI = @filtro")
                                 : criterio == "Mayor a"
-                                    ? (tieneCondicion ? " AND TRY_CONVERT(INT, DNI) > @filtroNumerico" : " WHERE TRY_CONVERT(INT, DNI) > @filtroNumerico")
-                                    : (tieneCondicion ? " AND TRY_CONVERT(INT, DNI) < @filtroNumerico" : " WHERE TRY_CONVERT(INT, DNI) < @filtroNumerico");
+                                    ? (tieneCondicion ? " AND DNI > @filtro" : " WHERE DNI > @filtro")
+                                    : (tieneCondicion ? " AND DNI < @filtro" : " WHERE DNI < @filtro");
                             tieneCondicion = true;
                             break;
                         case "Nombre":
@@ -351,14 +346,7 @@ namespace TurnosClinica.AccesoDatos
                 }
                 if (!string.IsNullOrWhiteSpace(filtro))
                 {
-                    if (campo == "DNI")
-                    {
-                        accesoDatos.setearParametro("@filtroNumerico", int.Parse(filtro));
-                    }
-                    else
-                    {
-                        accesoDatos.setearParametro("@filtro", filtro);
-                    }
+                    accesoDatos.setearParametro("@filtro", filtro);
                 }
 
                 accesoDatos.ejecutarLectura();

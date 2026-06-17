@@ -14,18 +14,68 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
-        public List<Paciente> Listar(bool activo)
+        public List<Paciente> Listar(bool? activo)
         {
             List<Paciente> pacientes = new List<Paciente>();
             try
             {
-                accesoDatos.setearConsulta(
-                    "SELECT IdPaciente, DNI, Nombre, Apellido, FechaNacimiento, Telefono, Email, Direccion, Activo"
-                    + " FROM Pacientes"
-                    + (activo ? " WHERE Activo = 1" : string.Empty)
-                    + " ORDER BY Apellido, Nombre");
+                string consulta = "SELECT IdPaciente, DNI, Nombre, Apellido, FechaNacimiento, Telefono, Email, Direccion, Activo"
+                    + " FROM Pacientes";
+
+                if (activo.HasValue)
+                {
+                    consulta += " WHERE Activo = @activo";
+                }
+
+                consulta += " ORDER BY Apellido, Nombre";
+
+                accesoDatos.setearConsulta(consulta);
+                if (activo.HasValue)
+                {
+                    accesoDatos.setearParametro("@activo", activo.Value);
+                }
                 accesoDatos.ejecutarLectura();
 
+                while (accesoDatos.Lector.Read())
+                {
+                    pacientes.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
+
+                return pacientes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public List<Paciente> ListarFiltroRapido(string filtro)
+        {
+            List<Paciente> pacientes = new List<Paciente>();
+            try
+            {
+                string consulta = "SELECT IdPaciente, DNI, Nombre, Apellido, FechaNacimiento, Telefono, Email, Direccion, Activo"
+                    + " FROM Pacientes";
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    consulta += " WHERE UPPER(Nombre) LIKE '%' + UPPER(@filtro) + '%'"
+                        + " OR UPPER(Apellido) LIKE '%' + UPPER(@filtro) + '%'";
+                }
+
+                consulta += " ORDER BY Apellido, Nombre";
+
+                accesoDatos.setearConsulta(consulta);
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    accesoDatos.setearParametro("@filtro", filtro);
+                }
+
+                accesoDatos.ejecutarLectura();
                 while (accesoDatos.Lector.Read())
                 {
                     pacientes.Add(MapearFilaAEntidad(accesoDatos.Lector));
@@ -65,6 +115,10 @@ namespace TurnosClinica.AccesoDatos
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -118,7 +172,106 @@ namespace TurnosClinica.AccesoDatos
 
         public List<Paciente> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
         {
-            throw new NotImplementedException();
+            List<Paciente> pacientes = new List<Paciente>();
+            try
+            {
+                string consulta = "SELECT IdPaciente, DNI, Nombre, Apellido, FechaNacimiento, Telefono, Email, Direccion, Activo"
+                    + " FROM Pacientes";
+                bool tieneCondicion = false;
+
+                if (activo.HasValue)
+                {
+                    consulta += tieneCondicion ? " AND Activo = @activo" : " WHERE Activo = @activo";
+                    tieneCondicion = true;
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    switch (campo)
+                    {
+                        case "DNI":
+                            consulta += criterio == "Igual a"
+                                ? (tieneCondicion ? " AND DNI = @filtro" : " WHERE DNI = @filtro")
+                                : criterio == "Mayor a"
+                                    ? (tieneCondicion ? " AND DNI > @filtro" : " WHERE DNI > @filtro")
+                                    : (tieneCondicion ? " AND DNI < @filtro" : " WHERE DNI < @filtro");
+                            tieneCondicion = true;
+                            break;
+                        case "Nombre":
+                            consulta += criterio == "Comienza con"
+                                ? (tieneCondicion ? " AND Nombre LIKE @filtro + '%'" : " WHERE Nombre LIKE @filtro + '%'")
+                                : criterio == "Termina con"
+                                    ? (tieneCondicion ? " AND Nombre LIKE '%' + @filtro" : " WHERE Nombre LIKE '%' + @filtro")
+                                    : (tieneCondicion ? " AND Nombre LIKE '%' + @filtro + '%'" : " WHERE Nombre LIKE '%' + @filtro + '%'");
+                            tieneCondicion = true;
+                            break;
+                        case "Apellido":
+                            consulta += criterio == "Comienza con"
+                                ? (tieneCondicion ? " AND Apellido LIKE @filtro + '%'" : " WHERE Apellido LIKE @filtro + '%'")
+                                : criterio == "Termina con"
+                                    ? (tieneCondicion ? " AND Apellido LIKE '%' + @filtro" : " WHERE Apellido LIKE '%' + @filtro")
+                                    : (tieneCondicion ? " AND Apellido LIKE '%' + @filtro + '%'" : " WHERE Apellido LIKE '%' + @filtro + '%'");
+                            tieneCondicion = true;
+                            break;
+                        default:
+                            consulta += tieneCondicion
+                                ? " AND (Nombre LIKE '%' + @filtro + '%' OR Apellido LIKE '%' + @filtro + '%')"
+                                : " WHERE (Nombre LIKE '%' + @filtro + '%' OR Apellido LIKE '%' + @filtro + '%')";
+                            tieneCondicion = true;
+                            break;
+                    }
+                }
+
+                consulta += " ORDER BY Apellido, Nombre";
+
+                accesoDatos.setearConsulta(consulta);
+                if (activo.HasValue)
+                {
+                    accesoDatos.setearParametro("@activo", activo.Value);
+                }
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    accesoDatos.setearParametro("@filtro", filtro);
+                }
+
+                accesoDatos.ejecutarLectura();
+                while (accesoDatos.Lector.Read())
+                {
+                    pacientes.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
+
+                return pacientes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public bool Desactivar(int idPaciente)
+        {
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "UPDATE Pacientes"
+                    + " SET Activo = 0"
+                    + " WHERE IdPaciente = @idPaciente");
+                accesoDatos.setearParametro("@idPaciente", idPaciente);
+                accesoDatos.ejecutarAccion();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
         }
 
         public Paciente MapearFilaAEntidad(SqlDataReader fila)
