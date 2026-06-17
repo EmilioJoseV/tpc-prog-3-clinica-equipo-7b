@@ -24,5 +24,6 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.LinkButton LnkConfiguracionTurnos;
         protected global::System.Web.UI.WebControls.LinkButton LnkAltaTurno;
         protected global::System.Web.UI.WebControls.LinkButton LnkMisTurnos;
+        protected global::System.Web.UI.WebControls.LinkButton LnkListaTurnos;
     }
 }

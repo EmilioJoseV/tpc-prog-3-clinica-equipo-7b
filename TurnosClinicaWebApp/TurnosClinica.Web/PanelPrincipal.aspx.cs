@@ -68,5 +68,11 @@ namespace TurnosClinica.Web
             Response.Redirect("Turnos/MisTurnos.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
+
+        protected void LnkListaTurnos_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Turnos/ListaTurnos.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+        }
     }
 }
