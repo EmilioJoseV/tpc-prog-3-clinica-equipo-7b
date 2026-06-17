@@ -9,6 +9,8 @@
                 <h1 class="h3 mb-3">Lista de Usuarios</h1>
                 <p class="text-secondary">Esta página está pensada para administrar usuarios.</p>
             </div>
+
+
             <div class="col text-end">
                 <a href="FormularioUsuario.aspx" class="btn btn-primary">
                     + Nuevo Usuario
