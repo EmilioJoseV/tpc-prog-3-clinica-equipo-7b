@@ -4,45 +4,101 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <h1 class="h3 mb-3">Lista de Medicos</h1>
-    <p class="text-secondary">Alta, edicion y desactivacion de medicos.</p>
-    <asp:Button ID="BtnNuevoMedico" runat="server" CssClass="btn btn-primary mb-3" Text="Nuevo medico" OnClick="BtnNuevoMedico_Click" />
+    <h1>Lista de Medicos</h1>
+    <div class="row">
+        <div class="col-6">
+            <div class="mb-3">
+                <asp:Label Text="Filtrar" runat="server" />
+                <asp:TextBox runat="server" ID="txtFiltro" CssClass="form-control" AutoPostBack="true" OnTextChanged="filtro_TextChanged" />
+            </div>
+        </div>
+        <div class="col-6" style="display: flex; flex-direction: column; justify-content: flex-end;">
+            <div class="mb-3">
+                <asp:CheckBox Text="Filtro Avanzado"
+                    ID="chkAvanzado" runat="server"
+                    AutoPostBack="true"
+                    OnCheckedChanged="chkAvanzado_CheckedChanged" />
+            </div>
+        </div>
 
-    <asp:Repeater ID="RptMedicos" runat="server" OnItemCommand="RptMedicos_ItemCommand">
-        <HeaderTemplate>
-            <table class="table table-striped align-middle">
-                <thead>
-                    <tr>
-                        <th>Matricula</th>
-                        <th>Nombre</th>
-                        <th>DNI</th>
-                        <th>Email</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-        </HeaderTemplate>
-        <ItemTemplate>
-                    <tr>
-                        <td><%# Eval("Matricula") %></td>
-                        <td><%# Eval("Apellido") %>, <%# Eval("Nombre") %></td>
-                        <td><%# Eval("DNI") %></td>
-                        <td><%# Eval("Email") %></td>
-                        <td><%# ((bool)Eval("Activo")) ? "Activo" : "Inactivo" %></td>
-                        <td>
-                            <asp:LinkButton ID="BtnEditar" runat="server" CssClass="btn btn-outline-primary" CommandName="Editar" CommandArgument='<%# Eval("IdMedico") %>'>Editar</asp:LinkButton>
-                            <asp:LinkButton ID="BtnDesactivar" runat="server" CssClass="btn btn-outline-danger" CommandName="Desactivar" CommandArgument='<%# Eval("IdMedico") %>'>Desactivar</asp:LinkButton>
-                        </td>
-                    </tr>
-        </ItemTemplate>
-        <FooterTemplate>
-                </tbody>
-            </table>
-        </FooterTemplate>
-    </asp:Repeater>
-
-    <asp:Panel ID="PnlVacio" runat="server" CssClass="alert alert-info mt-3" Visible="false">
-        No hay medicos cargados.
-    </asp:Panel>
+        <% if (chkAvanzado.Checked)
+            { %>
+        <div class="row">
+            <div class="col-3">
+                <div class="mb-3">
+                    <asp:Label Text="Campo" ID="lblCampo" runat="server" />
+                    <asp:DropDownList runat="server" AutoPostBack="true" CssClass="form-control" ID="ddlCampo" OnSelectedIndexChanged="ddlCampo_SelectedIndexChanged">
+                        <asp:ListItem Text="Nombre" />
+                        <asp:ListItem Text="Matricula" />
+                        <asp:ListItem Text="DNI" />
+                    </asp:DropDownList>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="mb-3">
+                    <asp:Label Text="Criterio" runat="server" />
+                    <asp:DropDownList runat="server" ID="ddlCriterio" CssClass="form-control"></asp:DropDownList>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="mb-3">
+                    <asp:Label Text="Filtro" runat="server" />
+                    <asp:TextBox runat="server" ID="txtFiltroAvanzado" CssClass="form-control" />
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="mb-3">
+                    <asp:Label Text="Estado" runat="server" />
+                    <asp:DropDownList runat="server" ID="ddlEstado" CssClass="form-control">
+                        <asp:ListItem Text="Todos" />
+                        <asp:ListItem Text="Activo" />
+                        <asp:ListItem Text="Inactivo" />
+                    </asp:DropDownList>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <div class="mb-3">
+                    <asp:Button Text="Buscar" runat="server" CssClass="btn btn-primary" ID="btnBuscar" OnClick="btnBuscar_Click" />
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="mb-3">
+                    <asp:Button Text="Limpiar" runat="server" CssClass="btn btn-outline-primary" ID="btnLimpiar" OnClick="btnLimpiar_Click" />
+                </div>
+            </div>
+        </div>
+        <% } %>
+    </div>
+    <asp:GridView ID="dgvMedicos" runat="server" DataKeyNames="IdMedico"
+        CssClass="table" AutoGenerateColumns="false"
+        OnRowCommand="dgvMedicos_RowCommand">
+        <Columns>
+            <asp:BoundField HeaderText="Matricula" DataField="Matricula" />
+            <asp:BoundField HeaderText="Nombre" DataField="Nombre" />
+            <asp:BoundField HeaderText="Apellido" DataField="Apellido" />
+            <asp:BoundField HeaderText="DNI" DataField="DNI" />
+            <asp:BoundField HeaderText="Email" DataField="Email" />
+            <asp:TemplateField HeaderText="Activo">
+                <ItemTemplate>
+                    <%# Convert.ToBoolean(Eval("Activo")) ? "Activo" : "Inactivo" %>
+                </ItemTemplate>
+            </asp:TemplateField>
+            <asp:TemplateField HeaderText="Accion">
+                <ItemTemplate>
+                    <asp:LinkButton ID="BtnModificar" runat="server" CommandName="Editar" CommandArgument='<%# Eval("IdMedico") %>'>Modificar</asp:LinkButton>
+                </ItemTemplate>
+            </asp:TemplateField>
+            <asp:TemplateField HeaderText="Baja">
+                <ItemTemplate>
+                    <asp:LinkButton ID="BtnBaja" runat="server" CommandName="Desactivar" CommandArgument='<%# Eval("IdMedico") %>'>Baja</asp:LinkButton>
+                </ItemTemplate>
+            </asp:TemplateField>
+        </Columns>
+    </asp:GridView>
+    <div class="mt-3">
+        <asp:Button Text="Limpiar" runat="server" CssClass="btn btn-outline-primary" ID="btnLimpiarRapido" OnClick="btnLimpiar_Click" />
+    </div>
+    <a href="FormularioMedico.aspx" class="btn btn-primary">Agregar</a>
 </asp:Content>

@@ -66,6 +66,48 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
+        public List<Medico> ListarFiltroRapido(string filtro)
+        {
+            List<Medico> medicos = new List<Medico>();
+            try
+            {
+                string consulta = "SELECT IdMedico, Matricula, DNI, Nombre, Apellido, Telefono, Email, Activo"
+                    + " FROM Medicos";
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    consulta += " WHERE UPPER(Nombre) LIKE '%' + UPPER(@filtro) + '%'"
+                        + " OR UPPER(Apellido) LIKE '%' + UPPER(@filtro) + '%'";
+                }
+
+                consulta += " ORDER BY Apellido, Nombre";
+
+                accesoDatos.setearConsulta(consulta);
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    accesoDatos.setearParametro("@filtro", filtro);
+                }
+
+                accesoDatos.ejecutarLectura();
+
+                while (accesoDatos.Lector.Read())
+                {
+                    medicos.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
+
+                return medicos;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
         public Medico ObtenerPorId(int idMedico)
         {
             Medico medico = new Medico();
@@ -255,7 +297,7 @@ namespace TurnosClinica.AccesoDatos
                     switch (campo)
                     {
                         case "Matricula":
-                            consulta += criterio == "Empieza con"
+                            consulta += criterio == "Comienza con"
                                 ? (tieneCondicion ? " AND Matricula LIKE @filtro + '%'" : " WHERE Matricula LIKE @filtro + '%'")
                                 : criterio == "Termina con"
                                     ? (tieneCondicion ? " AND Matricula LIKE '%' + @filtro" : " WHERE Matricula LIKE '%' + @filtro")
@@ -263,11 +305,20 @@ namespace TurnosClinica.AccesoDatos
                             tieneCondicion = true;
                             break;
                         case "DNI":
-                            consulta += tieneCondicion ? " AND DNI LIKE '%' + @filtro + '%'" : " WHERE DNI LIKE '%' + @filtro + '%'";
+                            if (!int.TryParse(filtro, out _))
+                            {
+                                return medicos;
+                            }
+
+                            consulta += criterio == "Igual a"
+                                ? (tieneCondicion ? " AND TRY_CONVERT(INT, DNI) = @filtroNumerico" : " WHERE TRY_CONVERT(INT, DNI) = @filtroNumerico")
+                                : criterio == "Mayor a"
+                                    ? (tieneCondicion ? " AND TRY_CONVERT(INT, DNI) > @filtroNumerico" : " WHERE TRY_CONVERT(INT, DNI) > @filtroNumerico")
+                                    : (tieneCondicion ? " AND TRY_CONVERT(INT, DNI) < @filtroNumerico" : " WHERE TRY_CONVERT(INT, DNI) < @filtroNumerico");
                             tieneCondicion = true;
                             break;
                         case "Nombre":
-                            consulta += criterio == "Empieza con"
+                            consulta += criterio == "Comienza con"
                                 ? (tieneCondicion ? " AND Nombre LIKE @filtro + '%'" : " WHERE Nombre LIKE @filtro + '%'")
                                 : criterio == "Termina con"
                                     ? (tieneCondicion ? " AND Nombre LIKE '%' + @filtro" : " WHERE Nombre LIKE '%' + @filtro")
@@ -275,7 +326,7 @@ namespace TurnosClinica.AccesoDatos
                             tieneCondicion = true;
                             break;
                         case "Apellido":
-                            consulta += criterio == "Empieza con"
+                            consulta += criterio == "Comienza con"
                                 ? (tieneCondicion ? " AND Apellido LIKE @filtro + '%'" : " WHERE Apellido LIKE @filtro + '%'")
                                 : criterio == "Termina con"
                                     ? (tieneCondicion ? " AND Apellido LIKE '%' + @filtro" : " WHERE Apellido LIKE '%' + @filtro")
@@ -300,7 +351,14 @@ namespace TurnosClinica.AccesoDatos
                 }
                 if (!string.IsNullOrWhiteSpace(filtro))
                 {
-                    accesoDatos.setearParametro("@filtro", filtro);
+                    if (campo == "DNI")
+                    {
+                        accesoDatos.setearParametro("@filtroNumerico", int.Parse(filtro));
+                    }
+                    else
+                    {
+                        accesoDatos.setearParametro("@filtro", filtro);
+                    }
                 }
 
                 accesoDatos.ejecutarLectura();
