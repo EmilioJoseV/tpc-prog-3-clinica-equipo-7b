@@ -240,7 +240,7 @@ namespace TurnosClinica.AccesoDatos
             {
                 usuario.Rol = new Rol
                 {
-                    IdRol = Convert.ToInt32(fila["IdRol"])
+                    IdRol = Convert.ToInt32(fila["IdRol"]), Nombre = fila["NombreRol"] is DBNull ? string.Empty : fila["NombreRol"].ToString()
                 };
             }
 
