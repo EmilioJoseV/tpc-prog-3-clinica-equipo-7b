@@ -40,6 +40,7 @@
                     <th scope="col">Descripción</th>
                     <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
+                    <th scope="col">Baja</th>
                 </tr>
             </thead>
             <tbody>
@@ -61,6 +62,13 @@
                                 Modificar
                             </a>
                         </td>
+                        
+                        <td>
+                            
+                            <a href="ListaEspecialidades.aspx?idBaja=<%: esp.IdEspecialidad %>" class="btn btn-danger" onclick="return confirm('¿Estás seguro que deseas dar de baja esta especialidad?');">Dar de baja</a>
+                        </td>
+
+
                     </tr>
                 <% } %>
                 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-// Tus usings normales:
 using TurnosClinica.Negocio;
 using TurnosClinica.Dominio.Entidades;
 
@@ -17,8 +16,16 @@ namespace TurnosClinica.Web
             {
                 
                 EspecialidadNegocio negocio = new EspecialidadNegocio();
+                if (Request.QueryString["idBaja"] != null)
+                {
+                    int idEliminar = int.Parse(Request.QueryString["idBaja"]);
 
-                
+                    
+                   
+                    negocio.Eliminar(idEliminar);
+                }
+
+
                 Session.Add("listaEspecialidades", negocio.Listar(true));
             }
 
