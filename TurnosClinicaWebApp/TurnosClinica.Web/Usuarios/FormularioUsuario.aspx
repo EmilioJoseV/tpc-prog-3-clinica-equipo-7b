@@ -5,12 +5,12 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-4">
-        <h2 id="lblTitulo" runat="server">Nuevo Usuario</h2>
+        <h2><%= Request.QueryString["id"] != null ? "Modificar Usuario" : "Nuevo Usuario" %></h2>
         <p class="text-secondary">Ingresa los datos correspondientes para el usuario.</p>
         <hr />
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <h5 class="text-primary mb-3">Datos Personales</h5>
 
                 <div class="mb-3">
@@ -24,13 +24,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="fileImagen" class="form-label">Foto de Perfil</label>
+                    <label for="fileImagen" class="form-label">Subir nueva foto</label>
                     <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
                     <small class="text-muted">Formatos aceptados: .jpg, .png</small>
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <h5 class="text-primary mb-3">Acceso y Seguridad</h5>
 
                 <div class="mb-3">
@@ -44,33 +44,51 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="txtPassword" class="form-label">Contraseña</label>
-                    <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password"></asp:TextBox>
+                    <label for="txtPassword" class="form-label">Contraseña (Dejar vacío para no cambiar)</label>
+                    <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control"></asp:TextBox>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="ddlRol" class="form-label">Rol Asignado</label>
-                        <asp:DropDownList ID="ddlRol" runat="server" CssClass="form-select"></asp:DropDownList>
-                    </div>
+                <div class="mb-3">
+                    <label for="ddlRol" class="form-label">Rol Asignado</label>
+                    <asp:DropDownList ID="ddlRol" runat="server" CssClass="form-select"></asp:DropDownList>
+                </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="ddlMedico" class="form-label">Medico Asociado (Opcional)</label>
-                        <asp:DropDownList ID="ddlMedico" runat="server" CssClass="form-select"></asp:DropDownList>
-                    </div>
+                <div class="mb-3">
+                    <label for="ddlMedico" class="form-label">Medico Asociado (Opcional)</label>
+                    <asp:DropDownList ID="ddlMedico" runat="server" CssClass="form-select"></asp:DropDownList>
                 </div>
             </div>
+            <div class="col-md-4 text-center d-flex flex-column align-items-center pt-4">
+                <h5 class="text-primary mb-3">Foto de Perfil Actual</h5>
+
+                <% if (Request.QueryString["id"] != null && usuarioActual != null)
+                    {
+                        if (usuarioActual.Imagen != null && usuarioActual.Imagen.Length > 0)
+                        { %>
+                <img src="data:image/jpeg;base64,<%= Convert.ToBase64String(usuarioActual.Imagen) %>" alt="Avatar" class="img-thumbnail rounded-circle" style="width: 180px; height: 180px; object-fit: cover;" />
+                <%  }
+                    else
+                    { %>
+                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 180px; height: 180px; font-size: 48px;">
+                    <%= !string.IsNullOrEmpty(usuarioActual.NombreUsuario) ? usuarioActual.NombreUsuario.Substring(0, 1).ToUpper() : "U" %>
+                </div>
+                <%  }
+                    }
+                    else
+                    { %>
+                <div class="bg-light text-muted border rounded d-flex align-items-center justify-content-center text-center p-3" style="width: 180px; height: 180px; font-size: 14px;">
+                    Sin imagen (Usuario Nuevo)
+                </div>
+                <% } %>
+            </div>
         </div>
+
         <div class="row mt-3">
             <div class="col-12">
                 <div class="mb-3 d-flex gap-2">
                     <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" OnClick="btnAceptar_Click" />
-
                     <asp:Button ID="btnInactivar" runat="server" Text="Inactivar" CssClass="btn btn-warning" OnClick="btnInactivar_Click" />
-
-                    <asp:Button ID="btnEliminar" runat="server" Text="Eliminar" CssClass="btn btn-danger" OnClick="btnEliminar_Click"
-                        OnClientClick="return confirm('¿Estas seguro de que deseas eliminar permanentemente a este usuario?');" />
-
+                    <asp:Button ID="btnEliminar" runat="server" Text="Eliminar" CssClass="btn btn-danger" OnClick="btnEliminar_Click" OnClientClick="return confirm('¿Estas seguro de que deseas eliminar permanentemente a este usuario?');" />
                     <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
                 </div>
             </div>
