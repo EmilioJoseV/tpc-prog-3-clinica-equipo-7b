@@ -41,6 +41,10 @@
                     <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
                     <th scope="col">Baja</th>
+                   <th scope ="col">Médicos Asociados</th> 
+                    
+                          
+
                 </tr>
             </thead>
             <tbody>
@@ -67,6 +71,7 @@
                             
                             <a href="ListaEspecialidades.aspx?idBaja=<%: esp.IdEspecialidad %>" class="btn btn-danger" onclick="return confirm('¿Estás seguro que deseas dar de baja esta especialidad?');">Dar de baja</a>
                         </td>
+                        <td><%: ObtenerMedicosPorEspecialidad(esp.IdEspecialidad) %> </td>
 
 
                     </tr>

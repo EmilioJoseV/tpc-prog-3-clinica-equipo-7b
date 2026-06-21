@@ -20,8 +20,6 @@ namespace TurnosClinica.Web
                 {
                     int idEliminar = int.Parse(Request.QueryString["idBaja"]);
 
-                    
-                   
                     negocio.Eliminar(idEliminar);
                 }
 
@@ -45,5 +43,33 @@ namespace TurnosClinica.Web
 
             ListaEspecialidad = listaFiltrada;
         }
+        public string ObtenerMedicosPorEspecialidad(int idEspecialidad)
+        {
+            MedicoNegocio medicoNegocio = new MedicoNegocio();
+            List<Medico> todosLosMedicos = medicoNegocio.Listar();
+
+            //  Filtro los médicos. 
+            // Como un médico tiene una lista con Exists para buscar si dentro de sus especialidades está la que busco
+            var medicosAsociados = todosLosMedicos.FindAll(m =>
+                m.Especialidades != null &&
+                m.Especialidades.Exists(esp => esp.IdEspecialidad == idEspecialidad)
+            );
+
+            if (medicosAsociados.Count > 0)
+            {
+                // uni los nombres
+                List<string> nombres = new List<string>();
+                foreach (var med in medicosAsociados)
+                {
+                    nombres.Add(med.Nombre + " " + med.Apellido);
+                }
+                return string.Join(", ", nombres);
+            }
+            else
+            {
+                return "Sin médicos asociados";
+            }
+        }
+
     }
 }
