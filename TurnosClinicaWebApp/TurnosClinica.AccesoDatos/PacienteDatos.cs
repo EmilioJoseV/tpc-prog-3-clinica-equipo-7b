@@ -203,13 +203,11 @@ namespace TurnosClinica.AccesoDatos
                 string consulta = "SELECT Pcte.IdPaciente, Pcte.IdPersona, Pcte.FechaNacimiento, Pcte.Direccion, Pcte.Activo, "
                     + "       Per.DNI, Per.Nombre, Per.Apellido, Per.Telefono, Per.Email "
                     + "FROM Pacientes Pcte "
-                    + "INNER JOIN Personas Per ON Per.IdPersona = Pcte.IdPersona";
-                bool tieneCondicion = false;
+                    + "INNER JOIN Personas Per ON Per.IdPersona = Pcte.IdPersona WHERE 1=1";
 
                 if (activo.HasValue)
                 {
-                    consulta += tieneCondicion ? " AND Pcte.Activo = @activo" : " WHERE Pcte.Activo = @activo";
-                    tieneCondicion = true;
+                    consulta += " AND Pcte.Activo = @activo";
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtro))
@@ -218,33 +216,27 @@ namespace TurnosClinica.AccesoDatos
                     {
                         case "DNI":
                             consulta += criterio == "Igual a"
-                                ? (tieneCondicion ? " AND Per.DNI = @filtro" : " WHERE Per.DNI = @filtro")
+                                ? " AND Per.DNI = @filtro"
                                 : criterio == "Mayor a"
-                                    ? (tieneCondicion ? " AND Per.DNI > @filtro" : " WHERE Per.DNI > @filtro")
-                                    : (tieneCondicion ? " AND Per.DNI < @filtro" : " WHERE Per.DNI < @filtro");
-                            tieneCondicion = true;
+                                    ? " AND Per.DNI > @filtro"
+                                    : " AND Per.DNI < @filtro";
                             break;
                         case "Nombre":
                             consulta += criterio == "Comienza con"
-                                ? (tieneCondicion ? " AND Per.Nombre LIKE @filtro + '%'" : " WHERE Per.Nombre LIKE @filtro + '%'")
+                                ? " AND Per.Nombre LIKE @filtro + '%'"
                                 : criterio == "Termina con"
-                                    ? (tieneCondicion ? " AND Per.Nombre LIKE '%' + @filtro" : " WHERE Per.Nombre LIKE '%' + @filtro")
-                                    : (tieneCondicion ? " AND Per.Nombre LIKE '%' + @filtro + '%'" : " WHERE Per.Nombre LIKE '%' + @filtro + '%'");
-                            tieneCondicion = true;
+                                    ? " AND Per.Nombre LIKE '%' + @filtro"
+                                    : " AND Per.Nombre LIKE '%' + @filtro + '%'";
                             break;
                         case "Apellido":
                             consulta += criterio == "Comienza con"
-                                ? (tieneCondicion ? " AND Per.Apellido LIKE @filtro + '%'" : " WHERE Per.Apellido LIKE @filtro + '%'")
+                                ? " AND Per.Apellido LIKE @filtro + '%'"
                                 : criterio == "Termina con"
-                                    ? (tieneCondicion ? " AND Per.Apellido LIKE '%' + @filtro" : " WHERE Per.Apellido LIKE '%' + @filtro")
-                                    : (tieneCondicion ? " AND Per.Apellido LIKE '%' + @filtro + '%'" : " WHERE Per.Apellido LIKE '%' + @filtro + '%'");
-                            tieneCondicion = true;
+                                    ? " AND Per.Apellido LIKE '%' + @filtro"
+                                    : " AND Per.Apellido LIKE '%' + @filtro + '%'";
                             break;
                         default:
-                            consulta += tieneCondicion
-                                ? " AND (Per.Nombre LIKE '%' + @filtro + '%' OR Per.Apellido LIKE '%' + @filtro + '%' OR Per.DNI LIKE '%' + @filtro + '%')"
-                                : " WHERE (Per.Nombre LIKE '%' + @filtro + '%' OR Per.Apellido LIKE '%' + @filtro + '%' OR Per.DNI LIKE '%' + @filtro + '%')";
-                            tieneCondicion = true;
+                            consulta += " AND (Per.Nombre LIKE '%' + @filtro + '%' OR Per.Apellido LIKE '%' + @filtro + '%' OR Per.DNI LIKE '%' + @filtro + '%')";
                             break;
                     }
                 }

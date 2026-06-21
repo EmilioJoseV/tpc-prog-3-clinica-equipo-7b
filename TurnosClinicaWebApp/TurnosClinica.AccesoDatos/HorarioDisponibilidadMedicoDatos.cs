@@ -27,37 +27,31 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 string consulta = "SELECT IdHorarioDisponiblidadMedico, IdMedico, DiaSemana, HoraDesde, HoraHasta, Activo"
-                    + " FROM HorariosDisponiblidadMedicos";
-                bool tieneCondicion = false;
+                    + " FROM HorariosDisponiblidadMedicos WHERE 1=1";
 
                 if (idMedico.HasValue)
                 {
-                    consulta += tieneCondicion ? " AND IdMedico = @idMedico" : " WHERE IdMedico = @idMedico";
-                    tieneCondicion = true;
+                    consulta += " AND IdMedico = @idMedico";
                 }
 
                 if (diaSemana.HasValue)
                 {
-                    consulta += tieneCondicion ? " AND DiaSemana = @diaSemana" : " WHERE DiaSemana = @diaSemana";
-                    tieneCondicion = true;
+                    consulta += " AND DiaSemana = @diaSemana";
                 }
 
                 if (horaDesde.HasValue)
                 {
-                    consulta += tieneCondicion ? " AND HoraDesde >= @horaDesde" : " WHERE HoraDesde >= @horaDesde";
-                    tieneCondicion = true;
+                    consulta += " AND HoraDesde >= @horaDesde";
                 }
 
                 if (horaHasta.HasValue)
                 {
-                    consulta += tieneCondicion ? " AND HoraHasta <= @horaHasta" : " WHERE HoraHasta <= @horaHasta";
-                    tieneCondicion = true;
+                    consulta += " AND HoraHasta <= @horaHasta";
                 }
 
                 if (activo.HasValue)
                 {
-                    consulta += tieneCondicion ? " AND Activo = @activo" : " WHERE Activo = @activo";
-                    tieneCondicion = true;
+                    consulta += " AND Activo = @activo";
                 }
 
                 consulta += " ORDER BY DiaSemana, HoraDesde";

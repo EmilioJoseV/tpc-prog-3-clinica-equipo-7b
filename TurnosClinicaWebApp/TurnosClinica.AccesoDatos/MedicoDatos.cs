@@ -252,13 +252,11 @@ namespace TurnosClinica.AccesoDatos
                 string consulta = "SELECT M.IdMedico, M.IdPersona, M.Matricula, M.Activo, "
                     + "       P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email "
                     + "FROM Medicos M "
-                    + "INNER JOIN Personas P ON P.IdPersona = M.IdPersona";
-                bool tieneCondicion = false;
+                    + "INNER JOIN Personas P ON P.IdPersona = M.IdPersona WHERE 1=1";
 
                 if (activo.HasValue)
                 {
-                    consulta += tieneCondicion ? " AND M.Activo = @activo" : " WHERE M.Activo = @activo";
-                    tieneCondicion = true;
+                    consulta += " AND M.Activo = @activo";
                 }
 
                 if (!string.IsNullOrWhiteSpace(filtro))
@@ -267,41 +265,34 @@ namespace TurnosClinica.AccesoDatos
                     {
                         case "Matricula":
                             consulta += criterio == "Comienza con"
-                                ? (tieneCondicion ? " AND M.Matricula LIKE @filtro + '%'" : " WHERE M.Matricula LIKE @filtro + '%'")
+                                ? " AND M.Matricula LIKE @filtro + '%'"
                                 : criterio == "Termina con"
-                                    ? (tieneCondicion ? " AND M.Matricula LIKE '%' + @filtro" : " WHERE M.Matricula LIKE '%' + @filtro")
-                                    : (tieneCondicion ? " AND M.Matricula LIKE '%' + @filtro + '%'" : " WHERE M.Matricula LIKE '%' + @filtro + '%'");
-                            tieneCondicion = true;
+                                    ? " AND M.Matricula LIKE '%' + @filtro"
+                                    : " AND M.Matricula LIKE '%' + @filtro + '%'";
                             break;
                         case "DNI":
                             consulta += criterio == "Igual a"
-                                ? (tieneCondicion ? " AND P.DNI = @filtro" : " WHERE P.DNI = @filtro")
+                                ? " AND P.DNI = @filtro"
                                 : criterio == "Mayor a"
-                                    ? (tieneCondicion ? " AND P.DNI > @filtro" : " WHERE P.DNI > @filtro")
-                                    : (tieneCondicion ? " AND P.DNI < @filtro" : " WHERE P.DNI < @filtro");
-                            tieneCondicion = true;
+                                    ? " AND P.DNI > @filtro"
+                                    : " AND P.DNI < @filtro";
                             break;
                         case "Nombre":
                             consulta += criterio == "Comienza con"
-                                ? (tieneCondicion ? " AND P.Nombre LIKE @filtro + '%'" : " WHERE P.Nombre LIKE @filtro + '%'")
+                                ? " AND P.Nombre LIKE @filtro + '%'"
                                 : criterio == "Termina con"
-                                    ? (tieneCondicion ? " AND P.Nombre LIKE '%' + @filtro" : " WHERE P.Nombre LIKE '%' + @filtro")
-                                    : (tieneCondicion ? " AND P.Nombre LIKE '%' + @filtro + '%'" : " WHERE P.Nombre LIKE '%' + @filtro + '%'");
-                            tieneCondicion = true;
+                                    ? " AND P.Nombre LIKE '%' + @filtro"
+                                    : " AND P.Nombre LIKE '%' + @filtro + '%'";
                             break;
                         case "Apellido":
                             consulta += criterio == "Comienza con"
-                                ? (tieneCondicion ? " AND P.Apellido LIKE @filtro + '%'" : " WHERE P.Apellido LIKE @filtro + '%'")
+                                ? " AND P.Apellido LIKE @filtro + '%'"
                                 : criterio == "Termina con"
-                                    ? (tieneCondicion ? " AND P.Apellido LIKE '%' + @filtro" : " WHERE P.Apellido LIKE '%' + @filtro")
-                                    : (tieneCondicion ? " AND P.Apellido LIKE '%' + @filtro + '%'" : " WHERE P.Apellido LIKE '%' + @filtro + '%'");
-                            tieneCondicion = true;
+                                    ? " AND P.Apellido LIKE '%' + @filtro"
+                                    : " AND P.Apellido LIKE '%' + @filtro + '%'";
                             break;
                         default:
-                            consulta += tieneCondicion
-                                ? " AND (P.Nombre LIKE '%' + @filtro + '%' OR P.Apellido LIKE '%' + @filtro + '%' OR P.DNI LIKE '%' + @filtro + '%' OR M.Matricula LIKE '%' + @filtro + '%')"
-                                : " WHERE (P.Nombre LIKE '%' + @filtro + '%' OR P.Apellido LIKE '%' + @filtro + '%' OR P.DNI LIKE '%' + @filtro + '%' OR M.Matricula LIKE '%' + @filtro + '%')";
-                            tieneCondicion = true;
+                            consulta += " AND (P.Nombre LIKE '%' + @filtro + '%' OR P.Apellido LIKE '%' + @filtro + '%' OR P.DNI LIKE '%' + @filtro + '%' OR M.Matricula LIKE '%' + @filtro + '%')";
                             break;
                     }
                 }
