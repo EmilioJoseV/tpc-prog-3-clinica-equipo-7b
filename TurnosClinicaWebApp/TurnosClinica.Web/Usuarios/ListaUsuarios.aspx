@@ -26,7 +26,6 @@
                     <th scope="col">Email</th>
                     <th scope="col">Rol</th>
                     <th scope="col">Medico (ID)</th>
-                    <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
                 </tr>
             </thead>
@@ -41,8 +40,8 @@
                                 string base64String = Convert.ToBase64String(user.Imagen); %>
                         <img src="data:image/jpeg;base64,<%= base64String %>" alt="Avatar" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;" />
                         <% }
-                        else
-                        { %>
+                            else
+                            { %>
                         <div class="bg-secondary text-white rounded-circle d-inline-block text-center pt-1" style="width: 35px; height: 35px; font-size: 14px;">
                             <%= !string.IsNullOrEmpty(user.NombreUsuario) ? user.NombreUsuario.Substring(0, 1).ToUpper() : "U" %>
                         </div>
@@ -59,16 +58,6 @@
                     </td>
                     <td>
                         <%: user.Medico != null ? user.Medico.IdMedico.ToString() : "No Asignado" %>
-                    </td>
-                    <td>
-                        <% if (user.Activo)
-                        { %>
-                        <span class="badge bg-success">Activo</span>
-                        <% }
-                        else
-                        { %>
-                        <span class="badge bg-danger">Inactivo</span>
-                        <% } %>
                     </td>
                     <td>
                         <a href="FormularioUsuario.aspx?id=<%: user.IdUsuario %>" class="btn btn-warning btn-sm">Ver
