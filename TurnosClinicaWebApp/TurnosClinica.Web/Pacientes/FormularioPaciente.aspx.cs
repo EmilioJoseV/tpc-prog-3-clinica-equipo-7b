@@ -37,6 +37,7 @@ namespace TurnosClinica.Web
 
             Paciente paciente = pacienteNegocio.ObtenerPorId(int.Parse(id));
             HfIdPaciente.Value = paciente.IdPaciente.ToString();
+            HfIdPersona.Value = paciente.IdPersona.ToString();
             TxtDni.Text = paciente.DNI;
             TxtNombre.Text = paciente.Nombre;
             TxtApellido.Text = paciente.Apellido;
@@ -53,6 +54,7 @@ namespace TurnosClinica.Web
             {
                 Paciente paciente = new Paciente
                 {
+                    IdPersona = string.IsNullOrWhiteSpace(HfIdPersona.Value) ? 0 : int.Parse(HfIdPersona.Value),
                     DNI = TxtDni.Text,
                     Nombre = TxtNombre.Text,
                     Apellido = TxtApellido.Text,

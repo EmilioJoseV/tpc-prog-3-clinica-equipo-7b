@@ -65,6 +65,7 @@ namespace TurnosClinica.Web
 
             Medico medico = medicoNegocio.ObtenerPorId(int.Parse(id));
             HfIdMedico.Value = medico.IdMedico.ToString();
+            HfIdPersona.Value = medico.IdPersona.ToString();
             TxtMatricula.Text = medico.Matricula;
             TxtDni.Text = medico.DNI;
             TxtNombre.Text = medico.Nombre;
@@ -139,6 +140,7 @@ namespace TurnosClinica.Web
             {
                 Medico medico = new Medico
                 {
+                    IdPersona = string.IsNullOrWhiteSpace(HfIdPersona.Value) ? 0 : int.Parse(HfIdPersona.Value),
                     Matricula = TxtMatricula.Text,
                     DNI = TxtDni.Text,
                     Nombre = TxtNombre.Text,

@@ -24,6 +24,24 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblTitulo;
 
         /// <summary>
+        /// HfIdPersona control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField HfIdPersona;
+
+        /// <summary>
+        /// txtDni control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtDni;
+
+        /// <summary>
         /// txtNombre control.
         /// </summary>
         /// <remarks>
@@ -40,6 +58,15 @@ namespace TurnosClinica.Web
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtApellido;
+
+        /// <summary>
+        /// txtTelefono control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTelefono;
 
         /// <summary>
         /// fileImagen control.
@@ -85,15 +112,6 @@ namespace TurnosClinica.Web
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlRol;
-
-        /// <summary>
-        /// ddlMedico control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlMedico;
 
         /// <summary>
         /// btnAceptar control.

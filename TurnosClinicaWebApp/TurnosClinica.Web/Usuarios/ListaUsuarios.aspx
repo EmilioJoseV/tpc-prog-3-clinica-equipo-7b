@@ -9,8 +9,6 @@
                 <h1 class="h3 mb-3">Lista de Usuarios</h1>
                 <p class="text-secondary">Esta pagina esta pensada para administrar usuarios.</p>
             </div>
-
-
             <div class="col text-end">
                 <a href="FormularioUsuario.aspx" class="btn btn-primary">
                     + Nuevo Usuario
@@ -26,13 +24,12 @@
                     <th scope="col">Nombre y Apellido</th>
                     <th scope="col">Email</th>
                     <th scope="col">Rol</th>
-                    <th scope="col">Medico (ID)</th>
                     <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <% foreach (TurnosClinica.Dominio.Entidades.Usuario user in ListaUsuariosProp) { %>
+                <% foreach (TurnosClinica.Dominio.Entidades.Usuario user in ListaUsuariosProp ?? new System.Collections.Generic.List<TurnosClinica.Dominio.Entidades.Usuario>()) { %>
                     <tr>
                         <td><%: user.IdUsuario %></td>
                         <td class="text-center">
@@ -46,8 +43,8 @@
                             <% } %>
                         </td>
                         <td>
-                            <%: !string.IsNullOrEmpty(user.Nombre) || !string.IsNullOrEmpty(user.Apellido) 
-                                ? $"{user.Nombre} {user.Apellido}".Trim() 
+                            <%: !string.IsNullOrEmpty(user.Nombre) || !string.IsNullOrEmpty(user.Apellido)
+                                ? (user.Nombre + " " + user.Apellido).Trim()
                                 : "Sin especificar" %>
                         </td>
                         <td><%: user.Email %></td>
@@ -55,14 +52,9 @@
                             <%: user.Rol != null && !string.IsNullOrEmpty(user.Rol.Nombre) ? user.Rol.Nombre : "Sin Rol" %>
                         </td>
                         <td>
-                            <%: user.Medico != null ? user.Medico.IdMedico.ToString() : "No Asignado" %>
-                        </td>
-                        <td>
-                            <% if (user.Activo) { %>
-                                <span class="badge bg-success">Activo</span>
-                            <% } else { %>
-                                <span class="badge bg-danger">Inactivo</span>
-                            <% } %>
+                            <span class='badge <%: ObtenerEstadoUsuarioBadgeClass(user.EstadoUsuario) %>'>
+                                <%: ObtenerEstadoUsuarioTexto(user.EstadoUsuario) %>
+                            </span>
                         </td>
                         <td>
                             <a href="FormularioUsuario.aspx?id=<%: user.IdUsuario %>" class="btn btn-warning btn-sm">

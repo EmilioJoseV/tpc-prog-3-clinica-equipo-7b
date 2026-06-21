@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Negocio
 {
@@ -21,7 +19,7 @@ namespace TurnosClinica.Negocio
         {
             try
             {
-                return usuarioDatos.Listar(null, null, null);
+                return usuarioDatos.Listar(null, null);
             }
             catch (Exception ex)
             {
@@ -31,41 +29,65 @@ namespace TurnosClinica.Negocio
 
         public void Agregar(Usuario usuario)
         {
-            try
+            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
             {
-                if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
-                    throw new Exception("El nombre de usuario es obligatorio.");
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
+                        throw new Exception("El nombre de usuario es obligatorio.");
 
-                if (string.IsNullOrWhiteSpace(usuario.Email))
-                    throw new Exception("El correo electrónico es obligatorio.");
+                    if (string.IsNullOrWhiteSpace(usuario.DNI))
+                        throw new Exception("El DNI es obligatorio.");
 
-                if (usuario.Rol == null || usuario.Rol.IdRol <= 0)
-                    throw new Exception("Debe asignar un Rol válido al usuario.");
+                    if (string.IsNullOrWhiteSpace(usuario.Email))
+                        throw new Exception("El correo electrónico es obligatorio.");
 
-                usuario.Activo = true;
-                usuarioDatos.Agregar(usuario);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                    if (usuario.Rol == null || string.IsNullOrWhiteSpace(usuario.Rol.Nombre) || !Enum.TryParse(usuario.Rol.Nombre, true, out RolEnum _))
+                        throw new Exception("Debe asignar un Rol válido al usuario.");
+
+                    if (!Enum.IsDefined(typeof(EstadoUsuarioEnum), usuario.EstadoUsuario))
+                    {
+                        usuario.EstadoUsuario = EstadoUsuarioEnum.Activo;
+                    }
+
+                    transaccionDatos.IniciarTransaccion();
+                    UsuarioDatos datos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+                    datos.Agregar(usuario);
+                    transaccionDatos.Confirmar();
+                }
+                catch (Exception ex)
+                {
+                    transaccionDatos.Cancelar();
+                    throw ex;
+                }
             }
         }
 
         public void Modificar(Usuario usuario)
         {
-            try
+            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
             {
-                if (usuario.IdUsuario <= 0)
-                    throw new Exception("No se puede modificar un usuario sin un ID válido.");
+                try
+                {
+                    if (usuario.IdUsuario <= 0)
+                        throw new Exception("No se puede modificar un usuario sin un ID válido.");
 
-                if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
-                    throw new Exception("El nombre de usuario no puede quedar vacío.");
+                    if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
+                        throw new Exception("El nombre de usuario no puede quedar vacío.");
 
-                usuarioDatos.Modificar(usuario);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                    if (string.IsNullOrWhiteSpace(usuario.DNI))
+                        throw new Exception("El DNI no puede quedar vacío.");
+
+                    transaccionDatos.IniciarTransaccion();
+                    UsuarioDatos datos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+                    datos.Modificar(usuario);
+                    transaccionDatos.Confirmar();
+                }
+                catch (Exception ex)
+                {
+                    transaccionDatos.Cancelar();
+                    throw ex;
+                }
             }
         }
         public void EliminarLogico(int idUsuario)
@@ -112,11 +134,11 @@ namespace TurnosClinica.Negocio
             }
         }
 
-        public List<Usuario> ListarConFiltros(int? idRol, int? idMedico, bool? activo)
+        public List<Usuario> ListarConFiltros(string rolLiteral, string estadoUsuarioLiteral)
         {
             try
             {
-                return usuarioDatos.Listar(idRol, idMedico, activo);
+                return usuarioDatos.Listar(rolLiteral, estadoUsuarioLiteral);
             }
             catch (Exception ex)
             {
@@ -131,6 +153,21 @@ namespace TurnosClinica.Negocio
                     throw new ArgumentException("El ID de usuario no es válido.");
 
                 return usuarioDatos.ObtenerPorId(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Usuario ObtenerPorIdPersona(int idPersona)
+        {
+            try
+            {
+                if (idPersona <= 0)
+                    return null;
+
+                return usuarioDatos.ObtenerPorIdPersona(idPersona);
             }
             catch (Exception ex)
             {

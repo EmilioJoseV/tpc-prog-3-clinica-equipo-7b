@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
@@ -8,104 +9,34 @@ namespace TurnosClinica.AccesoDatos
     public class MedicoDatos : IFiltrable<Medico>, IMapeable<Medico>
     {
         private readonly AccesoDatos accesoDatos;
+        private readonly PersonaDatos personaDatos;
         private readonly MedicoEspecialidadesDatos medicoEspecialidadesDatos;
         private readonly HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos;
 
         public MedicoDatos()
         {
             accesoDatos = new AccesoDatos();
-            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos();
-            horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos();
+            personaDatos = new PersonaDatos(accesoDatos);
+            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(accesoDatos);
+            horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(accesoDatos);
         }
 
         public MedicoDatos(AccesoDatos accesoDatosCompartido)
         {
             accesoDatos = accesoDatosCompartido;
-            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos();
-            horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos();
+            personaDatos = new PersonaDatos(accesoDatosCompartido);
+            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(accesoDatosCompartido);
+            horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(accesoDatosCompartido);
         }
 
         public List<Medico> Listar(bool? activo)
         {
-            List<Medico> medicos = new List<Medico>();
-            try
-            {
-                string consulta = "SELECT IdMedico, Matricula, DNI, Nombre, Apellido, Telefono, Email, Activo"
-                    + " FROM Medicos";
-
-                if (activo.HasValue)
-                {
-                    consulta += " WHERE Activo = @activo";
-                }
-
-                consulta += " ORDER BY Apellido ASC";
-
-                accesoDatos.setearConsulta(consulta);
-
-                if (activo.HasValue)
-                {
-                    accesoDatos.setearParametro("@activo", activo.Value);
-                }
-
-                accesoDatos.ejecutarLectura();
-
-                while (accesoDatos.Lector.Read())
-                {
-                    medicos.Add(MapearFilaAEntidad(accesoDatos.Lector));
-                }
-
-                return medicos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
+            return ListarConFiltros(null, null, null, activo);
         }
 
         public List<Medico> ListarFiltroRapido(string filtro)
         {
-            List<Medico> medicos = new List<Medico>();
-            try
-            {
-                string consulta = "SELECT IdMedico, Matricula, DNI, Nombre, Apellido, Telefono, Email, Activo"
-                    + " FROM Medicos";
-
-                if (!string.IsNullOrWhiteSpace(filtro))
-                {
-                    consulta += " WHERE UPPER(Nombre) LIKE '%' + UPPER(@filtro) + '%'"
-                        + " OR UPPER(Apellido) LIKE '%' + UPPER(@filtro) + '%'";
-                }
-
-                consulta += " ORDER BY Apellido, Nombre";
-
-                accesoDatos.setearConsulta(consulta);
-
-                if (!string.IsNullOrWhiteSpace(filtro))
-                {
-                    accesoDatos.setearParametro("@filtro", filtro);
-                }
-
-                accesoDatos.ejecutarLectura();
-
-                while (accesoDatos.Lector.Read())
-                {
-                    medicos.Add(MapearFilaAEntidad(accesoDatos.Lector));
-                }
-
-                return medicos;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
+            return ListarConFiltros("Nombre", "Contiene", filtro, null);
         }
 
         public Medico ObtenerPorId(int idMedico)
@@ -114,9 +45,11 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT IdMedico, Matricula, DNI, Nombre, Apellido, Telefono, Email, Activo"
-                    + " FROM Medicos"
-                    + " WHERE IdMedico = @idMedico");
+                    "SELECT M.IdMedico, M.IdPersona, M.Matricula, M.Activo,"
+                    + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email"
+                    + " FROM Medicos M"
+                    + " INNER JOIN Personas P ON P.IdPersona = M.IdPersona"
+                    + " WHERE M.IdMedico = @idMedico");
                 accesoDatos.setearParametro("@idMedico", idMedico);
                 accesoDatos.ejecutarLectura();
 
@@ -124,6 +57,8 @@ namespace TurnosClinica.AccesoDatos
                 {
                     medico = MapearFilaAEntidad(accesoDatos.Lector);
                 }
+
+                return medico;
             }
             catch (Exception ex)
             {
@@ -133,8 +68,37 @@ namespace TurnosClinica.AccesoDatos
             {
                 accesoDatos.cerrarConexion();
             }
+        }
 
-            return medico;
+        public Medico ObtenerPorIdPersona(int idPersona)
+        {
+            Medico medico = null;
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "SELECT M.IdMedico, M.IdPersona, M.Matricula, M.Activo,"
+                    + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email"
+                    + " FROM Medicos M"
+                    + " INNER JOIN Personas P ON P.IdPersona = M.IdPersona"
+                    + " WHERE M.IdPersona = @idPersona");
+                accesoDatos.setearParametro("@idPersona", idPersona);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    medico = MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
+                return medico;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
         }
 
         public bool ExisteDni(string dni)
@@ -143,7 +107,7 @@ namespace TurnosClinica.AccesoDatos
             {
                 accesoDatos.setearConsulta(
                     "SELECT COUNT(1)"
-                    + " FROM Medicos"
+                    + " FROM Personas"
                     + " WHERE DNI = @dni");
                 accesoDatos.setearParametro("@dni", dni);
                 return accesoDatos.ejecutarAccionScalar() > 0;
@@ -185,7 +149,7 @@ namespace TurnosClinica.AccesoDatos
             {
                 accesoDatos.setearConsulta(
                     "SELECT COUNT(1)"
-                    + " FROM Medicos"
+                    + " FROM Personas"
                     + " WHERE Email = @email");
                 accesoDatos.setearParametro("@email", email);
                 return accesoDatos.ejecutarAccionScalar() > 0;
@@ -204,16 +168,21 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
+                if (medico.IdPersona <= 0)
+                {
+                    medico.IdPersona = personaDatos.Agregar(medico);
+                }
+                else
+                {
+                    personaDatos.Modificar(medico);
+                }
+
                 accesoDatos.setearConsulta(
-                    "INSERT INTO Medicos (Matricula, DNI, Nombre, Apellido, Telefono, Email, Activo)"
+                    "INSERT INTO Medicos (IdPersona, Matricula, Activo)"
                     + " OUTPUT INSERTED.IdMedico"
-                    + " VALUES (@matricula, @dni, @nombre, @apellido, @telefono, @email, @activo)");
+                    + " VALUES (@idPersona, @matricula, @activo)");
+                accesoDatos.setearParametro("@idPersona", medico.IdPersona);
                 accesoDatos.setearParametro("@matricula", medico.Matricula);
-                accesoDatos.setearParametro("@dni", medico.DNI);
-                accesoDatos.setearParametro("@nombre", medico.Nombre);
-                accesoDatos.setearParametro("@apellido", medico.Apellido);
-                accesoDatos.setearParametro("@telefono", string.IsNullOrWhiteSpace(medico.Telefono) ? (object)DBNull.Value : medico.Telefono);
-                accesoDatos.setearParametro("@email", medico.Email);
                 accesoDatos.setearParametro("@activo", medico.Activo);
                 medico.IdMedico = accesoDatos.ejecutarAccionScalar();
             }
@@ -231,16 +200,14 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
+                personaDatos.Modificar(medico);
+
                 accesoDatos.setearConsulta(
                     "UPDATE Medicos"
-                    + " SET Matricula = @matricula, DNI = @dni, Nombre = @nombre, Apellido = @apellido, Telefono = @telefono, Email = @email, Activo = @activo"
+                    + " SET IdPersona = @idPersona, Matricula = @matricula, Activo = @activo"
                     + " WHERE IdMedico = @idMedico");
+                accesoDatos.setearParametro("@idPersona", medico.IdPersona);
                 accesoDatos.setearParametro("@matricula", medico.Matricula);
-                accesoDatos.setearParametro("@dni", medico.DNI);
-                accesoDatos.setearParametro("@nombre", medico.Nombre);
-                accesoDatos.setearParametro("@apellido", medico.Apellido);
-                accesoDatos.setearParametro("@telefono", string.IsNullOrWhiteSpace(medico.Telefono) ? (object)DBNull.Value : medico.Telefono);
-                accesoDatos.setearParametro("@email", medico.Email);
                 accesoDatos.setearParametro("@activo", medico.Activo);
                 accesoDatos.setearParametro("@idMedico", medico.IdMedico);
                 accesoDatos.ejecutarAccion();
@@ -282,13 +249,15 @@ namespace TurnosClinica.AccesoDatos
             List<Medico> medicos = new List<Medico>();
             try
             {
-                string consulta = "SELECT IdMedico, Matricula, DNI, Nombre, Apellido, Telefono, Email, Activo"
-                    + " FROM Medicos";
+                string consulta = "SELECT M.IdMedico, M.IdPersona, M.Matricula, M.Activo, "
+                    + "       P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email "
+                    + "FROM Medicos M "
+                    + "INNER JOIN Personas P ON P.IdPersona = M.IdPersona";
                 bool tieneCondicion = false;
 
                 if (activo.HasValue)
                 {
-                    consulta += tieneCondicion ? " AND Activo = @activo" : " WHERE Activo = @activo";
+                    consulta += tieneCondicion ? " AND M.Activo = @activo" : " WHERE M.Activo = @activo";
                     tieneCondicion = true;
                 }
 
@@ -298,46 +267,46 @@ namespace TurnosClinica.AccesoDatos
                     {
                         case "Matricula":
                             consulta += criterio == "Comienza con"
-                                ? (tieneCondicion ? " AND Matricula LIKE @filtro + '%'" : " WHERE Matricula LIKE @filtro + '%'")
+                                ? (tieneCondicion ? " AND M.Matricula LIKE @filtro + '%'" : " WHERE M.Matricula LIKE @filtro + '%'")
                                 : criterio == "Termina con"
-                                    ? (tieneCondicion ? " AND Matricula LIKE '%' + @filtro" : " WHERE Matricula LIKE '%' + @filtro")
-                                    : (tieneCondicion ? " AND Matricula LIKE '%' + @filtro + '%'" : " WHERE Matricula LIKE '%' + @filtro + '%'");
+                                    ? (tieneCondicion ? " AND M.Matricula LIKE '%' + @filtro" : " WHERE M.Matricula LIKE '%' + @filtro")
+                                    : (tieneCondicion ? " AND M.Matricula LIKE '%' + @filtro + '%'" : " WHERE M.Matricula LIKE '%' + @filtro + '%'");
                             tieneCondicion = true;
                             break;
                         case "DNI":
                             consulta += criterio == "Igual a"
-                                ? (tieneCondicion ? " AND DNI = @filtro" : " WHERE DNI = @filtro")
+                                ? (tieneCondicion ? " AND P.DNI = @filtro" : " WHERE P.DNI = @filtro")
                                 : criterio == "Mayor a"
-                                    ? (tieneCondicion ? " AND DNI > @filtro" : " WHERE DNI > @filtro")
-                                    : (tieneCondicion ? " AND DNI < @filtro" : " WHERE DNI < @filtro");
+                                    ? (tieneCondicion ? " AND P.DNI > @filtro" : " WHERE P.DNI > @filtro")
+                                    : (tieneCondicion ? " AND P.DNI < @filtro" : " WHERE P.DNI < @filtro");
                             tieneCondicion = true;
                             break;
                         case "Nombre":
                             consulta += criterio == "Comienza con"
-                                ? (tieneCondicion ? " AND Nombre LIKE @filtro + '%'" : " WHERE Nombre LIKE @filtro + '%'")
+                                ? (tieneCondicion ? " AND P.Nombre LIKE @filtro + '%'" : " WHERE P.Nombre LIKE @filtro + '%'")
                                 : criterio == "Termina con"
-                                    ? (tieneCondicion ? " AND Nombre LIKE '%' + @filtro" : " WHERE Nombre LIKE '%' + @filtro")
-                                    : (tieneCondicion ? " AND Nombre LIKE '%' + @filtro + '%'" : " WHERE Nombre LIKE '%' + @filtro + '%'");
+                                    ? (tieneCondicion ? " AND P.Nombre LIKE '%' + @filtro" : " WHERE P.Nombre LIKE '%' + @filtro")
+                                    : (tieneCondicion ? " AND P.Nombre LIKE '%' + @filtro + '%'" : " WHERE P.Nombre LIKE '%' + @filtro + '%'");
                             tieneCondicion = true;
                             break;
                         case "Apellido":
                             consulta += criterio == "Comienza con"
-                                ? (tieneCondicion ? " AND Apellido LIKE @filtro + '%'" : " WHERE Apellido LIKE @filtro + '%'")
+                                ? (tieneCondicion ? " AND P.Apellido LIKE @filtro + '%'" : " WHERE P.Apellido LIKE @filtro + '%'")
                                 : criterio == "Termina con"
-                                    ? (tieneCondicion ? " AND Apellido LIKE '%' + @filtro" : " WHERE Apellido LIKE '%' + @filtro")
-                                    : (tieneCondicion ? " AND Apellido LIKE '%' + @filtro + '%'" : " WHERE Apellido LIKE '%' + @filtro + '%'");
+                                    ? (tieneCondicion ? " AND P.Apellido LIKE '%' + @filtro" : " WHERE P.Apellido LIKE '%' + @filtro")
+                                    : (tieneCondicion ? " AND P.Apellido LIKE '%' + @filtro + '%'" : " WHERE P.Apellido LIKE '%' + @filtro + '%'");
                             tieneCondicion = true;
                             break;
                         default:
                             consulta += tieneCondicion
-                                ? " AND (Nombre LIKE '%' + @filtro + '%' OR Apellido LIKE '%' + @filtro + '%' OR Matricula LIKE '%' + @filtro + '%')"
-                                : " WHERE (Nombre LIKE '%' + @filtro + '%' OR Apellido LIKE '%' + @filtro + '%' OR Matricula LIKE '%' + @filtro + '%')";
+                                ? " AND (P.Nombre LIKE '%' + @filtro + '%' OR P.Apellido LIKE '%' + @filtro + '%' OR P.DNI LIKE '%' + @filtro + '%' OR M.Matricula LIKE '%' + @filtro + '%')"
+                                : " WHERE (P.Nombre LIKE '%' + @filtro + '%' OR P.Apellido LIKE '%' + @filtro + '%' OR P.DNI LIKE '%' + @filtro + '%' OR M.Matricula LIKE '%' + @filtro + '%')";
                             tieneCondicion = true;
                             break;
                     }
                 }
 
-                consulta += " ORDER BY Apellido, Nombre";
+                consulta += " ORDER BY P.Apellido, P.Nombre";
 
                 accesoDatos.setearConsulta(consulta);
                 if (activo.HasValue)
@@ -369,28 +338,28 @@ namespace TurnosClinica.AccesoDatos
 
         public Medico MapearFilaAEntidad(SqlDataReader fila)
         {
-            Medico medico = MapearBaseAEntidad(fila);
-            
+            Medico medico = new Medico
+            {
+                IdMedico = Convert.ToInt32(fila["IdMedico"]),
+                IdPersona = Convert.ToInt32(fila["IdPersona"]),
+                Matricula = fila["Matricula"].ToString(),
+                DNI = fila["DNI"].ToString(),
+                Nombre = fila["Nombre"].ToString(),
+                Apellido = fila["Apellido"].ToString(),
+                Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
+                Email = fila["Email"].ToString(),
+                Activo = Convert.ToBoolean(fila["Activo"])
+            };
+
             if (medico.IdMedico > 0)
             {
-                medico.Especialidades = medicoEspecialidadesDatos.ListarPorMedico(medico.IdMedico);
-                medico.HorariosDisponibilidad = horarioDisponibilidadMedicoDatos.ListarPorMedico(medico.IdMedico);
+                MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos();
+                HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos();
+
+                medico.Especialidades = especialidadesDatos.ListarPorMedico(medico.IdMedico);
+                medico.HorariosDisponibilidad = horariosDatos.ListarPorMedico(medico.IdMedico);
             }
 
-            return medico;
-        }
-
-        private Medico MapearBaseAEntidad(SqlDataReader fila)
-        {
-            Medico medico = new Medico();
-            medico.IdMedico = Convert.ToInt32(fila["IdMedico"]);
-            medico.Matricula = fila["Matricula"].ToString();
-            medico.DNI = fila["DNI"].ToString();
-            medico.Nombre = fila["Nombre"].ToString();
-            medico.Apellido = fila["Apellido"].ToString();
-            medico.Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString();
-            medico.Email = fila["Email"].ToString();
-            medico.Activo = Convert.ToBoolean(fila["Activo"]);
             return medico;
         }
     }

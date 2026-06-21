@@ -41,7 +41,7 @@ namespace TurnosClinica.Negocio
 
             if (fechaConsulta != null && fechaConsulta < DateTime.Today || fechaConsulta > DateTime.Today.AddDays(DiasMaximosAnticipacion))
             {
-                throw new ArgumentException($"La fecha de consulta debe estar entre hoy y {DiasMaximosAnticipacion} dias en el futuro.");
+                throw new ArgumentException("La fecha de consulta debe estar entre hoy y " + DiasMaximosAnticipacion + " dias en el futuro.");
             }
 
 

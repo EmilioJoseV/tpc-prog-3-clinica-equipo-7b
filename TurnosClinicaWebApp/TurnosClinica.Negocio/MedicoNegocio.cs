@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Negocio
 {
@@ -62,6 +63,21 @@ namespace TurnosClinica.Negocio
             }
         }
 
+        public Medico ObtenerPorIdPersona(int idPersona)
+        {
+            try
+            {
+                if (idPersona <= 0)
+                    return null;
+
+                return medicoDatos.ObtenerPorIdPersona(idPersona);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void Agregar(Medico medico)
         {
             using (TransaccionDatos transaccionDatos = new TransaccionDatos())
@@ -73,8 +89,10 @@ namespace TurnosClinica.Negocio
                     MedicoDatos medicoDatos = new MedicoDatos(transaccionDatos.AccesoDatos);
                     MedicoEspecialidadesDatos medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(transaccionDatos.AccesoDatos);
                     HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(transaccionDatos.AccesoDatos);
+                    UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
 
                     medicoDatos.Agregar(medico);
+                    SincronizarUsuarioAsociado(medico, usuarioDatos);
                     medicoEspecialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
                     horarioDisponibilidadMedicoDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
 
@@ -100,8 +118,10 @@ namespace TurnosClinica.Negocio
                     MedicoDatos medicoDatosTransaccional = new MedicoDatos(transaccionDatos.AccesoDatos);
                     MedicoEspecialidadesDatos medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(transaccionDatos.AccesoDatos);
                     HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(transaccionDatos.AccesoDatos);
+                    UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
 
                     medicoDatosTransaccional.Modificar(medico);
+                    SincronizarUsuarioAsociado(medico, usuarioDatos);
                     medicoEspecialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
                     horarioDisponibilidadMedicoDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
 
@@ -120,11 +140,64 @@ namespace TurnosClinica.Negocio
         {
             try
             {
-                return medicoDatos.Desactivar(idMedico);
+                Medico medico = medicoDatos.ObtenerPorId(idMedico);
+                bool resultado = medicoDatos.Desactivar(idMedico);
+                if (resultado && medico != null)
+                {
+                    UsuarioDatos usuarioDatos = new UsuarioDatos();
+                    Usuario usuario = usuarioDatos.ObtenerPorIdPersona(medico.IdPersona);
+                    if (usuario != null)
+                    {
+                        usuario.EstadoUsuario = EstadoUsuarioEnum.Inactivo;
+                        usuarioDatos.Modificar(usuario);
+                    }
+                }
+
+                return resultado;
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        private void SincronizarUsuarioAsociado(Medico medico, UsuarioDatos usuarioDatos)
+        {
+            Usuario usuarioExistente = usuarioDatos.ObtenerPorIdPersona(medico.IdPersona);
+            Usuario usuario = new Usuario
+            {
+                IdPersona = medico.IdPersona,
+                DNI = medico.DNI,
+                Nombre = medico.Nombre,
+                Apellido = medico.Apellido,
+                Telefono = medico.Telefono,
+                Email = medico.Email,
+                NombreUsuario = usuarioExistente != null && !string.IsNullOrWhiteSpace(usuarioExistente.NombreUsuario)
+                    ? usuarioExistente.NombreUsuario
+                    : medico.DNI,
+                PasswordHash = usuarioExistente != null && !string.IsNullOrWhiteSpace(usuarioExistente.PasswordHash)
+                    ? usuarioExistente.PasswordHash
+                    : "123456",
+                Imagen = usuarioExistente != null ? usuarioExistente.Imagen : null,
+                EstadoUsuario = !medico.Activo
+                    ? EstadoUsuarioEnum.Inactivo
+                    : (usuarioExistente != null
+                        ? usuarioExistente.EstadoUsuario
+                        : EstadoUsuarioEnum.Pendiente),
+                Rol = new Rol
+                {
+                    Nombre = RolEnum.Medico.ToString()
+                }
+            };
+
+            if (usuarioExistente != null)
+            {
+                usuario.IdUsuario = usuarioExistente.IdUsuario;
+                usuarioDatos.Modificar(usuario);
+            }
+            else
+            {
+                usuarioDatos.Agregar(usuario);
             }
         }
     }

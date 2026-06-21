@@ -6,12 +6,21 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-4">
         <h2 id="lblTitulo" runat="server">Nuevo Usuario</h2>
-        <p class="text-secondary">Ingresa los datos correspondientes para el usuario.</p>
+        <p class="text-secondary">Este formulario es para cuentas de acceso de Administrador y Recepcionista.</p>
+        <div class="alert alert-info py-2">
+            Las cuentas de Medico y Paciente se generan automaticamente desde sus formularios. Este formulario es solo para Administrador y Recepcionista.
+        </div>
         <hr />
+        <asp:HiddenField ID="HfIdPersona" runat="server" />
 
         <div class="row">
             <div class="col-md-6">
                 <h5 class="text-primary mb-3">Datos Personales</h5>
+
+                <div class="mb-3">
+                    <label for="txtDni" class="form-label">DNI</label>
+                    <asp:TextBox ID="txtDni" runat="server" CssClass="form-control"></asp:TextBox>
+                </div>
 
                 <div class="mb-3">
                     <label for="txtNombre" class="form-label">Nombre</label>
@@ -21,6 +30,11 @@
                 <div class="mb-3">
                     <label for="txtApellido" class="form-label">Apellido</label>
                     <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control"></asp:TextBox>
+                </div>
+
+                <div class="mb-3">
+                    <label for="txtTelefono" class="form-label">Telefono</label>
+                    <asp:TextBox ID="txtTelefono" runat="server" CssClass="form-control"></asp:TextBox>
                 </div>
 
                 <div class="mb-3">
@@ -34,13 +48,13 @@
                 <h5 class="text-primary mb-3">Acceso y Seguridad</h5>
 
                 <div class="mb-3">
-                    <label for="txtNombreUsuario" class="form-label">Nombre de Usuario</label>
-                    <asp:TextBox ID="txtNombreUsuario" runat="server" CssClass="form-control"></asp:TextBox>
+                    <label for="txtEmail" class="form-label">Correo Electronico</label>
+                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email"></asp:TextBox>
                 </div>
 
                 <div class="mb-3">
-                    <label for="txtEmail" class="form-label">Correo Electronico</label>
-                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email"></asp:TextBox>
+                    <label for="txtNombreUsuario" class="form-label">Nombre de Usuario</label>
+                    <asp:TextBox ID="txtNombreUsuario" runat="server" CssClass="form-control"></asp:TextBox>
                 </div>
 
                 <div class="mb-3">
@@ -52,11 +66,6 @@
                     <div class="col-md-6 mb-3">
                         <label for="ddlRol" class="form-label">Rol Asignado</label>
                         <asp:DropDownList ID="ddlRol" runat="server" CssClass="form-select"></asp:DropDownList>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="ddlMedico" class="form-label">Medico Asociado (Opcional)</label>
-                        <asp:DropDownList ID="ddlMedico" runat="server" CssClass="form-select"></asp:DropDownList>
                     </div>
                 </div>
             </div>

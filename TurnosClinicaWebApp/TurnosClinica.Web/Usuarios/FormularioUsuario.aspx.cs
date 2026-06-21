@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
@@ -24,31 +25,37 @@ namespace TurnosClinica.Web
                         // SOLO cargamos los datos en los controles la PRIMERA VEZ
                         if (!IsPostBack)
                         {
-                            CargarDesplegables();
-
                             lblTitulo.InnerText = "Modificar Usuario";
+                            if (usuario.Rol != null && string.Equals(usuario.Rol.Nombre, RolEnum.Medico.ToString(), StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Medico queda fuera de este formulario.
+                                Response.Redirect("ListaUsuarios.aspx", false);
+                                Context.ApplicationInstance.CompleteRequest();
+                                return;
+                            }
+
+                            CargarDesplegables();
+                            HfIdPersona.Value = usuario.IdPersona.ToString();
+                            txtDni.Text = usuario.DNI;
                             txtNombre.Text = usuario.Nombre;
                             txtApellido.Text = usuario.Apellido;
+                            txtTelefono.Text = usuario.Telefono;
                             txtNombreUsuario.Text = usuario.NombreUsuario;
                             txtEmail.Text = usuario.Email;
-                            txtPassword.Text = usuario.PasswordHash;
+                            txtPassword.Text = string.Empty;
 
                             if (usuario.Rol != null)
                             {
-                                ddlRol.SelectedValue = usuario.Rol.IdRol.ToString();
+                                ddlRol.SelectedValue = usuario.Rol.Nombre;
                             }
 
-                            if (usuario.Medico != null)
-                            {
-                                ddlMedico.SelectedValue = usuario.Medico.IdMedico.ToString();
-                            }
                         }
 
                         // ESTO SE EJECUTA SIEMPRE (En la primera carga y en cada PostBack)
                         btnInactivar.Visible = true;
                         btnEliminar.Visible = true;
 
-                        if (usuario.Activo == true)
+                        if (usuario.EstadoUsuario == EstadoUsuarioEnum.Activo)
                         {
                             btnInactivar.Text = "Inactivar";
                             btnInactivar.CssClass = "btn btn-warning";
@@ -65,8 +72,8 @@ namespace TurnosClinica.Web
                     // 2. SI ES UN ALTA NUEVA (No hay ID en la URL)
                     if (!IsPostBack)
                     {
-                        CargarDesplegables();
                         lblTitulo.InnerText = "Nuevo Usuario";
+                        CargarDesplegables();
                     }
 
                     // ESTO SE EJECUTA SIEMPRE PARA EL ALTA
@@ -84,9 +91,24 @@ namespace TurnosClinica.Web
         {
             try
             {
-                if (ddlRol.SelectedValue == "0")
+                if (string.IsNullOrWhiteSpace(ddlRol.SelectedValue))
                 {
-                    return;
+                    throw new Exception("Debe seleccionar un rol.");
+                }
+
+                if (Request.QueryString["id"] == null && string.Equals(ddlRol.SelectedValue, RolEnum.Medico.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new Exception("Este formulario no crea usuarios con rol Medico. Las cuentas de medico se generan automaticamente desde el formulario de medicos.");
+                }
+
+                if (Request.QueryString["id"] == null && string.Equals(ddlRol.SelectedValue, RolEnum.Paciente.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new Exception("Este formulario no crea usuarios con rol Paciente. Las cuentas de paciente se generan automaticamente desde el formulario de pacientes.");
+                }
+
+                if (Request.QueryString["id"] == null && string.IsNullOrWhiteSpace(txtPassword.Text))
+                {
+                    throw new Exception("La contraseña es obligatoria para un usuario nuevo.");
                 }
 
                 UsuarioNegocio negocio = new UsuarioNegocio();
@@ -96,24 +118,43 @@ namespace TurnosClinica.Web
                 {
                     usuario.IdUsuario = Convert.ToInt32(Request.QueryString["id"]);
 
-                    // Si modificamos, mantenemos el estado Activo que ya tenía en la DB
+                    // Si modificamos, mantenemos el estado que ya tenía en la DB
                     Usuario usuarioExistente = negocio.ObtenerPorId(usuario.IdUsuario);
                     if (usuarioExistente != null)
                     {
-                        usuario.Activo = usuarioExistente.Activo;
+                        usuario.EstadoUsuario = usuarioExistente.EstadoUsuario;
                     }
                 }
                 else
                 {
-                    // Si es un usuario nuevo, forzamos que nazca ACTIVO (true)
-                    usuario.Activo = true;
+                    // Si es un usuario nuevo, forzamos que nazca ACTIVO
+                    usuario.EstadoUsuario = EstadoUsuarioEnum.Activo;
                 }
 
+                if (!string.IsNullOrWhiteSpace(HfIdPersona.Value))
+                {
+                    usuario.IdPersona = Convert.ToInt32(HfIdPersona.Value);
+                }
+                else
+                {
+                    usuario.IdPersona = 0;
+                }
+
+                usuario.DNI = txtDni.Text.Trim();
                 usuario.Nombre = txtNombre.Text.Trim();
                 usuario.Apellido = txtApellido.Text.Trim();
+                usuario.Telefono = txtTelefono.Text.Trim();
                 usuario.NombreUsuario = txtNombreUsuario.Text.Trim();
                 usuario.Email = txtEmail.Text.Trim();
-                usuario.PasswordHash = txtPassword.Text;
+                if (Request.QueryString["id"] != null && string.IsNullOrWhiteSpace(txtPassword.Text))
+                {
+                    Usuario usuarioExistente = negocio.ObtenerPorId(usuario.IdUsuario);
+                    usuario.PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : string.Empty;
+                }
+                else
+                {
+                    usuario.PasswordHash = txtPassword.Text;
+                }
 
                 if (fileImagen.HasFile)
                 {
@@ -130,17 +171,7 @@ namespace TurnosClinica.Web
                 }
 
                 usuario.Rol = new Rol();
-                usuario.Rol.IdRol = Convert.ToInt32(ddlRol.SelectedValue);
-
-                if (ddlMedico.SelectedValue != "0")
-                {
-                    usuario.Medico = new Medico();
-                    usuario.Medico.IdMedico = Convert.ToInt32(ddlMedico.SelectedValue);
-                }
-                else
-                {
-                    usuario.Medico = null;
-                }
+                usuario.Rol.Nombre = ddlRol.SelectedValue;
 
                 if (usuario.IdUsuario > 0)
                 {
@@ -168,9 +199,10 @@ namespace TurnosClinica.Web
         {
             var roles = Enum.GetValues(typeof(TurnosClinica.Dominio.Enums.RolEnum))
                             .Cast<TurnosClinica.Dominio.Enums.RolEnum>()
+                            .Where(r => r != RolEnum.Medico && r != RolEnum.Paciente)
                             .Select(r => new
                             {
-                                Id = (int)r,
+                                Id = r.ToString(),
                                 Nombre = r.ToString()
                             }).ToList();
 
@@ -178,14 +210,8 @@ namespace TurnosClinica.Web
             ddlRol.DataValueField = "Id";
             ddlRol.DataTextField = "Nombre";
             ddlRol.DataBind();
-            ddlRol.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Rol", "0"));
+            ddlRol.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Rol", string.Empty));
 
-            MedicoNegocio medicoNegocio = new MedicoNegocio();
-            ddlMedico.DataSource = medicoNegocio.Listar();
-            ddlMedico.DataValueField = "IdMedico";
-            ddlMedico.DataTextField = "Apellido";
-            ddlMedico.DataBind();
-            ddlMedico.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Medico", "0"));
         }
         protected void btnInactivar_Click(object sender, EventArgs e)
         {
@@ -200,7 +226,7 @@ namespace TurnosClinica.Web
 
                     if (usuario != null)
                     {
-                        if (usuario.Activo == true)
+                        if (usuario.EstadoUsuario == EstadoUsuarioEnum.Activo)
                         {
                             negocio.EliminarLogico(idUsuario);
                         }

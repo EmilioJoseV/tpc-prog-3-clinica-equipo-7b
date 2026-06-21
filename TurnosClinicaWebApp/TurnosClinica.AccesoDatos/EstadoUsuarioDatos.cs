@@ -5,26 +5,26 @@ using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class EstadoTurnoDatos
+    public class EstadoUsuarioDatos
     {
         private readonly AccesoDatos accesoDatos;
 
-        public EstadoTurnoDatos()
+        public EstadoUsuarioDatos()
         {
             accesoDatos = new AccesoDatos();
         }
 
-        public EstadoTurnoDatos(AccesoDatos accesoDatosCompartido)
+        public EstadoUsuarioDatos(AccesoDatos accesoDatosCompartido)
         {
             accesoDatos = accesoDatosCompartido;
         }
 
-        public List<EstadoTurno> Listar(bool? activo)
+        public List<EstadoUsuario> Listar(bool? activo)
         {
-            List<EstadoTurno> estados = new List<EstadoTurno>();
+            List<EstadoUsuario> estados = new List<EstadoUsuario>();
             try
             {
-                string consulta = "SELECT IdEstadoTurno, Nombre, Descripcion, EsFinal, Activo FROM EstadosTurno WHERE 1=1";
+                string consulta = "SELECT IdEstadoUsuario, Nombre, Descripcion, Activo FROM EstadosUsuario WHERE 1=1";
 
                 if (activo.HasValue)
                 {
@@ -56,29 +56,29 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public EstadoTurno ObtenerPorNombre(string nombre)
+        public EstadoUsuario ObtenerPorNombre(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
             {
                 return null;
             }
 
-            EstadoTurno estadoTurno = null;
+            EstadoUsuario estadoUsuario = null;
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT IdEstadoTurno, Nombre, Descripcion, EsFinal, Activo"
-                    + " FROM EstadosTurno"
+                    "SELECT IdEstadoUsuario, Nombre, Descripcion, Activo"
+                    + " FROM EstadosUsuario"
                     + " WHERE UPPER(Nombre) = UPPER(@nombre)");
                 accesoDatos.setearParametro("@nombre", nombre.Trim());
                 accesoDatos.ejecutarLectura();
 
                 if (accesoDatos.Lector.Read())
                 {
-                    estadoTurno = MapearFilaAEntidad(accesoDatos.Lector);
+                    estadoUsuario = MapearFilaAEntidad(accesoDatos.Lector);
                 }
 
-                return estadoTurno;
+                return estadoUsuario;
             }
             catch (Exception ex)
             {
@@ -90,14 +90,13 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        private EstadoTurno MapearFilaAEntidad(SqlDataReader fila)
+        private EstadoUsuario MapearFilaAEntidad(SqlDataReader fila)
         {
-            return new EstadoTurno
+            return new EstadoUsuario
             {
-                IdEstadoTurno = Convert.ToInt32(fila["IdEstadoTurno"]),
+                IdEstadoUsuario = Convert.ToInt32(fila["IdEstadoUsuario"]),
                 Nombre = fila["Nombre"].ToString(),
                 Descripcion = fila["Descripcion"] is DBNull ? string.Empty : fila["Descripcion"].ToString(),
-                EsFinal = Convert.ToBoolean(fila["EsFinal"]),
                 Activo = Convert.ToBoolean(fila["Activo"])
             };
         }

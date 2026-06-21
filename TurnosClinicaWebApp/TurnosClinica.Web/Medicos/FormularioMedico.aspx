@@ -5,9 +5,10 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <h1 class="h3 mb-3">Formulario de Medico</h1>
-    <p class="text-secondary">Complete los datos requeridos</p>
+    <p class="text-secondary">Complete los datos requeridos. La cuenta de acceso se genera automaticamente en estado pendiente.</p>
 
     <asp:HiddenField ID="HfIdMedico" runat="server" />
+    <asp:HiddenField ID="HfIdPersona" runat="server" />
 
     <div class="row g-3">
         <div class="col-12 col-md-4">

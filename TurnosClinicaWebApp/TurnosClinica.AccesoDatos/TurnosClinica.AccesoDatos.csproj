@@ -51,8 +51,10 @@
     <Compile Include="MedicoEspecialidadesDatos.cs" />
     <Compile Include="MedicoDatos.cs" />
     <Compile Include="RolDatos.cs" />
+    <Compile Include="EstadoUsuarioDatos.cs" />
     <Compile Include="EstadoTurnoDatos.cs" />
     <Compile Include="HorarioDisponibilidadMedicoDatos.cs" />
+    <Compile Include="PersonaDatos.cs" />
     <Compile Include="PacienteDatos.cs" />
     <Compile Include="TurnoDatos.cs" />
     <Compile Include="UsuarioDatos.cs" />

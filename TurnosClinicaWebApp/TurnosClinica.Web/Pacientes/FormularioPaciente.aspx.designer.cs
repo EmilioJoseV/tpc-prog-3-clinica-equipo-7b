@@ -9,6 +9,7 @@ namespace TurnosClinica.Web
     public partial class FormularioPaciente
     {
         protected global::System.Web.UI.WebControls.HiddenField HfIdPaciente;
+        protected global::System.Web.UI.WebControls.HiddenField HfIdPersona;
         protected global::System.Web.UI.WebControls.Label LblDni;
         protected global::System.Web.UI.WebControls.TextBox TxtDni;
         protected global::System.Web.UI.WebControls.Label LblNombre;
