@@ -33,6 +33,19 @@ CREATE TABLE dbo.Roles
 );
 GO
 
+CREATE TABLE dbo.EstadosUsuario
+(
+    IdEstadoUsuario INT IDENTITY(1,1) NOT NULL,
+    Nombre VARCHAR(50) NOT NULL,
+    Descripcion VARCHAR(200) NULL,
+    Activo BIT NOT NULL DEFAULT 1,
+
+    CONSTRAINT PK_EstadosUsuario PRIMARY KEY (IdEstadoUsuario),
+    CONSTRAINT UQ_EstadosUsuario_Nombre UNIQUE (Nombre),
+    CONSTRAINT CK_EstadosUsuario_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0)
+);
+GO
+
 CREATE TABLE dbo.ConfiguracionesTurno
 (
     IdConfiguracionTurno INT IDENTITY(1,1) NOT NULL,
@@ -44,24 +57,38 @@ CREATE TABLE dbo.ConfiguracionesTurno
 );
 GO
 
-CREATE TABLE dbo.Pacientes
+CREATE TABLE dbo.Personas
 (
-    IdPaciente INT IDENTITY(1,1) NOT NULL,
+    IdPersona INT IDENTITY(1,1) NOT NULL,
     DNI VARCHAR(15) NOT NULL,
     Nombre VARCHAR(100) NOT NULL,
     Apellido VARCHAR(100) NOT NULL,
-    FechaNacimiento DATE NOT NULL,
     Telefono VARCHAR(50) NULL,
     Email VARCHAR(150) NOT NULL,
+
+    CONSTRAINT PK_Personas PRIMARY KEY (IdPersona),
+    CONSTRAINT UQ_Personas_DNI UNIQUE (DNI),
+    CONSTRAINT UQ_Personas_Email UNIQUE (Email),
+    CONSTRAINT CK_Personas_DNI_NoVacio CHECK (LEN(LTRIM(RTRIM(DNI))) > 0),
+    CONSTRAINT CK_Personas_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
+    CONSTRAINT CK_Personas_Apellido_NoVacio CHECK (LEN(LTRIM(RTRIM(Apellido))) > 0),
+    CONSTRAINT CK_Personas_Email_Formato CHECK (Email LIKE '%_@_%._%')
+);
+GO
+
+CREATE TABLE dbo.Pacientes
+(
+    IdPaciente INT IDENTITY(1,1) NOT NULL,
+    IdPersona INT NOT NULL,
+    FechaNacimiento DATE NOT NULL,
     Direccion VARCHAR(200) NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
     CONSTRAINT PK_Pacientes PRIMARY KEY (IdPaciente),
-    CONSTRAINT UQ_Pacientes_DNI UNIQUE (DNI),
-    CONSTRAINT CK_Pacientes_DNI_NoVacio CHECK (LEN(LTRIM(RTRIM(DNI))) > 0),
-    CONSTRAINT CK_Pacientes_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
-    CONSTRAINT CK_Pacientes_Apellido_NoVacio CHECK (LEN(LTRIM(RTRIM(Apellido))) > 0),
-    CONSTRAINT CK_Pacientes_Email_Formato CHECK (Email LIKE '%_@_%._%')
+    CONSTRAINT UQ_Pacientes_IdPersona UNIQUE (IdPersona),
+    CONSTRAINT FK_Pacientes_Personas
+        FOREIGN KEY (IdPersona)
+        REFERENCES dbo.Personas(IdPersona)
 );
 GO
 
@@ -81,22 +108,17 @@ GO
 CREATE TABLE dbo.Medicos
 (
     IdMedico INT IDENTITY(1,1) NOT NULL,
+    IdPersona INT NOT NULL,
     Matricula VARCHAR(30) NOT NULL,
-    DNI VARCHAR(15) NOT NULL,
-    Nombre VARCHAR(100) NOT NULL,
-    Apellido VARCHAR(100) NOT NULL,
-    Telefono VARCHAR(50) NULL,
-    Email VARCHAR(150) NOT NULL,
     Activo BIT NOT NULL DEFAULT 1,
 
     CONSTRAINT PK_Medicos PRIMARY KEY (IdMedico),
+    CONSTRAINT UQ_Medicos_IdPersona UNIQUE (IdPersona),
     CONSTRAINT UQ_Medicos_Matricula UNIQUE (Matricula),
-    CONSTRAINT UQ_Medicos_DNI UNIQUE (DNI),
     CONSTRAINT CK_Medicos_Matricula_NoVacia CHECK (LEN(LTRIM(RTRIM(Matricula))) > 0),
-    CONSTRAINT CK_Medicos_DNI_NoVacio CHECK (LEN(LTRIM(RTRIM(DNI))) > 0),
-    CONSTRAINT CK_Medicos_Nombre_NoVacio CHECK (LEN(LTRIM(RTRIM(Nombre))) > 0),
-    CONSTRAINT CK_Medicos_Apellido_NoVacio CHECK (LEN(LTRIM(RTRIM(Apellido))) > 0),
-    CONSTRAINT CK_Medicos_Email_Formato CHECK (Email LIKE '%_@_%._%'),
+    CONSTRAINT FK_Medicos_Personas
+        FOREIGN KEY (IdPersona)
+        REFERENCES dbo.Personas(IdPersona)
 );
 GO
 
@@ -140,29 +162,30 @@ GO
 CREATE TABLE dbo.Usuarios
 (
     IdUsuario INT IDENTITY(1,1) NOT NULL,
+    IdPersona INT NOT NULL,
     NombreUsuario VARCHAR(50) NOT NULL,
-    Nombre VARCHAR(100) NOT NULL,
-    Apellido VARCHAR(100) NOT NULL,
-    Email VARCHAR(150) NOT NULL,
     PasswordHash VARCHAR(256) NOT NULL,
     Imagen VARBINARY(MAX) NULL,
     IdRol INT NOT NULL,
-    IdMedico INT NULL,
-    Activo BIT NOT NULL DEFAULT 1,
+    IdEstadoUsuario INT NOT NULL,
 
     CONSTRAINT PK_Usuarios PRIMARY KEY (IdUsuario),
+    CONSTRAINT UQ_Usuarios_IdPersona UNIQUE (IdPersona),
     CONSTRAINT UQ_Usuarios_NombreUsuario UNIQUE (NombreUsuario),
     CONSTRAINT CK_Usuarios_NombreUsuario_NoVacio CHECK (LEN(LTRIM(RTRIM(NombreUsuario))) > 0),
-    CONSTRAINT CK_Usuarios_Email_Formato CHECK (Email LIKE '%_@_%._%'),
     CONSTRAINT CK_Usuarios_PasswordHash_NoVacio CHECK (LEN(LTRIM(RTRIM(PasswordHash))) > 0),
 
     CONSTRAINT FK_Usuarios_Roles
         FOREIGN KEY (IdRol)
         REFERENCES dbo.Roles(IdRol),
 
-    CONSTRAINT FK_Usuarios_Medicos
-        FOREIGN KEY (IdMedico)
-        REFERENCES dbo.Medicos(IdMedico)
+    CONSTRAINT FK_Usuarios_EstadosUsuario
+        FOREIGN KEY (IdEstadoUsuario)
+        REFERENCES dbo.EstadosUsuario(IdEstadoUsuario),
+
+    CONSTRAINT FK_Usuarios_Personas
+        FOREIGN KEY (IdPersona)
+        REFERENCES dbo.Personas(IdPersona)
 );
 GO
 
@@ -204,6 +227,8 @@ CREATE TABLE dbo.Turnos
 
     CONSTRAINT PK_Turnos PRIMARY KEY (IdTurno),
     CONSTRAINT UQ_Turnos_NumeroTurno UNIQUE (NumeroTurno),
+    CONSTRAINT UQ_Turnos_Medico_FechaHora UNIQUE (IdMedico, FechaTurno, HoraInicio),
+    CONSTRAINT UQ_Turnos_Paciente_FechaHora UNIQUE (IdPaciente, FechaTurno, HoraInicio),
 
     CONSTRAINT FK_Turnos_Pacientes
         FOREIGN KEY (IdPaciente)
@@ -235,19 +260,24 @@ CREATE TABLE dbo.Turnos
 );
 GO
 
-/* -------------
-   DATOS DE PRUEBA
-   ------------- */
-
-/* Roles necesarios segun el enunciado */
+-- DATOS DE PRUEBA
 INSERT INTO dbo.Roles (Nombre, Descripcion)
 VALUES
 ('Administrador', 'Acceso total al sistema'),
 ('Recepcionista', 'Gestiona pacientes, medicos y turnos'),
-('Medico', 'Consulta sus turnos y carga diagnosticos');
+('Medico', 'Consulta sus turnos y carga diagnosticos'),
+('Paciente', 'Consulta sus turnos y registra informacion basica');
 GO
 
-/* Estados necesarios para el ciclo de vida del turno */
+INSERT INTO dbo.EstadosUsuario (Nombre, Descripcion)
+VALUES
+('Pendiente', 'Cuenta creada pero aun no activada'),
+('Activo', 'Cuenta habilitada para uso normal'),
+('Bloqueado', 'Cuenta bloqueada temporalmente'),
+('Inactivo', 'Cuenta deshabilitada'),
+('CambioClavePendiente', 'Debe cambiar la clave en el proximo ingreso');
+GO
+
 INSERT INTO dbo.EstadosTurno (Nombre, Descripcion, EsFinal)
 VALUES
 ('Nuevo', 'Turno asignado', 0),
@@ -257,13 +287,11 @@ VALUES
 ('Cerrado', 'Turno atendido y cerrado', 1);
 GO
 
-/* Configuracion global de duracion de turnos */
 INSERT INTO dbo.ConfiguracionesTurno (DuracionMinutos)
 VALUES
 (60);
 GO
 
-/* Especialidades */
 INSERT INTO dbo.Especialidades (Nombre, Descripcion)
 VALUES
 ('Clinica Medica', 'Atencion general'),
@@ -273,29 +301,8 @@ VALUES
 ('Traumatologia', 'Atencion de lesiones oseas y musculares');
 GO
 
-/* Pacientes */
-INSERT INTO dbo.Pacientes
+INSERT INTO dbo.Personas
 (
-    DNI,
-    Nombre,
-    Apellido,
-    FechaNacimiento,
-    Telefono,
-    Email,
-    Direccion
-)
-VALUES
-('30111222', 'Juan', 'Perez', '1985-04-12', '1123456789', 'juan.perez@mail.com', 'Av San Martin 1234'),
-('33222333', 'Maria', 'Lopez', '1990-09-23', '1134567890', 'maria.lopez@mail.com', 'Belgrano 455'),
-('28333444', 'Carlos', 'Diaz', '1978-01-05', '1145678901', 'carlos.diaz@mail.com', 'Mitre 789'),
-('40555666', 'Sofia', 'Acosta', '2001-11-18', '1156789012', 'sofia.acosta@mail.com', 'Rivadavia 2300'),
-('35666777', 'Lucia', 'Martinez', '1994-07-30', '1167890123', 'lucia.martinez@mail.com', 'Moreno 150');
-GO
-
-/* Medicos */
-INSERT INTO dbo.Medicos
-(
-    Matricula,
     DNI,
     Nombre,
     Apellido,
@@ -303,14 +310,69 @@ INSERT INTO dbo.Medicos
     Email
 )
 VALUES
-('MN-10001', '20111222', 'Laura', 'Gomez', '1122001100', 'laura.gomez@clinica.local'),
-('MN-10002', '21222333', 'Martin', 'Ruiz', '1133002200', 'martin.ruiz@clinica.local'),
-('MN-10003', '22333444', 'Ana', 'Torres', '1144003300', 'ana.torres@clinica.local'),
-('MN-10004', '23444555', 'Diego', 'Salas', '1155004400', 'diego.salas@clinica.local'),
-('MN-10005', '24555666', 'Valeria', 'Molina', '1166005500', 'valeria.molina@clinica.local');
+('30111222', 'Juan', 'Perez', '1123456789', 'juan.perez@mail.com'),
+('33222333', 'Maria', 'Lopez', '1134567890', 'maria.lopez@mail.com'),
+('28333444', 'Carlos', 'Diaz', '1145678901', 'carlos.diaz@mail.com'),
+('40555666', 'Sofia', 'Acosta', '1156789012', 'sofia.acosta@mail.com'),
+('35666777', 'Lucia', 'Martinez', '1167890123', 'lucia.martinez@mail.com');
 GO
 
-/* Relacion medico - especialidad */
+INSERT INTO dbo.Pacientes
+(
+    IdPersona,
+    FechaNacimiento,
+    Direccion
+)
+VALUES
+ (1, '1985-04-12', 'Av San Martin 1234'),
+ (2, '1990-09-23', 'Belgrano 455'),
+ (3, '1978-01-05', 'Mitre 789'),
+ (4, '2001-11-18', 'Rivadavia 2300'),
+ (5, '1994-07-30', 'Moreno 150');
+GO
+
+INSERT INTO dbo.Personas
+(
+    DNI,
+    Nombre,
+    Apellido,
+    Telefono,
+    Email
+)
+VALUES
+('20111222', 'Laura', 'Gomez', '1122001100', 'laura.gomez@clinica.local'),
+('21222333', 'Martin', 'Ruiz', '1133002200', 'martin.ruiz@clinica.local'),
+('22333444', 'Ana', 'Torres', '1144003300', 'ana.torres@clinica.local'),
+('23444555', 'Diego', 'Salas', '1155004400', 'diego.salas@clinica.local'),
+('24555666', 'Valeria', 'Molina', '1166005500', 'valeria.molina@clinica.local');
+GO
+
+INSERT INTO dbo.Medicos
+(
+    IdPersona,
+    Matricula
+)
+VALUES
+(6, 'MN-10001'),
+(7, 'MN-10002'),
+(8, 'MN-10003'),
+(9, 'MN-10004'),
+(10, 'MN-10005');
+GO
+
+INSERT INTO dbo.Personas
+(
+    DNI,
+    Nombre,
+    Apellido,
+    Telefono,
+    Email
+)
+VALUES
+('30100001', 'Admin', 'Sistema', '1111111111', 'admin@clinica.local'),
+('30100002', 'Recepcion', 'Clinica', '1111111112', 'recepcion@clinica.local');
+GO
+
 INSERT INTO dbo.MedicosEspecialidades
 (
     IdMedico,
@@ -324,7 +386,6 @@ VALUES
 (5, 2);
 GO
 
-/* Dias de atencion de los medicos */
 INSERT INTO dbo.HorariosDisponiblidadMedicos
 (
     IdMedico,
@@ -340,27 +401,23 @@ VALUES
 (5, 5, '10:00', '16:00');
 GO
 
-/* Usuarios */
 INSERT INTO dbo.Usuarios
 (
+    IdPersona,
     NombreUsuario,
-    Nombre,
-    Apellido,
-    Email,
     PasswordHash,
     Imagen,
     IdRol,
-    IdMedico
+    IdEstadoUsuario
 )
 VALUES
-('admin', 'Admin', 'Sistema', 'admin@clinica.local', 'hashadmin1', NULL, 1, NULL),
-('recepcion', 'Recepcion', 'Clinica', 'recepcion@clinica.local', 'hashrecepcion', NULL, 2, NULL),
-('lgomez', 'Laura', 'Gomez', 'laura.gomez@clinica.local', 'hashmedico1', NULL, 3, 1),
-('mruiz', 'Martin', 'Ruiz', 'martin.ruiz@clinica.local', 'hasmedico2', NULL, 3, 2),
-('vmolina', 'Valeria', 'Molina', 'valeria.molina@clinica.local', 'hasmedico3', NULL, 3, 5);
+(11, 'admin', 'hashadmin1', NULL, 1, 2),
+(12, 'recepcion', 'hashrecepcion', NULL, 2, 2),
+(6, 'lgomez', 'hashmedico1', NULL, 3, 1),
+(7, 'mruiz', 'hasmedico2', NULL, 3, 1),
+(10, 'vmolina', 'hasmedico3', NULL, 3, 1);
 GO
 
-/* Turnos */
 INSERT INTO dbo.Turnos
 (
     NumeroTurno,

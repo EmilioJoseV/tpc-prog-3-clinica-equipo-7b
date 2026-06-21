@@ -12,6 +12,6 @@ namespace TurnosClinica.Dominio.Entidades
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public bool EsFinal { get; set; }
-        public bool Activo { get; set; } = true;
+        public bool Activo { get; set; }
     }
 }
