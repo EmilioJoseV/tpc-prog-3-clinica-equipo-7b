@@ -21,7 +21,6 @@
             <thead class="table-dark">
                 <tr>
                     <th scope="col"># ID</th>
-                    <th scope="col" style="width: 50px;">Foto</th>
                     <th scope="col">Nombre y Apellido</th>
                     <th scope="col">Email</th>
                     <th scope="col">Rol</th>
@@ -34,19 +33,6 @@
                     { %>
                 <tr>
                     <td><%: user.IdUsuario %></td>
-                    <td class="text-center">
-                        <% if (user.Imagen != null && user.Imagen.Length > 0)
-                            {
-                                string base64String = Convert.ToBase64String(user.Imagen); %>
-                        <img src="data:image/jpeg;base64,<%= base64String %>" alt="Avatar" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;" />
-                        <% }
-                            else
-                            { %>
-                        <div class="bg-secondary text-white rounded-circle d-inline-block text-center pt-1" style="width: 35px; height: 35px; font-size: 14px;">
-                            <%= !string.IsNullOrEmpty(user.NombreUsuario) ? user.NombreUsuario.Substring(0, 1).ToUpper() : "U" %>
-                        </div>
-                        <% } %>
-                    </td>
                     <td>
                         <%: !string.IsNullOrEmpty(user.Nombre) || !string.IsNullOrEmpty(user.Apellido) 
                                 ? $"{user.Nombre} {user.Apellido}".Trim() 
