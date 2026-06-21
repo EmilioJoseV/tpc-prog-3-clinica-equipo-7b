@@ -106,11 +106,6 @@ namespace TurnosClinica.Web
                     throw new Exception("Este formulario no crea usuarios con rol Paciente. Las cuentas de paciente se generan automaticamente desde el formulario de pacientes.");
                 }
 
-                if (Request.QueryString["id"] == null && string.IsNullOrWhiteSpace(txtPassword.Text))
-                {
-                    throw new Exception("La contraseña es obligatoria para un usuario nuevo.");
-                }
-
                 UsuarioNegocio negocio = new UsuarioNegocio();
                 Usuario usuario = new Usuario();
 
@@ -127,8 +122,8 @@ namespace TurnosClinica.Web
                 }
                 else
                 {
-                    // Si es un usuario nuevo, forzamos que nazca ACTIVO
-                    usuario.EstadoUsuario = EstadoUsuarioEnum.Activo;
+                    // Si es un usuario nuevo, nace pendiente.
+                    usuario.EstadoUsuario = EstadoUsuarioEnum.Pendiente;
                 }
 
                 if (!string.IsNullOrWhiteSpace(HfIdPersona.Value))
@@ -144,16 +139,25 @@ namespace TurnosClinica.Web
                 usuario.Nombre = txtNombre.Text.Trim();
                 usuario.Apellido = txtApellido.Text.Trim();
                 usuario.Telefono = txtTelefono.Text.Trim();
-                usuario.NombreUsuario = txtNombreUsuario.Text.Trim();
+                if (Request.QueryString["id"] != null)
+                {
+                    usuario.NombreUsuario = string.IsNullOrWhiteSpace(txtNombreUsuario.Text)
+                        ? negocio.ObtenerPorId(usuario.IdUsuario)?.NombreUsuario
+                        : txtNombreUsuario.Text.Trim();
+                }
+                else
+                {
+                    usuario.NombreUsuario = null;
+                }
                 usuario.Email = txtEmail.Text.Trim();
                 if (Request.QueryString["id"] != null && string.IsNullOrWhiteSpace(txtPassword.Text))
                 {
                     Usuario usuarioExistente = negocio.ObtenerPorId(usuario.IdUsuario);
-                    usuario.PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : string.Empty;
+                    usuario.PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : null;
                 }
                 else
                 {
-                    usuario.PasswordHash = txtPassword.Text;
+                    usuario.PasswordHash = Request.QueryString["id"] != null ? txtPassword.Text : null;
                 }
 
                 if (fileImagen.HasFile)

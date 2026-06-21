@@ -6,9 +6,9 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-4">
         <h2 id="lblTitulo" runat="server">Nuevo Usuario</h2>
-        <p class="text-secondary">Este formulario es para cuentas de acceso de Administrador y Recepcionista.</p>
+        <p class="text-secondary">Este formulario crea cuentas de Administrador y Recepcionista</p>
         <div class="alert alert-info py-2">
-            Las cuentas de Medico y Paciente se generan automaticamente desde sus formularios. Este formulario es solo para Administrador y Recepcionista.
+            Los usuarios de medicos y pacientes se generan automaticamente desde sus formularios. ademas al crearse el usuario va a quedar con nombre y contrasena en estado pendiente.
         </div>
         <hr />
         <asp:HiddenField ID="HfIdPersona" runat="server" />

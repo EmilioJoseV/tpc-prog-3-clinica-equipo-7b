@@ -33,8 +33,8 @@ namespace TurnosClinica.Negocio
             {
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
-                        throw new Exception("El nombre de usuario es obligatorio.");
+                    usuario.NombreUsuario = string.IsNullOrWhiteSpace(usuario.NombreUsuario) ? null : usuario.NombreUsuario.Trim();
+                    usuario.PasswordHash = string.IsNullOrWhiteSpace(usuario.PasswordHash) ? null : usuario.PasswordHash.Trim();
 
                     if (string.IsNullOrWhiteSpace(usuario.DNI))
                         throw new Exception("El DNI es obligatorio.");
@@ -45,9 +45,9 @@ namespace TurnosClinica.Negocio
                     if (usuario.Rol == null || string.IsNullOrWhiteSpace(usuario.Rol.Nombre) || !Enum.TryParse(usuario.Rol.Nombre, true, out RolEnum _))
                         throw new Exception("Debe asignar un Rol válido al usuario.");
 
-                    if (!Enum.IsDefined(typeof(EstadoUsuarioEnum), usuario.EstadoUsuario))
+                    if (!Enum.IsDefined(typeof(EstadoUsuarioEnum), usuario.EstadoUsuario) || (usuario.NombreUsuario == null && usuario.PasswordHash == null))
                     {
-                        usuario.EstadoUsuario = EstadoUsuarioEnum.Activo;
+                        usuario.EstadoUsuario = EstadoUsuarioEnum.Pendiente;
                     }
 
                     transaccionDatos.IniciarTransaccion();
@@ -69,11 +69,11 @@ namespace TurnosClinica.Negocio
             {
                 try
                 {
+                    usuario.NombreUsuario = string.IsNullOrWhiteSpace(usuario.NombreUsuario) ? null : usuario.NombreUsuario.Trim();
+                    usuario.PasswordHash = string.IsNullOrWhiteSpace(usuario.PasswordHash) ? null : usuario.PasswordHash.Trim();
+
                     if (usuario.IdUsuario <= 0)
                         throw new Exception("No se puede modificar un usuario sin un ID válido.");
-
-                    if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
-                        throw new Exception("El nombre de usuario no puede quedar vacío.");
 
                     if (string.IsNullOrWhiteSpace(usuario.DNI))
                         throw new Exception("El DNI no puede quedar vacío.");

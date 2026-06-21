@@ -172,18 +172,12 @@ namespace TurnosClinica.Negocio
                 Apellido = medico.Apellido,
                 Telefono = medico.Telefono,
                 Email = medico.Email,
-                NombreUsuario = usuarioExistente != null && !string.IsNullOrWhiteSpace(usuarioExistente.NombreUsuario)
-                    ? usuarioExistente.NombreUsuario
-                    : medico.DNI,
-                PasswordHash = usuarioExistente != null && !string.IsNullOrWhiteSpace(usuarioExistente.PasswordHash)
-                    ? usuarioExistente.PasswordHash
-                    : "123456",
+                NombreUsuario = usuarioExistente != null ? usuarioExistente.NombreUsuario : null,
+                PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : null,
                 Imagen = usuarioExistente != null ? usuarioExistente.Imagen : null,
-                EstadoUsuario = !medico.Activo
-                    ? EstadoUsuarioEnum.Inactivo
-                    : (usuarioExistente != null
-                        ? usuarioExistente.EstadoUsuario
-                        : EstadoUsuarioEnum.Pendiente),
+                EstadoUsuario = usuarioExistente != null
+                    ? usuarioExistente.EstadoUsuario
+                    : EstadoUsuarioEnum.Pendiente,
                 Rol = new Rol
                 {
                     Nombre = RolEnum.Medico.ToString()

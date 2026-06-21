@@ -399,13 +399,13 @@ namespace TurnosClinica.AccesoDatos
             {
                 IdUsuario = Convert.ToInt32(fila["IdUsuario"]),
                 IdPersona = Convert.ToInt32(fila["IdPersona"]),
-                NombreUsuario = fila["NombreUsuario"].ToString(),
+                NombreUsuario = fila["NombreUsuario"] is DBNull ? null : fila["NombreUsuario"].ToString(),
                 DNI = fila["DNI"].ToString(),
                 Nombre = fila["Nombre"].ToString(),
                 Apellido = fila["Apellido"].ToString(),
                 Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
                 Email = fila["Email"].ToString(),
-                PasswordHash = fila["PasswordHash"] is DBNull ? string.Empty : fila["PasswordHash"].ToString(),
+                PasswordHash = fila["PasswordHash"] is DBNull ? null : fila["PasswordHash"].ToString(),
                 Imagen = fila["Imagen"] is DBNull ? null : (byte[])fila["Imagen"],
                 EstadoUsuario = Enum.TryParse(fila["NombreEstadoUsuario"]?.ToString(), true, out EstadoUsuarioEnum estado)
                     ? estado

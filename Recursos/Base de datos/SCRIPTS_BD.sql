@@ -163,17 +163,14 @@ CREATE TABLE dbo.Usuarios
 (
     IdUsuario INT IDENTITY(1,1) NOT NULL,
     IdPersona INT NOT NULL,
-    NombreUsuario VARCHAR(50) NOT NULL,
-    PasswordHash VARCHAR(256) NOT NULL,
+    NombreUsuario VARCHAR(50) NULL,
+    PasswordHash VARCHAR(256) NULL,
     Imagen VARBINARY(MAX) NULL,
     IdRol INT NOT NULL,
     IdEstadoUsuario INT NOT NULL,
 
     CONSTRAINT PK_Usuarios PRIMARY KEY (IdUsuario),
     CONSTRAINT UQ_Usuarios_IdPersona UNIQUE (IdPersona),
-    CONSTRAINT UQ_Usuarios_NombreUsuario UNIQUE (NombreUsuario),
-    CONSTRAINT CK_Usuarios_NombreUsuario_NoVacio CHECK (LEN(LTRIM(RTRIM(NombreUsuario))) > 0),
-    CONSTRAINT CK_Usuarios_PasswordHash_NoVacio CHECK (LEN(LTRIM(RTRIM(PasswordHash))) > 0),
 
     CONSTRAINT FK_Usuarios_Roles
         FOREIGN KEY (IdRol)
@@ -411,11 +408,11 @@ INSERT INTO dbo.Usuarios
     IdEstadoUsuario
 )
 VALUES
-(11, 'admin', 'hashadmin1', NULL, 1, 2),
-(12, 'recepcion', 'hashrecepcion', NULL, 2, 2),
-(6, 'lgomez', 'hashmedico1', NULL, 3, 1),
-(7, 'mruiz', 'hasmedico2', NULL, 3, 1),
-(10, 'vmolina', 'hasmedico3', NULL, 3, 1);
+(11, NULL, NULL, NULL, 1, 1),
+(12, NULL, NULL, NULL, 2, 1),
+(6, NULL, NULL, NULL, 3, 1),
+(7, NULL, NULL, NULL, 3, 1),
+(10, NULL, NULL, NULL, 3, 1);
 GO
 
 INSERT INTO dbo.Turnos
