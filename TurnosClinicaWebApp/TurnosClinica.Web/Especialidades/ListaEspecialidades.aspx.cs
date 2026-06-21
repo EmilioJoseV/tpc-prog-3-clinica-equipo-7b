@@ -1,17 +1,22 @@
 using System;
 using System.Collections.Generic;
-using TurnosClinica.Negocio;
 using TurnosClinica.Dominio.Entidades;
+using System.Web.UI.WebControls;
+using TurnosClinica.Negocio;
+using TurnosClinica.Web;
+using System.Web.UI;
 
 namespace TurnosClinica.Web
 {
-    public partial class ListaEspecialidades : System.Web.UI.Page
+    public partial class ListaEspecialidades : Page
     {
         
         public List<Especialidad> ListaEspecialidad { get; set; }
+        public bool FiltroAvanzado { get; set; }
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            FiltroAvanzado = chkAvanzado.Checked;
             if (!IsPostBack)
             {
                 
@@ -43,6 +48,54 @@ namespace TurnosClinica.Web
 
             ListaEspecialidad = listaFiltrada;
         }
+        protected void chkAvanzado_CheckedChanged(object sender, EventArgs e)
+        {
+            FiltroAvanzado = chkAvanzado.Checked;
+            txtFiltro.Enabled = !FiltroAvanzado;
+
+                        if (FiltroAvanzado)
+            {
+                List<Especialidad> lista = (List<Especialidad>)Session["listaEspecialidades"];
+                ddlFiltroNombre.DataSource = lista;
+                ddlFiltroNombre.DataTextField = "Nombre"; 
+                ddlFiltroNombre.DataValueField = "IdEspecialidad"; 
+                ddlFiltroNombre.DataBind();
+                ddlFiltroNombre.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Todas las especialidades", "0"));
+            }
+        }
+
+        protected void btnBuscar_Click(object sender, EventArgs e)
+        {
+            List<Especialidad> listaOriginal = (List<Especialidad>)Session["listaEspecialidades"];
+            List<Especialidad> filtrada = listaOriginal;
+
+                        string nombreElegido = ddlFiltroNombre.SelectedItem.Text;
+            if (nombreElegido != "Todas las especialidades")
+            {
+                filtrada = filtrada.FindAll(x => x.Nombre == nombreElegido);
+            }
+
+                        string estado = ddlEstado.SelectedItem.ToString();
+            if (estado == "Activo")
+            {
+                filtrada = filtrada.FindAll(x => x.Activo == true);
+            }
+            else if (estado == "Inactivo")
+            {
+                filtrada = filtrada.FindAll(x => x.Activo == false);
+            }
+
+            ListaEspecialidad = filtrada;
+        }
+
+        protected void btnLimpiar_Click(object sender, EventArgs e)
+        {
+            ddlFiltroNombre.SelectedIndex = 0; 
+            ddlEstado.SelectedIndex = 0; 
+
+            ListaEspecialidad = (List<Especialidad>)Session["listaEspecialidades"];
+        }
+
         public string ObtenerMedicosPorEspecialidad(int idEspecialidad)
         {
             MedicoNegocio medicoNegocio = new MedicoNegocio();
@@ -73,3 +126,4 @@ namespace TurnosClinica.Web
 
     }
 }
+
