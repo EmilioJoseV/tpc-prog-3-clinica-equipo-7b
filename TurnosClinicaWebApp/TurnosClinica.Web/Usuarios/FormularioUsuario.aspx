@@ -1,11 +1,9 @@
 <%@ Page Title="Formulario de Usuario" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="FormularioUsuario.aspx.cs" Inherits="TurnosClinica.Web.FormularioUsuario" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-</asp:Content>
-
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-4">
-        <h2><%= Request.QueryString["id"] != null ? "Modificar Usuario" : "Nuevo Usuario" %></h2>
+        <%-- Título dinámico compatible con id e Id --%>
+        <h2><%= Request.QueryString["id"] != null || Request.QueryString["Id"] != null ? "Modificar Usuario" : "Nuevo Usuario" %></h2>
         <p class="text-secondary">Ingresa los datos correspondientes para el usuario.</p>
         <hr />
 
@@ -24,8 +22,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="fileImagen" class="form-label">Subir nueva foto</label>
-                    <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
+                    <label class="form-label">Subir nueva foto</label>
+                    <div class="input-group">
+                        <%-- Eliminamos el onchange de JavaScript --%>
+                        <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
+                        <%-- Este botón procesa y actualiza la previsualización desde el servidor --%>
+                        <asp:Button ID="btnPrevisualizar" runat="server" Text="Cargar" CssClass="btn btn-outline-secondary" OnClick="btnPrevisualizar_Click" />
+                    </div>
                     <small class="text-muted">Formatos aceptados: .jpg, .png</small>
                 </div>
             </div>
@@ -58,28 +61,17 @@
                     <asp:DropDownList ID="ddlMedico" runat="server" CssClass="form-select"></asp:DropDownList>
                 </div>
             </div>
+
             <div class="col-md-4 text-center d-flex flex-column align-items-center pt-4">
                 <h5 class="text-primary mb-3">Foto de Perfil Actual</h5>
 
-                <% if (Request.QueryString["id"] != null && usuarioActual != null)
-                    {
-                        if (usuarioActual.Imagen != null && usuarioActual.Imagen.Length > 0)
-                        { %>
-                <img src="data:image/jpeg;base64,<%= Convert.ToBase64String(usuarioActual.Imagen) %>" alt="Avatar" class="img-thumbnail rounded-circle" style="width: 180px; height: 180px; object-fit: cover;" />
-                <%  }
-                    else
-                    { %>
-                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 180px; height: 180px; font-size: 48px;">
-                    <%= !string.IsNullOrEmpty(usuarioActual.NombreUsuario) ? usuarioActual.NombreUsuario.Substring(0, 1).ToUpper() : "U" %>
-                </div>
-                <%  }
-                    }
-                    else
-                    { %>
-                <div class="bg-light text-muted border rounded d-flex align-items-center justify-content-center text-center p-3" style="width: 180px; height: 180px; font-size: 14px;">
-                    Sin imagen (Usuario Nuevo)
-                </div>
-                <% } %>
+                <%-- Control de imagen estándar: si tiene foto se muestra acá --%>
+                <asp:Image ID="imgPerfil" runat="server" CssClass="img-thumbnail rounded-circle" Style="width: 180px; height: 180px; object-fit: cover;" Visible="false" />
+
+                <%-- Control de panel estándar: si no tiene foto se usa para la inicial o el texto por defecto --%>
+                <asp:Panel ID="pnlInicial" runat="server" CssClass="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" Style="width: 180px; height: 180px; font-size: 48px;" Visible="false">
+                    <asp:Literal ID="litInicial" runat="server"></asp:Literal>
+                </asp:Panel>
             </div>
         </div>
 
