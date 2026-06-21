@@ -63,6 +63,37 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
+        public Paciente ObtenerPorIdPersona(int idPersona)
+        {
+            Paciente paciente = new Paciente();
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "SELECT Pcte.IdPaciente, Pcte.IdPersona, Pcte.FechaNacimiento, Pcte.Direccion, Pcte.Activo,"
+                    + " Per.DNI, Per.Nombre, Per.Apellido, Per.Telefono, Per.Email"
+                    + " FROM Pacientes Pcte"
+                    + " INNER JOIN Personas Per ON Per.IdPersona = Pcte.IdPersona"
+                    + " WHERE Pcte.IdPersona = @idPersona");
+                accesoDatos.setearParametro("@idPersona", idPersona);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    paciente = MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
+                return paciente;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
         public void Agregar(Paciente paciente)
         {
             try

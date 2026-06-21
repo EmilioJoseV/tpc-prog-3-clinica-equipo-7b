@@ -75,10 +75,7 @@
                 <div class="mb-3 d-flex gap-2">
                     <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" OnClick="btnAceptar_Click" />
 
-                    <asp:Button ID="btnInactivar" runat="server" Text="Inactivar" CssClass="btn btn-warning" OnClick="btnInactivar_Click" />
-
-                    <asp:Button ID="btnEliminar" runat="server" Text="Eliminar" CssClass="btn btn-danger" OnClick="btnEliminar_Click"
-                        OnClientClick="return confirm('¿Estas seguro de que deseas eliminar permanentemente a este usuario?');" />
+                    <asp:Button ID="btnDesactivar" runat="server" Text="Desactivar" CssClass="btn btn-warning" OnClick="btnDesactivar_Click" />
 
                     <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
                 </div>

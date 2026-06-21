@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AccesoDatosBase = TurnosClinica.AccesoDatos.AccesoDatos;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
@@ -9,12 +10,12 @@ namespace TurnosClinica.Negocio
     public class PacienteNegocio
     {
         private readonly PacienteDatos pacienteDatos;
-        private readonly PersonaDatos personaDatos;
+        private readonly PersonaNegocio personaNegocio;
 
         public PacienteNegocio()
         {
             pacienteDatos = new PacienteDatos();
-            personaDatos = new PersonaDatos();
+            personaNegocio = new PersonaNegocio();
         }
 
         public List<Paciente> Listar(bool? activo = null)
@@ -76,10 +77,10 @@ namespace TurnosClinica.Negocio
                     transaccionDatos.IniciarTransaccion();
 
                     PacienteDatos pacienteDatosTransaccional = new PacienteDatos(transaccionDatos.AccesoDatos);
-                    UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(transaccionDatos.AccesoDatos);
 
                     pacienteDatosTransaccional.Agregar(paciente);
-                    SincronizarUsuarioAsociado(paciente, usuarioDatos);
+                    SincronizarUsuarioAsociado(paciente, usuarioNegocio);
 
                     transaccionDatos.Confirmar();
                 }
@@ -102,10 +103,10 @@ namespace TurnosClinica.Negocio
                     transaccionDatos.IniciarTransaccion();
 
                     PacienteDatos pacienteDatosTransaccional = new PacienteDatos(transaccionDatos.AccesoDatos);
-                    UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(transaccionDatos.AccesoDatos);
 
                     pacienteDatosTransaccional.Modificar(paciente);
-                    SincronizarUsuarioAsociado(paciente, usuarioDatos);
+                    SincronizarUsuarioAsociado(paciente, usuarioNegocio);
 
                     transaccionDatos.Confirmar();
                 }
@@ -170,47 +171,22 @@ namespace TurnosClinica.Negocio
                 throw new Exception("El paciente es obligatorio.");
             }
 
-            if (string.IsNullOrWhiteSpace(paciente.DNI))
-            {
-                throw new Exception("El DNI es obligatorio.");
-            }
-
-            if (string.IsNullOrWhiteSpace(paciente.Nombre))
-            {
-                throw new Exception("El nombre es obligatorio.");
-            }
-
-            if (string.IsNullOrWhiteSpace(paciente.Apellido))
-            {
-                throw new Exception("El apellido es obligatorio.");
-            }
-
-            if (string.IsNullOrWhiteSpace(paciente.Email))
-            {
-                throw new Exception("El correo electrónico es obligatorio.");
-            }
-
             if (paciente.FechaNacimiento == default(DateTime))
             {
                 throw new Exception("La fecha de nacimiento es obligatoria.");
             }
 
-            Persona personaPorDni = personaDatos.ObtenerPorDni(paciente.DNI.Trim());
-            if (personaPorDni != null && personaPorDni.IdPersona != paciente.IdPersona)
+            if (string.IsNullOrWhiteSpace(paciente.Direccion))
             {
-                throw new Exception("Ya existe una persona registrada con ese DNI.");
+                throw new Exception("La dirección es obligatoria.");
             }
 
-            Persona personaPorEmail = personaDatos.ObtenerPorEmail(paciente.Email.Trim());
-            if (personaPorEmail != null && personaPorEmail.IdPersona != paciente.IdPersona)
-            {
-                throw new Exception("Ya existe una persona registrada con ese correo electrónico.");
-            }
+            personaNegocio.ValidarPersona(paciente, esAlta);
         }
 
-        private void SincronizarUsuarioAsociado(Paciente paciente, UsuarioDatos usuarioDatos)
+        private void SincronizarUsuarioAsociado(Paciente paciente, UsuarioNegocio usuarioNegocio)
         {
-            Usuario usuarioExistente = usuarioDatos.ObtenerPorIdPersona(paciente.IdPersona);
+            Usuario usuarioExistente = usuarioNegocio.ObtenerPorIdPersona(paciente.IdPersona);
             Usuario usuario = new Usuario
             {
                 IdPersona = paciente.IdPersona,
@@ -222,7 +198,6 @@ namespace TurnosClinica.Negocio
                 NombreUsuario = usuarioExistente != null ? usuarioExistente.NombreUsuario : null,
                 PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : null,
                 Imagen = usuarioExistente != null ? usuarioExistente.Imagen : null,
-                EstadoUsuario = EstadoUsuarioEnum.Pendiente,
                 Rol = new Rol
                 {
                     Nombre = RolEnum.Paciente.ToString()
@@ -232,11 +207,11 @@ namespace TurnosClinica.Negocio
             if (usuarioExistente != null)
             {
                 usuario.IdUsuario = usuarioExistente.IdUsuario;
-                usuarioDatos.Modificar(usuario);
+                usuarioNegocio.Modificar(usuario);
             }
             else
             {
-                usuarioDatos.Agregar(usuario);
+                usuarioNegocio.Agregar(usuario);
             }
         }
     }

@@ -44,6 +44,7 @@
     <Compile Include="ConfiguracionTurnoNegocio.cs" />
     <Compile Include="DTO\TurnoDisponibleDTO.cs" />
     <Compile Include="EspecialidadNegocio.cs" />
+    <Compile Include="PersonaNegocio.cs" />
     <Compile Include="MedicoNegocio.cs" />
     <Compile Include="PacienteNegocio.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -314,32 +314,15 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public void EliminarFisico(int idUsuario)
+        public void desactivar(int idUsuario)
         {
             try
             {
-                accesoDatos.setearConsulta("DELETE FROM Usuarios WHERE IdUsuario = @idUsuario");
-                accesoDatos.setearParametro("@idUsuario", idUsuario);
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
+                EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(EstadoUsuarioEnum.Inactivo.ToString());
 
-        public void EliminarLogico(int idUsuario)
-        {
-            try
-            {
                 accesoDatos.setearConsulta("UPDATE Usuarios SET IdEstadoUsuario = @idEstadoUsuario WHERE IdUsuario = @idUsuario");
                 accesoDatos.setearParametro("@idUsuario", idUsuario);
-                EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(EstadoUsuarioEnum.Inactivo.ToString());
-                accesoDatos.setearParametro("@idEstadoUsuario", estadoUsuario != null ? estadoUsuario.IdEstadoUsuario : 0);
+                accesoDatos.setearParametro("@idEstadoUsuario", estadoUsuario.IdEstadoUsuario);
                 accesoDatos.ejecutarAccion();
             }
             catch (Exception ex)

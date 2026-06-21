@@ -52,18 +52,17 @@ namespace TurnosClinica.Web
                         }
 
                         // ESTO SE EJECUTA SIEMPRE (En la primera carga y en cada PostBack)
-                        btnInactivar.Visible = true;
-                        btnEliminar.Visible = true;
+                        btnDesactivar.Visible = true;
 
-                        if (usuario.EstadoUsuario == EstadoUsuarioEnum.Activo)
+                        if (usuario.EstadoUsuario == EstadoUsuarioEnum.Inactivo)
                         {
-                            btnInactivar.Text = "Inactivar";
-                            btnInactivar.CssClass = "btn btn-warning";
+                            btnDesactivar.Text = "Desactivar";
+                            btnDesactivar.CssClass = "btn btn-warning";
                         }
                         else
                         {
-                            btnInactivar.Text = "Activar";
-                            btnInactivar.CssClass = "btn btn-success";
+                            btnDesactivar.Text = "Desactivar";
+                            btnDesactivar.CssClass = "btn btn-warning";
                         }
                     }
                 }
@@ -77,8 +76,7 @@ namespace TurnosClinica.Web
                     }
 
                     // ESTO SE EJECUTA SIEMPRE PARA EL ALTA
-                    btnInactivar.Visible = false;
-                    btnEliminar.Visible = false;
+                    btnDesactivar.Visible = false;
                 }
             }
             catch (Exception ex)
@@ -217,7 +215,7 @@ namespace TurnosClinica.Web
             ddlRol.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Rol", string.Empty));
 
         }
-        protected void btnInactivar_Click(object sender, EventArgs e)
+        protected void btnDesactivar_Click(object sender, EventArgs e)
         {
             try
             {
@@ -226,39 +224,7 @@ namespace TurnosClinica.Web
                     int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
                     UsuarioNegocio negocio = new UsuarioNegocio();
 
-                    Usuario usuario = negocio.ObtenerPorId(idUsuario);
-
-                    if (usuario != null)
-                    {
-                        if (usuario.EstadoUsuario == EstadoUsuarioEnum.Activo)
-                        {
-                            negocio.EliminarLogico(idUsuario);
-                        }
-                        else
-                        {
-                            negocio.AltaLogica(idUsuario);
-                        }
-
-                        Response.Redirect("ListaUsuarios.aspx");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Session.Add("Error", ex.ToString());
-            }
-        }
-        protected void btnEliminar_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (Request.QueryString["id"] != null)
-                {
-                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
-
-                    TurnosClinica.AccesoDatos.UsuarioDatos datos = new TurnosClinica.AccesoDatos.UsuarioDatos();
-
-                    datos.EliminarFisico(idUsuario);
+                    negocio.Desactivar(idUsuario);
 
                     Response.Redirect("ListaUsuarios.aspx");
                 }

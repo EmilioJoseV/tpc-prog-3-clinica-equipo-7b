@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AccesoDatosBase = TurnosClinica.AccesoDatos.AccesoDatos;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
@@ -9,12 +10,12 @@ namespace TurnosClinica.Negocio
     public class MedicoNegocio
     {
         private readonly MedicoDatos medicoDatos;
-        private readonly PersonaDatos personaDatos;
+        private readonly PersonaNegocio personaNegocio;
 
         public MedicoNegocio()
         {
             medicoDatos = new MedicoDatos();
-            personaDatos = new PersonaDatos();
+            personaNegocio = new PersonaNegocio();
         }
 
         public List<Medico> Listar(bool? activo = null)
@@ -78,10 +79,10 @@ namespace TurnosClinica.Negocio
                     MedicoDatos medicoDatosTransaccional = new MedicoDatos(transaccionDatos.AccesoDatos);
                     MedicoEspecialidadesDatos medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(transaccionDatos.AccesoDatos);
                     HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(transaccionDatos.AccesoDatos);
-                    UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(transaccionDatos.AccesoDatos);
 
                     medicoDatosTransaccional.Agregar(medico);
-                    SincronizarUsuarioAsociado(medico, usuarioDatos);
+                    SincronizarUsuarioAsociado(medico, usuarioNegocio);
                     medicoEspecialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
                     horarioDisponibilidadMedicoDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
 
@@ -108,10 +109,10 @@ namespace TurnosClinica.Negocio
                     MedicoDatos medicoDatosTransaccional = new MedicoDatos(transaccionDatos.AccesoDatos);
                     MedicoEspecialidadesDatos medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(transaccionDatos.AccesoDatos);
                     HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(transaccionDatos.AccesoDatos);
-                    UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(transaccionDatos.AccesoDatos);
 
                     medicoDatosTransaccional.Modificar(medico);
-                    SincronizarUsuarioAsociado(medico, usuarioDatos);
+                    SincronizarUsuarioAsociado(medico, usuarioNegocio);
                     medicoEspecialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
                     horarioDisponibilidadMedicoDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
 
@@ -178,42 +179,12 @@ namespace TurnosClinica.Negocio
                 throw new Exception("El medico es obligatorio");
             }
 
-            if (string.IsNullOrWhiteSpace(medico.DNI))
-            {
-                throw new Exception("El DNI es obligatorio");
-            }
-
-            if (string.IsNullOrWhiteSpace(medico.Nombre))
-            {
-                throw new Exception("El nombre es obligatorio");
-            }
-
-            if (string.IsNullOrWhiteSpace(medico.Apellido))
-            {
-                throw new Exception("El apellido es obligatorio");
-            }
-
-            if (string.IsNullOrWhiteSpace(medico.Email))
-            {
-                throw new Exception("El correo electrónico es obligatorio");
-            }
-
             if (string.IsNullOrWhiteSpace(medico.Matricula))
             {
-                throw new Exception("La matrícula es obligatoria");
+                throw new Exception("La matricula es obligatoria");
             }
 
-            Persona personaPorDni = personaDatos.ObtenerPorDni(medico.DNI.Trim());
-            if (personaPorDni != null && personaPorDni.IdPersona != medico.IdPersona)
-            {
-                throw new Exception("Ya existe una persona registrada con ese DNI");
-            }
-
-            Persona personaPorEmail = personaDatos.ObtenerPorEmail(medico.Email.Trim());
-            if (personaPorEmail != null && personaPorEmail.IdPersona != medico.IdPersona)
-            {
-                throw new Exception("Ya existe una persona registrada con ese correo electronico");
-            }
+            personaNegocio.ValidarPersona(medico, esAlta);
 
             if (esAlta && medicoDatos.ExisteMatricula(medico.Matricula.Trim()))
             {
@@ -225,14 +196,14 @@ namespace TurnosClinica.Negocio
                 Medico medicoActual = medicoDatos.ObtenerPorId(medico.IdMedico);
                 if (medicoActual != null && !string.Equals(medicoActual.Matricula, medico.Matricula, StringComparison.OrdinalIgnoreCase) && medicoDatos.ExisteMatricula(medico.Matricula.Trim()))
                 {
-                    throw new Exception("Ya existe un médico registrado con esa matrícula.");
+                    throw new Exception("Ya existe un medico registrado con esa matricula");
                 }
             }
         }
 
-        private void SincronizarUsuarioAsociado(Medico medico, UsuarioDatos usuarioDatos)
+        private void SincronizarUsuarioAsociado(Medico medico, UsuarioNegocio usuarioNegocio)
         {
-            Usuario usuarioExistente = usuarioDatos.ObtenerPorIdPersona(medico.IdPersona);
+            Usuario usuarioExistente = usuarioNegocio.ObtenerPorIdPersona(medico.IdPersona);
             Usuario usuario = new Usuario
             {
                 IdPersona = medico.IdPersona,
@@ -244,7 +215,6 @@ namespace TurnosClinica.Negocio
                 NombreUsuario = usuarioExistente != null ? usuarioExistente.NombreUsuario : null,
                 PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : null,
                 Imagen = usuarioExistente != null ? usuarioExistente.Imagen : null,
-                EstadoUsuario = EstadoUsuarioEnum.Pendiente,
                 Rol = new Rol
                 {
                     Nombre = RolEnum.Medico.ToString()
@@ -254,11 +224,11 @@ namespace TurnosClinica.Negocio
             if (usuarioExistente != null)
             {
                 usuario.IdUsuario = usuarioExistente.IdUsuario;
-                usuarioDatos.Modificar(usuario);
+                usuarioNegocio.Modificar(usuario);
             }
             else
             {
-                usuarioDatos.Agregar(usuario);
+                usuarioNegocio.Agregar(usuario);
             }
         }
     }
