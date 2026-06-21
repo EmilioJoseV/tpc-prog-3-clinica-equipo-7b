@@ -40,64 +40,70 @@ namespace TurnosClinica.Negocio
 
         public void Agregar(Especialidad especialidad)
         {
-            try
-            {
+            ValidarEspecialidad(especialidad);
 
-                if (string.IsNullOrWhiteSpace(especialidad.Nombre))
+            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
+            {
+                try
                 {
-                    throw new Exception("El nombre de la especialidad es obligatorio.");
+                    transaccionDatos.IniciarTransaccion();
+                    EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
+                    datos.Agregar(especialidad);
+                    transaccionDatos.Confirmar();
                 }
-
-                ValidarNombreDuplicado(especialidad);
-
-                especialidadDatos.Agregar(especialidad);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                catch (Exception ex)
+                {
+                    transaccionDatos.Cancelar();
+                    throw ex;
+                }
             }
         }
+
         public void Modificar(Especialidad especialidad)
         {
-            try
+            ValidarEspecialidad(especialidad);
+
+            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
             {
-                if (string.IsNullOrWhiteSpace(especialidad.Nombre))
+                try
                 {
-                    throw new Exception("El nombre es obligatorio.");
-
+                    transaccionDatos.IniciarTransaccion();
+                    EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
+                    datos.Modificar(especialidad);
+                    transaccionDatos.Confirmar();
                 }
-
-                ValidarNombreDuplicado(especialidad);
-
-                especialidadDatos.Modificar(especialidad);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                catch (Exception ex)
+                {
+                    transaccionDatos.Cancelar();
+                    throw ex;
+                }
             }
         }
-
-        private void ValidarNombreDuplicado(Especialidad especialidad)
-        {
-            if (especialidadDatos.ExisteNombre(especialidad.Nombre, especialidad.IdEspecialidad))
-            {
-                throw new Exception("ya existe una especialidad registrada con ese nombre");
-            }
-        }
-
 
         public void Eliminar(int id)
         {
             try
             {
-                // verifico si tiene un id
                 if (especialidadDatos.EstaAsociadaAMedico(id))
                 {
-                    // y le envio mensaje
-                    throw new Exception(" Accion incorrecta !! No se puede eliminar la especialidad porque esta asignada a uno o más médicos.");
+                    throw new Exception("Accion incorrecta. No se puede eliminar la especialidad porque esta asignada a uno o mas medicos.");
                 }
 
-                especialidadDatos.Eliminar(id);
+                using (TransaccionDatos transaccionDatos = new TransaccionDatos())
+                {
+                    try
+                    {
+                        transaccionDatos.IniciarTransaccion();
+                        EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
+                        datos.Eliminar(id);
+                        transaccionDatos.Confirmar();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaccionDatos.Cancelar();
+                        throw ex;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -105,8 +111,22 @@ namespace TurnosClinica.Negocio
             }
         }
 
+        private void ValidarEspecialidad(Especialidad especialidad)
+        {
+            if (especialidad == null)
+            {
+                throw new Exception("La especialidad es obligatoria");
+            }
 
+            if (string.IsNullOrWhiteSpace(especialidad.Nombre))
+            {
+                throw new Exception("El nombre de la especialidad es obligatorio");
+            }
 
-
+            if (especialidadDatos.ExisteNombre(especialidad.Nombre, especialidad.IdEspecialidad))
+            {
+                throw new Exception("Ya existe una especialidad registrada con ese nombre");
+            }
+        }
     }
 }

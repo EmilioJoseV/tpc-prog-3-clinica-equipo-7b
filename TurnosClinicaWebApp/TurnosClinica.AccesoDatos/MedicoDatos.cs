@@ -70,37 +70,6 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public Medico ObtenerPorIdPersona(int idPersona)
-        {
-            Medico medico = null;
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT M.IdMedico, M.IdPersona, M.Matricula, M.Activo,"
-                    + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email"
-                    + " FROM Medicos M"
-                    + " INNER JOIN Personas P ON P.IdPersona = M.IdPersona"
-                    + " WHERE M.IdPersona = @idPersona");
-                accesoDatos.setearParametro("@idPersona", idPersona);
-                accesoDatos.ejecutarLectura();
-
-                if (accesoDatos.Lector.Read())
-                {
-                    medico = MapearFilaAEntidad(accesoDatos.Lector);
-                }
-
-                return medico;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
         public bool ExisteMatricula(string matricula)
         {
             try

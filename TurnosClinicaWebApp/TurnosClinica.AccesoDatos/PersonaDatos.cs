@@ -78,46 +78,6 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public Persona ObtenerPorId(int idPersona)
-        {
-            Persona persona = new Persona();
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT IdPersona, DNI, Nombre, Apellido, Telefono, Email"
-                    + " FROM Personas"
-                    + " WHERE IdPersona = @idPersona");
-                accesoDatos.setearParametro("@idPersona", idPersona);
-                accesoDatos.ejecutarLectura();
-
-                if (accesoDatos.Lector.Read())
-                {
-                    persona = new Persona
-                    {
-                        IdPersona = Convert.ToInt32(accesoDatos.Lector["IdPersona"]),
-                        DNI = accesoDatos.Lector["DNI"] is DBNull ? string.Empty : accesoDatos.Lector["DNI"].ToString(),
-                        Nombre = accesoDatos.Lector["Nombre"].ToString(),
-                        Apellido = accesoDatos.Lector["Apellido"].ToString(),
-                        Telefono = accesoDatos.Lector["Telefono"] is DBNull ? string.Empty : accesoDatos.Lector["Telefono"].ToString(),
-                        Email = accesoDatos.Lector["Email"].ToString()
-                    };
-                }
-
-                return persona;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (!esCompartido)
-                {
-                    accesoDatos.cerrarConexion();
-                }
-            }
-        }
-
         public Persona ObtenerPorDni(string dni)
         {
             Persona persona = null;
@@ -158,16 +118,32 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool ExisteDni(string dni)
+        public Persona ObtenerPorEmail(string email)
         {
+            Persona persona = null;
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT COUNT(1)"
+                    "SELECT IdPersona, DNI, Nombre, Apellido, Telefono, Email"
                     + " FROM Personas"
-                    + " WHERE DNI = @dni");
-                accesoDatos.setearParametro("@dni", dni);
-                return accesoDatos.ejecutarAccionScalar() > 0;
+                    + " WHERE Email = @email");
+                accesoDatos.setearParametro("@email", email);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    persona = new Persona
+                    {
+                        IdPersona = Convert.ToInt32(accesoDatos.Lector["IdPersona"]),
+                        DNI = accesoDatos.Lector["DNI"] is DBNull ? string.Empty : accesoDatos.Lector["DNI"].ToString(),
+                        Nombre = accesoDatos.Lector["Nombre"].ToString(),
+                        Apellido = accesoDatos.Lector["Apellido"].ToString(),
+                        Telefono = accesoDatos.Lector["Telefono"] is DBNull ? string.Empty : accesoDatos.Lector["Telefono"].ToString(),
+                        Email = accesoDatos.Lector["Email"].ToString()
+                    };
+                }
+
+                return persona;
             }
             catch (Exception ex)
             {
@@ -182,28 +158,5 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool ExisteEmail(string email)
-        {
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT COUNT(1)"
-                    + " FROM Personas"
-                    + " WHERE Email = @email");
-                accesoDatos.setearParametro("@email", email);
-                return accesoDatos.ejecutarAccionScalar() > 0;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (!esCompartido)
-                {
-                    accesoDatos.cerrarConexion();
-                }
-            }
-        }
     }
 }

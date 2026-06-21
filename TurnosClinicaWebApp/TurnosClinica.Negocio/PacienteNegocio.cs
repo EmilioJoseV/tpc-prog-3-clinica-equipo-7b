@@ -9,10 +9,12 @@ namespace TurnosClinica.Negocio
     public class PacienteNegocio
     {
         private readonly PacienteDatos pacienteDatos;
+        private readonly PersonaDatos personaDatos;
 
         public PacienteNegocio()
         {
             pacienteDatos = new PacienteDatos();
+            personaDatos = new PersonaDatos();
         }
 
         public List<Paciente> Listar(bool? activo = null)
@@ -63,23 +65,10 @@ namespace TurnosClinica.Negocio
             }
         }
 
-        public Paciente ObtenerPorIdPersona(int idPersona)
-        {
-            try
-            {
-                if (idPersona <= 0)
-                    return null;
-
-                return pacienteDatos.ObtenerPorIdPersona(idPersona);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
         public void Agregar(Paciente paciente)
         {
+            ValidarPaciente(paciente, true);
+
             using (TransaccionDatos transaccionDatos = new TransaccionDatos())
             {
                 try
@@ -88,6 +77,7 @@ namespace TurnosClinica.Negocio
 
                     PacienteDatos pacienteDatosTransaccional = new PacienteDatos(transaccionDatos.AccesoDatos);
                     UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+
                     pacienteDatosTransaccional.Agregar(paciente);
                     SincronizarUsuarioAsociado(paciente, usuarioDatos);
 
@@ -103,6 +93,8 @@ namespace TurnosClinica.Negocio
 
         public void Modificar(Paciente paciente)
         {
+            ValidarPaciente(paciente, false);
+
             using (TransaccionDatos transaccionDatos = new TransaccionDatos())
             {
                 try
@@ -111,6 +103,7 @@ namespace TurnosClinica.Negocio
 
                     PacienteDatos pacienteDatosTransaccional = new PacienteDatos(transaccionDatos.AccesoDatos);
                     UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+
                     pacienteDatosTransaccional.Modificar(paciente);
                     SincronizarUsuarioAsociado(paciente, usuarioDatos);
 
@@ -129,23 +122,89 @@ namespace TurnosClinica.Negocio
             try
             {
                 Paciente paciente = pacienteDatos.ObtenerPorId(idPaciente);
-                bool resultado = pacienteDatos.Desactivar(idPaciente);
-                if (resultado && paciente != null)
+                if (paciente == null)
                 {
-                    UsuarioDatos usuarioDatos = new UsuarioDatos();
-                    Usuario usuario = usuarioDatos.ObtenerPorIdPersona(paciente.IdPersona);
-                    if (usuario != null)
-                    {
-                        usuario.EstadoUsuario = EstadoUsuarioEnum.Inactivo;
-                        usuarioDatos.Modificar(usuario);
-                    }
+                    return false;
                 }
 
-                return resultado;
+                using (TransaccionDatos transaccionDatos = new TransaccionDatos())
+                {
+                    try
+                    {
+                        transaccionDatos.IniciarTransaccion();
+
+                        PacienteDatos pacienteDatosTransaccional = new PacienteDatos(transaccionDatos.AccesoDatos);
+                        UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
+
+                        bool resultado = pacienteDatosTransaccional.Desactivar(idPaciente);
+                        if (resultado)
+                        {
+                            Usuario usuario = usuarioDatos.ObtenerPorIdPersona(paciente.IdPersona);
+                            if (usuario != null)
+                            {
+                                usuario.EstadoUsuario = EstadoUsuarioEnum.Inactivo;
+                                usuarioDatos.Modificar(usuario);
+                            }
+                        }
+
+                        transaccionDatos.Confirmar();
+                        return resultado;
+                    }
+                    catch (Exception ex)
+                    {
+                        transaccionDatos.Cancelar();
+                        throw ex;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        private void ValidarPaciente(Paciente paciente, bool esAlta)
+        {
+            if (paciente == null)
+            {
+                throw new Exception("El paciente es obligatorio.");
+            }
+
+            if (string.IsNullOrWhiteSpace(paciente.DNI))
+            {
+                throw new Exception("El DNI es obligatorio.");
+            }
+
+            if (string.IsNullOrWhiteSpace(paciente.Nombre))
+            {
+                throw new Exception("El nombre es obligatorio.");
+            }
+
+            if (string.IsNullOrWhiteSpace(paciente.Apellido))
+            {
+                throw new Exception("El apellido es obligatorio.");
+            }
+
+            if (string.IsNullOrWhiteSpace(paciente.Email))
+            {
+                throw new Exception("El correo electrónico es obligatorio.");
+            }
+
+            if (paciente.FechaNacimiento == default(DateTime))
+            {
+                throw new Exception("La fecha de nacimiento es obligatoria.");
+            }
+
+            Persona personaPorDni = personaDatos.ObtenerPorDni(paciente.DNI.Trim());
+            if (personaPorDni != null && personaPorDni.IdPersona != paciente.IdPersona)
+            {
+                throw new Exception("Ya existe una persona registrada con ese DNI.");
+            }
+
+            Persona personaPorEmail = personaDatos.ObtenerPorEmail(paciente.Email.Trim());
+            if (personaPorEmail != null && personaPorEmail.IdPersona != paciente.IdPersona)
+            {
+                throw new Exception("Ya existe una persona registrada con ese correo electrónico.");
             }
         }
 
@@ -163,9 +222,7 @@ namespace TurnosClinica.Negocio
                 NombreUsuario = usuarioExistente != null ? usuarioExistente.NombreUsuario : null,
                 PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : null,
                 Imagen = usuarioExistente != null ? usuarioExistente.Imagen : null,
-                EstadoUsuario = usuarioExistente != null
-                    ? usuarioExistente.EstadoUsuario
-                    : EstadoUsuarioEnum.Pendiente,
+                EstadoUsuario = EstadoUsuarioEnum.Pendiente,
                 Rol = new Rol
                 {
                     Nombre = RolEnum.Paciente.ToString()

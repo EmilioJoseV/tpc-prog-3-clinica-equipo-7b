@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 
@@ -19,12 +15,48 @@ namespace TurnosClinica.Negocio
 
         public ConfiguracionTurno ObtenerConfiguracionTurno()
         {
-            return configuracionTurnoDatos.ObtenerConfiguracion();
+            try
+            {
+                return configuracionTurnoDatos.ObtenerConfiguracion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void ModificarConfiguracionTurno(ConfiguracionTurno configuracionTurno)
         {
-            configuracionTurnoDatos.Modificar(configuracionTurno);
+            ValidarConfiguracionTurno(configuracionTurno);
+
+            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
+            {
+                try
+                {
+                    transaccionDatos.IniciarTransaccion();
+                    ConfiguracionTurnoDatos datos = new ConfiguracionTurnoDatos(transaccionDatos.AccesoDatos);
+                    datos.Modificar(configuracionTurno);
+                    transaccionDatos.Confirmar();
+                }
+                catch (Exception ex)
+                {
+                    transaccionDatos.Cancelar();
+                    throw ex;
+                }
+            }
+        }
+
+        private void ValidarConfiguracionTurno(ConfiguracionTurno configuracionTurno)
+        {
+            if (configuracionTurno == null)
+            {
+                throw new Exception("La configuracion de turno es obligatoria.");
+            }
+
+            if (configuracionTurno.DuracionMinutos <= 0)
+            {
+                throw new Exception("La duracion del turno debe ser mayor a cero.");
+            }
         }
     }
 }

@@ -13,7 +13,6 @@ namespace TurnosClinica.Negocio.DTO
         public TimeSpan HoraInicio { get; set; }
         public TimeSpan HoraFin { get; set; }
         public DateTime FechaAlta { get; set; }
-        private int IdMedico { get; set; }
-        private int IdEspecialidad { get; set; }
+        private Medico Medico { get; set; }
     }
 }

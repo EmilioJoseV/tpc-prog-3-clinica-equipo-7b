@@ -13,6 +13,11 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = new AccesoDatos();
         }
 
+        public ConfiguracionTurnoDatos(AccesoDatos accesoDatosCompartido)
+        {
+            accesoDatos = accesoDatosCompartido;
+        }
+
         public ConfiguracionTurno ObtenerConfiguracion()
         {
             try

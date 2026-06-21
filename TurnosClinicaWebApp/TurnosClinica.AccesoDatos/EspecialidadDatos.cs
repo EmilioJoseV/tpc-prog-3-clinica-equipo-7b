@@ -16,6 +16,12 @@ namespace TurnosClinica.AccesoDatos
             medicoEspecialidadesDatos = new MedicoEspecialidadesDatos();
         }
 
+        public EspecialidadDatos(AccesoDatos accesoDatosCompartido)
+        {
+            accesoDatos = accesoDatosCompartido;
+            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(accesoDatosCompartido);
+        }
+
         public List<Especialidad> Listar(bool? activo)
         {
             List<Especialidad> especialidades = new List<Especialidad>();
