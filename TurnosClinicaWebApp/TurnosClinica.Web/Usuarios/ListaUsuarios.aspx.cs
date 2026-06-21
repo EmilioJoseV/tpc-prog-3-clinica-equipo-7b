@@ -17,7 +17,7 @@ namespace TurnosClinica.Web
             {
                 UsuarioNegocio negocio = new UsuarioNegocio();
 
-                ListaUsuariosProp = negocio.ListarTodos() ?? new List<Usuario>();
+                ListaUsuariosProp = negocio.Listar() ?? new List<Usuario>();
             }
             catch (Exception ex)
             {
@@ -28,58 +28,69 @@ namespace TurnosClinica.Web
 
         protected string ObtenerEstadoUsuarioTexto(object value)
         {
+            EstadoUsuario estadoUsuario = value as EstadoUsuario;
+            if (estadoUsuario != null && !string.IsNullOrWhiteSpace(estadoUsuario.Nombre))
+            {
+                return estadoUsuario.Nombre;
+            }
+
             if (value == null || value == DBNull.Value)
             {
                 return "Sin estado";
             }
 
-            if (!Enum.TryParse(value.ToString(), true, out EstadoUsuarioEnum estado))
-            {
-                return "Sin estado";
-            }
-            switch (estado)
-            {
-                case EstadoUsuarioEnum.Activo:
-                    return "Activo";
-                case EstadoUsuarioEnum.Pendiente:
-                    return "Pendiente";
-                case EstadoUsuarioEnum.Bloqueado:
-                    return "Bloqueado";
-                case EstadoUsuarioEnum.Inactivo:
-                    return "Inactivo";
-                case EstadoUsuarioEnum.CambioClavePendiente:
-                    return "Cambio de clave pendiente";
-                default:
-                    return "Sin estado";
-            }
+            return value.ToString();
         }
 
         protected string ObtenerEstadoUsuarioBadgeClass(object value)
         {
+            EstadoUsuario estadoUsuario = value as EstadoUsuario;
+            if (estadoUsuario != null && !string.IsNullOrWhiteSpace(estadoUsuario.Nombre))
+            {
+                return ObtenerEstadoUsuarioBadgeClassPorNombre(estadoUsuario.Nombre);
+            }
+
             if (value == null || value == DBNull.Value)
             {
                 return "bg-secondary";
             }
 
-            if (!Enum.TryParse(value.ToString(), true, out EstadoUsuarioEnum estado))
+            return ObtenerEstadoUsuarioBadgeClassPorNombre(value.ToString());
+        }
+
+        private string ObtenerEstadoUsuarioBadgeClassPorNombre(string nombreEstado)
+        {
+            if (string.IsNullOrWhiteSpace(nombreEstado))
             {
                 return "bg-secondary";
             }
-            switch (estado)
+
+            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                case EstadoUsuarioEnum.Activo:
-                    return "bg-success";
-                case EstadoUsuarioEnum.Pendiente:
-                    return "bg-warning text-dark";
-                case EstadoUsuarioEnum.Bloqueado:
-                    return "bg-danger";
-                case EstadoUsuarioEnum.Inactivo:
-                    return "bg-secondary";
-                case EstadoUsuarioEnum.CambioClavePendiente:
-                    return "bg-info text-dark";
-                default:
-                    return "bg-secondary";
+                return "bg-success";
             }
+
+            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Pendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "bg-warning text-dark";
+            }
+
+            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Bloqueado.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "bg-danger";
+            }
+
+            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Inactivo.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "bg-secondary";
+            }
+
+            if (string.Equals(nombreEstado, EstadoUsuarioEnum.CambioClavePendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "bg-info text-dark";
+            }
+
+            return "bg-secondary";
         }
     }
 }

@@ -13,7 +13,7 @@ namespace TurnosClinica.Negocio
             configuracionTurnoDatos = new ConfiguracionTurnoDatos();
         }
 
-        public ConfiguracionTurno ObtenerConfiguracionTurno()
+        public ConfiguracionTurno Obtener()
         {
             try
             {
@@ -25,7 +25,12 @@ namespace TurnosClinica.Negocio
             }
         }
 
-        public void ModificarConfiguracionTurno(ConfiguracionTurno configuracionTurno)
+        public ConfiguracionTurno ObtenerConfiguracionTurno()
+        {
+            return Obtener();
+        }
+
+        public void Modificar(ConfiguracionTurno configuracionTurno)
         {
             ValidarConfiguracionTurno(configuracionTurno);
 

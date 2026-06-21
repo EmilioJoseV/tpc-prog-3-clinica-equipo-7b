@@ -27,23 +27,11 @@ namespace TurnosClinica.Negocio
             usaAccesoCompartido = true;
         }
 
-        public List<Usuario> ListarTodos()
+        public List<Usuario> Listar()
         {
             try
             {
                 return usuarioDatos.Listar(null, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<Usuario> ListarConFiltros(string rolLiteral, string estadoUsuarioLiteral)
-        {
-            try
-            {
-                return usuarioDatos.Listar(rolLiteral, estadoUsuarioLiteral);
             }
             catch (Exception ex)
             {
@@ -87,21 +75,22 @@ namespace TurnosClinica.Negocio
 
         public void Agregar(Usuario usuario)
         {
-            usuario.EstadoUsuario = EstadoUsuarioEnum.Pendiente;
+            usuario.EstadoUsuario = new EstadoUsuario
+            {
+                Nombre = EstadoUsuarioEnum.Pendiente.ToString()
+            };
             ValidarUsuario(usuario, true);
             EjecutarOperacion(datos => datos.Agregar(usuario));
         }
 
         public void Modificar(Usuario usuario)
         {
-            usuario.EstadoUsuario = EstadoUsuarioEnum.Pendiente;
+            usuario.EstadoUsuario = new EstadoUsuario
+            {
+                Nombre = EstadoUsuarioEnum.Pendiente.ToString()
+            };
             ValidarUsuario(usuario, false);
             EjecutarOperacion(datos => datos.Modificar(usuario));
-        }
-
-        public void EliminarLogico(int idUsuario)
-        {
-            Desactivar(idUsuario);
         }
 
         public void Desactivar(int idUsuario)
@@ -113,7 +102,29 @@ namespace TurnosClinica.Negocio
                     throw new ArgumentException("ID de usuario no valido para desactivacion.");
                 }
 
-                EjecutarOperacion(datos => datos.desactivar(idUsuario));
+                EjecutarOperacion(datos => datos.Desactivar(idUsuario));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void EliminarLogico(int idUsuario)
+        {
+            Desactivar(idUsuario);
+        }
+
+        public void Activar(int idUsuario)
+        {
+            try
+            {
+                if (idUsuario <= 0)
+                {
+                    throw new ArgumentException("ID de usuario no valido para activacion.");
+                }
+
+                EjecutarOperacion(datos => datos.AltaLogica(idUsuario));
             }
             catch (Exception ex)
             {

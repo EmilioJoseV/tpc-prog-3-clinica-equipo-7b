@@ -28,7 +28,7 @@ namespace TurnosClinica.Web
 
         private void CargarConfiguracion()
         {
-            ConfiguracionTurno configuracionTurno = configuracionTurnoNegocio.ObtenerConfiguracionTurno();
+            ConfiguracionTurno configuracionTurno = configuracionTurnoNegocio.Obtener();
 
             HfIdConfiguracionTurno.Value = configuracionTurno.IdConfiguracionTurno.ToString();
             TxtDuracionMinutos.Text = configuracionTurno.DuracionMinutos > 0
@@ -47,7 +47,7 @@ namespace TurnosClinica.Web
                     Activo = true
                 };
 
-                configuracionTurnoNegocio.ModificarConfiguracionTurno(configuracionTurno);
+                configuracionTurnoNegocio.Modificar(configuracionTurno);
                 Response.Redirect("../PanelPrincipal.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
             }

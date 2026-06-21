@@ -1,5 +1,3 @@
-using TurnosClinica.Dominio.Enums;
-
 namespace TurnosClinica.Dominio.Entidades
 {
     public class Usuario : Persona
@@ -12,7 +10,7 @@ namespace TurnosClinica.Dominio.Entidades
         public string NombreUsuario { get; set; }
         public string PasswordHash { get; set; }
         public byte[] Imagen { get; set; }
-        public EstadoUsuarioEnum EstadoUsuario { get; set; }
+        public EstadoUsuario EstadoUsuario { get; set; }
         public Rol Rol { get; set; }
     }
 }

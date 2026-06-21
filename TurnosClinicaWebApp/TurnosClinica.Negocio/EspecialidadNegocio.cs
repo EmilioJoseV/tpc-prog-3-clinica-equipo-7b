@@ -80,13 +80,13 @@ namespace TurnosClinica.Negocio
             }
         }
 
-        public void Eliminar(int id)
+        public void Desactivar(int id)
         {
             try
             {
                 if (especialidadDatos.EstaAsociadaAMedico(id))
                 {
-                    throw new Exception("Accion incorrecta. No se puede eliminar la especialidad porque esta asignada a uno o mas medicos.");
+                    throw new Exception("Accion incorrecta. No se puede desactivar la especialidad porque esta asignada a uno o mas medicos.");
                 }
 
                 using (TransaccionDatos transaccionDatos = new TransaccionDatos())
@@ -109,6 +109,11 @@ namespace TurnosClinica.Negocio
             {
                 throw ex;
             }
+        }
+
+        public void Eliminar(int id)
+        {
+            Desactivar(id);
         }
 
         private void ValidarEspecialidad(Especialidad especialidad)

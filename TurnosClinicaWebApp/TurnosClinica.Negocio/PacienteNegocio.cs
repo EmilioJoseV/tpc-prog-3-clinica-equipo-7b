@@ -143,7 +143,10 @@ namespace TurnosClinica.Negocio
                             Usuario usuario = usuarioDatos.ObtenerPorIdPersona(paciente.IdPersona);
                             if (usuario != null)
                             {
-                                usuario.EstadoUsuario = EstadoUsuarioEnum.Inactivo;
+                                usuario.EstadoUsuario = new EstadoUsuario
+                                {
+                                    Nombre = EstadoUsuarioEnum.Inactivo.ToString()
+                                };
                                 usuarioDatos.Modificar(usuario);
                             }
                         }

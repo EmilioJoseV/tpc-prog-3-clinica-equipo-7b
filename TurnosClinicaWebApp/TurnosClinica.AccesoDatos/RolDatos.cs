@@ -90,6 +90,40 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
+        public Rol ObtenerPorId(int idRol)
+        {
+            if (idRol <= 0)
+            {
+                return null;
+            }
+
+            Rol rol = null;
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "SELECT IdRol, Nombre, Descripcion, Activo"
+                    + " FROM Roles"
+                    + " WHERE IdRol = @idRol");
+                accesoDatos.setearParametro("@idRol", idRol);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    rol = MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
+                return rol;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
         private Rol MapearFilaAEntidad(SqlDataReader fila)
         {
             return new Rol

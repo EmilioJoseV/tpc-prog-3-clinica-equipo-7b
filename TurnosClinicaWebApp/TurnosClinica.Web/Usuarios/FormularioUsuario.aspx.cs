@@ -54,7 +54,7 @@ namespace TurnosClinica.Web
                         // ESTO SE EJECUTA SIEMPRE (En la primera carga y en cada PostBack)
                         btnDesactivar.Visible = true;
 
-                        if (usuario.EstadoUsuario == EstadoUsuarioEnum.Inactivo)
+                        if (usuario.EstadoUsuario != null && string.Equals(usuario.EstadoUsuario.Nombre, EstadoUsuarioEnum.Inactivo.ToString(), StringComparison.OrdinalIgnoreCase))
                         {
                             btnDesactivar.Text = "Desactivar";
                             btnDesactivar.CssClass = "btn btn-warning";
@@ -121,8 +121,11 @@ namespace TurnosClinica.Web
                 else
                 {
                     // Si es un usuario nuevo, nace pendiente.
-                    usuario.EstadoUsuario = EstadoUsuarioEnum.Pendiente;
-                }
+                        usuario.EstadoUsuario = new EstadoUsuario
+                        {
+                            Nombre = EstadoUsuarioEnum.Pendiente.ToString()
+                        };
+                    }
 
                 if (!string.IsNullOrWhiteSpace(HfIdPersona.Value))
                 {

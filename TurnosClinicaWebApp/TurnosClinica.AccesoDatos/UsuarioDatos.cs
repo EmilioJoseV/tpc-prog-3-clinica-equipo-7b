@@ -35,6 +35,7 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 string consulta = "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, "
+                    + "       U.IdRol, U.IdEstadoUsuario, "
                     + "       P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email, "
                     + "       R.Nombre AS NombreRol, "
                     + "       EU.Nombre AS NombreEstadoUsuario "
@@ -90,7 +91,7 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen,"
+                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, U.IdRol, U.IdEstadoUsuario,"
                     + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email,"
                     + " R.Nombre AS NombreRol,"
                     + " EU.Nombre AS NombreEstadoUsuario"
@@ -125,7 +126,7 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen,"
+                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, U.IdRol, U.IdEstadoUsuario,"
                     + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email,"
                     + " R.Nombre AS NombreRol,"
                     + " EU.Nombre AS NombreEstadoUsuario"
@@ -159,7 +160,7 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen,"
+                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, U.IdRol, U.IdEstadoUsuario,"
                     + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email,"
                     + " R.Nombre AS NombreRol,"
                     + " EU.Nombre AS NombreEstadoUsuario"
@@ -232,7 +233,7 @@ namespace TurnosClinica.AccesoDatos
                     + " VALUES (@idPersona, @nombreUsuario, @passwordHash, @imagen, @idRol, @idEstadoUsuario)");
 
                 Rol rol = rolDatos.ObtenerPorNombre(usuario.Rol != null ? usuario.Rol.Nombre : null);
-                EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(usuario.EstadoUsuario.ToString());
+                EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(usuario.EstadoUsuario != null ? usuario.EstadoUsuario.Nombre : null);
                 int? idRol = rol != null ? rol.IdRol : (int?)null;
                 int? idEstadoUsuario = estadoUsuario != null ? estadoUsuario.IdEstadoUsuario : (int?)null;
                 if (!idRol.HasValue)
@@ -286,7 +287,7 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
                 accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
                 Rol rol = rolDatos.ObtenerPorNombre(usuario.Rol != null ? usuario.Rol.Nombre : null);
-                EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(usuario.EstadoUsuario.ToString());
+                EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(usuario.EstadoUsuario != null ? usuario.EstadoUsuario.Nombre : null);
                 int? idRol = rol != null ? rol.IdRol : (int?)null;
                 int? idEstadoUsuario = estadoUsuario != null ? estadoUsuario.IdEstadoUsuario : (int?)null;
                 if (!idRol.HasValue)
@@ -314,7 +315,7 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public void desactivar(int idUsuario)
+        public void Desactivar(int idUsuario)
         {
             try
             {
@@ -369,17 +370,16 @@ namespace TurnosClinica.AccesoDatos
                 Email = fila["Email"].ToString(),
                 PasswordHash = fila["PasswordHash"] is DBNull ? null : fila["PasswordHash"].ToString(),
                 Imagen = fila["Imagen"] is DBNull ? null : (byte[])fila["Imagen"],
-                EstadoUsuario = Enum.TryParse(fila["NombreEstadoUsuario"]?.ToString(), true, out EstadoUsuarioEnum estado)
-                    ? estado
-                    : EstadoUsuarioEnum.Activo
             };
 
-            if (fila["NombreRol"] != DBNull.Value)
+            if (fila["IdRol"] != DBNull.Value)
             {
-                usuario.Rol = new Rol
-                {
-                    Nombre = fila["NombreRol"] is DBNull ? string.Empty : fila["NombreRol"].ToString()
-                };
+                usuario.Rol = rolDatos.ObtenerPorId(Convert.ToInt32(fila["IdRol"]));
+            }
+
+            if (fila["IdEstadoUsuario"] != DBNull.Value)
+            {
+                usuario.EstadoUsuario = estadoUsuarioDatos.ObtenerPorId(Convert.ToInt32(fila["IdEstadoUsuario"]));
             }
 
             return usuario;
