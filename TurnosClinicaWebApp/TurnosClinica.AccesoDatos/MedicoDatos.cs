@@ -101,27 +101,6 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool ExisteDni(string dni)
-        {
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT COUNT(1)"
-                    + " FROM Personas"
-                    + " WHERE DNI = @dni");
-                accesoDatos.setearParametro("@dni", dni);
-                return accesoDatos.ejecutarAccionScalar() > 0;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
         public bool ExisteMatricula(string matricula)
         {
             try
@@ -131,27 +110,6 @@ namespace TurnosClinica.AccesoDatos
                     + " FROM Medicos"
                     + " WHERE Matricula = @matricula");
                 accesoDatos.setearParametro("@matricula", matricula);
-                return accesoDatos.ejecutarAccionScalar() > 0;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
-        public bool ExisteEmail(string email)
-        {
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT COUNT(1)"
-                    + " FROM Personas"
-                    + " WHERE Email = @email");
-                accesoDatos.setearParametro("@email", email);
                 return accesoDatos.ejecutarAccionScalar() > 0;
             }
             catch (Exception ex)

@@ -214,27 +214,6 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool ExisteEmail(string email)
-        {
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT COUNT(1)"
-                    + " FROM Personas"
-                    + " WHERE Email = @email");
-                accesoDatos.setearParametro("@email", email);
-                return accesoDatos.ejecutarAccionScalar() > 0;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
         public void Agregar(Usuario usuario)
         {
             try
