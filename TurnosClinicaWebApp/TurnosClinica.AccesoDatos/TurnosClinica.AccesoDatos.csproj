@@ -42,7 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccesoDatos.cs" />
+    <Compile Include="AccesoDatosBase.cs" />
+    <Compile Include="IEntidadGestionable.cs" />
     <Compile Include="TransaccionDatos.cs" />
     <Compile Include="IMapeable.cs" />
     <Compile Include="IFiltrable.cs" />

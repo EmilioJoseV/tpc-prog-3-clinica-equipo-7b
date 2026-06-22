@@ -8,25 +8,15 @@ namespace TurnosClinica.AccesoDatos
 {
     public class UsuarioDatos : IMapeable<Usuario>
     {
-        private readonly AccesoDatos accesoDatos;
-        private readonly PersonaDatos personaDatos;
+        private readonly AccesoDatosBase accesoDatos;
         private readonly RolDatos rolDatos;
         private readonly EstadoUsuarioDatos estadoUsuarioDatos;
 
-        public UsuarioDatos()
+        public UsuarioDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatos();
-            personaDatos = new PersonaDatos(accesoDatos);
-            rolDatos = new RolDatos(accesoDatos);
-            estadoUsuarioDatos = new EstadoUsuarioDatos(accesoDatos);
-        }
-
-        public UsuarioDatos(AccesoDatos accesoDatosCompartido)
-        {
-            accesoDatos = accesoDatosCompartido;
-            personaDatos = new PersonaDatos(accesoDatosCompartido);
-            rolDatos = new RolDatos(accesoDatosCompartido);
-            estadoUsuarioDatos = new EstadoUsuarioDatos(accesoDatosCompartido);
+            this.accesoDatos = accesoDatos;
+            rolDatos = new RolDatos(accesoDatos.CrearContextoCompartido());
+            estadoUsuarioDatos = new EstadoUsuarioDatos(accesoDatos.CrearContextoCompartido());
         }
 
         public List<Usuario> Listar(string rolLiteral, string estadoUsuarioLiteral)
@@ -189,19 +179,6 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                if (usuario.IdPersona <= 0)
-                {
-                    usuario.IdPersona = personaDatos.Agregar(usuario);
-                }
-                else
-                {
-                    personaDatos.Modificar(usuario);
-                }
-
-                accesoDatos.setearConsulta(
-                    "INSERT INTO Usuarios (IdPersona, NombreUsuario, PasswordHash, Imagen, IdRol, IdEstadoUsuario)"
-                    + " VALUES (@idPersona, @nombreUsuario, @passwordHash, @imagen, @idRol, @idEstadoUsuario)");
-
                 Rol rol = rolDatos.ObtenerPorNombre(usuario.Rol != null ? usuario.Rol.Nombre : null);
                 EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(usuario.EstadoUsuario != null ? usuario.EstadoUsuario.Nombre : null);
                 int? idRol = rol != null ? rol.IdRol : (int?)null;
@@ -216,7 +193,10 @@ namespace TurnosClinica.AccesoDatos
                     throw new Exception("El estado del usuario no existe en la tabla de estados de usuario.");
                 }
 
-                accesoDatos.setearParametro("@idPersona", usuario.IdPersona);
+                accesoDatos.setearConsulta(
+                    "INSERT INTO Usuarios (IdPersona, NombreUsuario, PasswordHash, Imagen, IdRol, IdEstadoUsuario)"
+                    + " VALUES (@idPersona, @nombreUsuario, @passwordHash, @imagen, @idRol, @idEstadoUsuario)");
+                accesoDatos.setearParametro("@idPersona", usuario.Persona.IdPersona);
                 accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
                 accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
                 accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
@@ -239,23 +219,6 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                personaDatos.Modificar(usuario);
-
-                accesoDatos.setearConsulta(
-                    "UPDATE Usuarios SET"
-                    + " IdPersona = @idPersona,"
-                    + " NombreUsuario = @nombreUsuario,"
-                    + " PasswordHash = @passwordHash,"
-                    + " Imagen = @imagen,"
-                    + " IdEstadoUsuario = @idEstadoUsuario,"
-                    + " IdRol = @idRol"
-                    + " WHERE IdUsuario = @idUsuario");
-
-                accesoDatos.setearParametro("@idUsuario", usuario.IdUsuario);
-                accesoDatos.setearParametro("@idPersona", usuario.IdPersona);
-                accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
-                accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
-                accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
                 Rol rol = rolDatos.ObtenerPorNombre(usuario.Rol != null ? usuario.Rol.Nombre : null);
                 EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(usuario.EstadoUsuario != null ? usuario.EstadoUsuario.Nombre : null);
                 int? idRol = rol != null ? rol.IdRol : (int?)null;
@@ -270,6 +233,20 @@ namespace TurnosClinica.AccesoDatos
                     throw new Exception("El estado del usuario no existe en la tabla de estados de usuario.");
                 }
 
+                accesoDatos.setearConsulta(
+                    "UPDATE Usuarios SET"
+                    + " IdPersona = @idPersona,"
+                    + " NombreUsuario = @nombreUsuario,"
+                    + " PasswordHash = @passwordHash,"
+                    + " Imagen = @imagen,"
+                    + " IdEstadoUsuario = @idEstadoUsuario,"
+                    + " IdRol = @idRol"
+                    + " WHERE IdUsuario = @idUsuario");
+                accesoDatos.setearParametro("@idUsuario", usuario.IdUsuario);
+                accesoDatos.setearParametro("@idPersona", usuario.Persona.IdPersona);
+                accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
+                accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
+                accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
                 accesoDatos.setearParametro("@idRol", idRol.Value);
                 accesoDatos.setearParametro("@idEstadoUsuario", idEstadoUsuario.Value);
 
@@ -310,10 +287,15 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
+                EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(EstadoUsuarioEnum.Activo.ToString());
+                if (estadoUsuario == null)
+                {
+                    throw new Exception("El estado activo del usuario no existe en la tabla de estados de usuario.");
+                }
+
                 accesoDatos.setearConsulta("UPDATE Usuarios SET IdEstadoUsuario = @idEstadoUsuario WHERE IdUsuario = @idUsuario");
                 accesoDatos.setearParametro("@idUsuario", idUsuario);
-                EstadoUsuario estadoUsuario = estadoUsuarioDatos.ObtenerPorNombre(EstadoUsuarioEnum.Activo.ToString());
-                accesoDatos.setearParametro("@idEstadoUsuario", estadoUsuario != null ? estadoUsuario.IdEstadoUsuario : 0);
+                accesoDatos.setearParametro("@idEstadoUsuario", estadoUsuario.IdEstadoUsuario);
                 accesoDatos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -331,13 +313,16 @@ namespace TurnosClinica.AccesoDatos
             Usuario usuario = new Usuario
             {
                 IdUsuario = Convert.ToInt32(fila["IdUsuario"]),
-                IdPersona = Convert.ToInt32(fila["IdPersona"]),
                 NombreUsuario = fila["NombreUsuario"] is DBNull ? null : fila["NombreUsuario"].ToString(),
-                DNI = fila["DNI"].ToString(),
-                Nombre = fila["Nombre"].ToString(),
-                Apellido = fila["Apellido"].ToString(),
-                Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
-                Email = fila["Email"].ToString(),
+                Persona = new Persona
+                {
+                    IdPersona = Convert.ToInt32(fila["IdPersona"]),
+                    DNI = fila["DNI"].ToString(),
+                    Nombre = fila["Nombre"].ToString(),
+                    Apellido = fila["Apellido"].ToString(),
+                    Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
+                    Email = fila["Email"].ToString()
+                },
                 PasswordHash = fila["PasswordHash"] is DBNull ? null : fila["PasswordHash"].ToString(),
                 Imagen = fila["Imagen"] is DBNull ? null : (byte[])fila["Imagen"],
                 Rol = MapearRol(fila),

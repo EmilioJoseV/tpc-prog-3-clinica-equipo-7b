@@ -101,8 +101,8 @@ namespace TurnosClinica.Web
             MedicoNegocio medicoNegocio = new MedicoNegocio();
             List<Medico> todosLosMedicos = medicoNegocio.Listar();
 
-            //  Filtro los médicos. 
-            // Como un médico tiene una lista con Exists para buscar si dentro de sus especialidades está la que busco
+            //  Filtro los medicos.
+            // Como un medico tiene una lista con Exists para buscar si dentro de sus especialidades esta la que busco
             var medicosAsociados = todosLosMedicos.FindAll(m =>
                 m.Especialidades != null &&
                 m.Especialidades.Exists(esp => esp.IdEspecialidad == idEspecialidad)
@@ -114,13 +114,13 @@ namespace TurnosClinica.Web
                 List<string> nombres = new List<string>();
                 foreach (var med in medicosAsociados)
                 {
-                    nombres.Add(med.Nombre + " " + med.Apellido);
+                    nombres.Add(med.Persona.Nombre + " " + med.Persona.Apellido);
                 }
                 return string.Join(", ", nombres);
             }
             else
             {
-                return "Sin médicos asociados";
+                return "Sin mï¿½dicos asociados";
             }
         }
 

@@ -1,177 +1,174 @@
 using System;
 using System.Collections.Generic;
-using AccesoDatosBase = TurnosClinica.AccesoDatos.AccesoDatos;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Negocio
 {
-    public class PacienteNegocio
+    public class PacienteNegocio : IEntidadGestionableNegocio<Paciente>
     {
         private readonly PacienteDatos pacienteDatos;
-        private readonly PersonaNegocio personaNegocio;
 
         public PacienteNegocio()
         {
-            pacienteDatos = new PacienteDatos();
-            personaNegocio = new PersonaNegocio();
+            pacienteDatos = new PacienteDatos(new AccesoDatosBase());
         }
 
         public List<Paciente> Listar(bool? activo = null)
         {
-            try
-            {
-                return pacienteDatos.Listar(activo);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return pacienteDatos.Listar(activo);
         }
 
-        public List<Paciente> ListarFiltroRapido(string filtro)
+        public List<Paciente> ListarFiltroRapido(string palabra, bool? activo = null)
         {
-            try
-            {
-                return pacienteDatos.ListarFiltroRapido(filtro);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return pacienteDatos.ListarFiltroRapido(palabra, activo);
         }
 
-        public List<Paciente> ListarConFiltros(string campo, string criterio, string filtro, bool? activo = null)
+        public List<Paciente> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
         {
-            try
-            {
-                return pacienteDatos.ListarConFiltros(campo, criterio, filtro, activo);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return pacienteDatos.ListarFiltroAvanzado(campo, criterio, filtro, activo);
         }
 
-        public Paciente ObtenerPorId(int idPaciente)
+        public Paciente ObtenerPorId(int id)
         {
-            try
+            if (id <= 0)
             {
-                return pacienteDatos.ObtenerPorId(idPaciente);
+                throw new Exception("El id del paciente no es valido.");
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+
+            return pacienteDatos.ObtenerPorId(id);
         }
 
         public void Agregar(Paciente paciente)
         {
-            ValidarPaciente(paciente, true);
+            ValidarAlta(paciente);
 
-            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
                 try
                 {
-                    transaccionDatos.IniciarTransaccion();
+                    manejador.Iniciar();
 
-                    PacienteDatos pacienteDatosTransaccional = new PacienteDatos(transaccionDatos.AccesoDatos);
-                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(transaccionDatos.AccesoDatos);
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    PacienteDatos datos = new PacienteDatos(manejador.CrearAccesoDatos());
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
 
-                    pacienteDatosTransaccional.Agregar(paciente);
-                    SincronizarUsuarioAsociado(paciente, usuarioNegocio);
+                    paciente.Persona.IdPersona = personaNegocio.Agregar(paciente.Persona);
+                    datos.Agregar(paciente);
+                    usuarioNegocio.Agregar(ConstruirUsuarioAsociado(paciente));
 
-                    transaccionDatos.Confirmar();
+                    manejador.Confirmar();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    transaccionDatos.Cancelar();
-                    throw ex;
+                    manejador.Cancelar();
+                    throw;
                 }
             }
         }
 
         public void Modificar(Paciente paciente)
         {
-            ValidarPaciente(paciente, false);
+            ValidarModificacion(paciente);
 
-            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
                 try
                 {
-                    transaccionDatos.IniciarTransaccion();
+                    manejador.Iniciar();
 
-                    PacienteDatos pacienteDatosTransaccional = new PacienteDatos(transaccionDatos.AccesoDatos);
-                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(transaccionDatos.AccesoDatos);
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    PacienteDatos datos = new PacienteDatos(manejador.CrearAccesoDatos());
 
-                    pacienteDatosTransaccional.Modificar(paciente);
-                    SincronizarUsuarioAsociado(paciente, usuarioNegocio);
+                    personaNegocio.Modificar(paciente.Persona);
+                    datos.Modificar(paciente);
 
-                    transaccionDatos.Confirmar();
+                    manejador.Confirmar();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    transaccionDatos.Cancelar();
-                    throw ex;
+                    manejador.Cancelar();
+                    throw;
                 }
             }
         }
 
-        public bool Desactivar(int idPaciente)
+        public void Desactivar(int id)
         {
-            try
+            Paciente paciente = ObtenerPorId(id);
+            ValidarDesactivacion(paciente);
+            pacienteDatos.Desactivar(id);
+        }
+
+        public void Activar(int id)
+        {
+            Paciente paciente = ObtenerPorId(id);
+            ValidarActivacion(paciente);
+            pacienteDatos.Activar(id);
+        }
+
+        private void ValidarAlta(Paciente paciente)
+        {
+            ValidarPaciente(paciente);
+        }
+
+        private void ValidarModificacion(Paciente paciente)
+        {
+            ValidarPaciente(paciente);
+
+            if (paciente.IdPaciente <= 0)
             {
-                Paciente paciente = pacienteDatos.ObtenerPorId(idPaciente);
-                if (paciente == null)
-                {
-                    return false;
-                }
-
-                using (TransaccionDatos transaccionDatos = new TransaccionDatos())
-                {
-                    try
-                    {
-                        transaccionDatos.IniciarTransaccion();
-
-                        PacienteDatos pacienteDatosTransaccional = new PacienteDatos(transaccionDatos.AccesoDatos);
-                        UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
-
-                        bool resultado = pacienteDatosTransaccional.Desactivar(idPaciente);
-                        if (resultado)
-                        {
-                            Usuario usuario = usuarioDatos.ObtenerPorIdPersona(paciente.IdPersona);
-                            if (usuario != null)
-                            {
-                                usuario.EstadoUsuario = new EstadoUsuario
-                                {
-                                    Nombre = EstadoUsuarioEnum.Inactivo.ToString()
-                                };
-                                usuarioDatos.Modificar(usuario);
-                            }
-                        }
-
-                        transaccionDatos.Confirmar();
-                        return resultado;
-                    }
-                    catch (Exception ex)
-                    {
-                        transaccionDatos.Cancelar();
-                        throw ex;
-                    }
-                }
+                throw new Exception("El id del paciente no es valido.");
             }
-            catch (Exception ex)
+
+            if (paciente.Persona.IdPersona <= 0)
             {
-                throw ex;
+                throw new Exception("El id de persona no es valido.");
+            }
+
+            if (ObtenerPorId(paciente.IdPaciente) == null)
+            {
+                throw new Exception("El paciente no existe.");
             }
         }
 
-        private void ValidarPaciente(Paciente paciente, bool esAlta)
+        private void ValidarDesactivacion(Paciente paciente)
+        {
+            if (paciente == null)
+            {
+                throw new Exception("El paciente no existe.");
+            }
+
+            if (!paciente.Activo)
+            {
+                throw new Exception("El paciente ya esta inactivo.");
+            }
+        }
+
+        private void ValidarActivacion(Paciente paciente)
+        {
+            if (paciente == null)
+            {
+                throw new Exception("El paciente no existe.");
+            }
+
+            if (paciente.Activo)
+            {
+                throw new Exception("El paciente ya esta activo.");
+            }
+        }
+
+        private void ValidarPaciente(Paciente paciente)
         {
             if (paciente == null)
             {
                 throw new Exception("El paciente es obligatorio.");
+            }
+
+            if (paciente.Persona == null)
+            {
+                throw new Exception("La persona del paciente es obligatoria.");
             }
 
             if (paciente.FechaNacimiento == default(DateTime))
@@ -181,41 +178,23 @@ namespace TurnosClinica.Negocio
 
             if (string.IsNullOrWhiteSpace(paciente.Direccion))
             {
-                throw new Exception("La dirección es obligatoria.");
+                throw new Exception("La direccion es obligatoria.");
             }
-
-            personaNegocio.ValidarPersona(paciente, esAlta);
         }
 
-        private void SincronizarUsuarioAsociado(Paciente paciente, UsuarioNegocio usuarioNegocio)
+        private Usuario ConstruirUsuarioAsociado(Paciente paciente)
         {
-            Usuario usuarioExistente = usuarioNegocio.ObtenerPorIdPersona(paciente.IdPersona);
-            Usuario usuario = new Usuario
+            return new Usuario
             {
-                IdPersona = paciente.IdPersona,
-                DNI = paciente.DNI,
-                Nombre = paciente.Nombre,
-                Apellido = paciente.Apellido,
-                Telefono = paciente.Telefono,
-                Email = paciente.Email,
-                NombreUsuario = usuarioExistente != null ? usuarioExistente.NombreUsuario : null,
-                PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : null,
-                Imagen = usuarioExistente != null ? usuarioExistente.Imagen : null,
+                Persona = paciente.Persona,
+                NombreUsuario = null,
+                PasswordHash = null,
+                Imagen = null,
                 Rol = new Rol
                 {
                     Nombre = RolEnum.Paciente.ToString()
                 }
             };
-
-            if (usuarioExistente != null)
-            {
-                usuario.IdUsuario = usuarioExistente.IdUsuario;
-                usuarioNegocio.Modificar(usuario);
-            }
-            else
-            {
-                usuarioNegocio.Agregar(usuario);
-            }
         }
     }
 }

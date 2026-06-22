@@ -43,11 +43,11 @@
                             <% } %>
                         </td>
                         <td>
-                            <%: !string.IsNullOrEmpty(user.Nombre) || !string.IsNullOrEmpty(user.Apellido)
-                                ? (user.Nombre + " " + user.Apellido).Trim()
+                            <%: user.Persona != null && (!string.IsNullOrEmpty(user.Persona.Nombre) || !string.IsNullOrEmpty(user.Persona.Apellido))
+                                ? (user.Persona.Nombre + " " + user.Persona.Apellido).Trim()
                                 : "Sin especificar" %>
                         </td>
-                        <td><%: user.Email %></td>
+                        <td><%: user.Persona != null ? user.Persona.Email : string.Empty %></td>
                         <td>
                             <%: user.Rol != null && !string.IsNullOrEmpty(user.Rol.Nombre) ? user.Rol.Nombre : "Sin Rol" %>
                         </td>

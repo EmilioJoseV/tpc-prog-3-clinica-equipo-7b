@@ -35,7 +35,7 @@ namespace TurnosClinica.Negocio
                 try
                 {
                     transaccionDatos.IniciarTransaccion();
-                    ConfiguracionTurnoDatos datos = new ConfiguracionTurnoDatos(transaccionDatos.AccesoDatos);
+                    ConfiguracionTurnoDatos datos = new ConfiguracionTurnoDatos(transaccionDatos.CrearAccesoDatos());
                     datos.Modificar(configuracionTurno);
                     transaccionDatos.Confirmar();
                 }

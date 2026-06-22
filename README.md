@@ -43,3 +43,8 @@ Los tiempos de los turnos se proponen se configuren de una hora de duración (de
 La aplicación debe manejar seguridad y perfiles de acceso.
 
 Por un lado administrador, que puede ver y manipular todo, por otro lado recepcionista, que puede administrar pacientes y médicos y dar de alta turnos, y finalmente médicos que sólo podrán ver sus turnos asociados y modificarlos para agregar las observaciones sobre el diagnóstico del paciente.
+
+Notas:
+- Toda persona registrada puede tener un perfil de paciente, medico o usuario.
+- Al registrar un paciente o un medico se crea tambien un usuario pendiente asociado a la misma persona.
+- El usuario puede completar sus datos de accoeso posteriormente al momento de querer registrarse.

@@ -45,7 +45,7 @@
     <Compile Include="Entidades\Persona.cs" />
     <Compile Include="Entidades\HorarioDisponibilidadMedico.cs" />
     <Compile Include="Entidades\Especialidad.cs" />
-	<Compile Include="Entidades\EstadoTurno.cs" />
+    <Compile Include="Entidades\EstadoTurno.cs" />
     <Compile Include="Entidades\EstadoUsuario.cs" />
     <Compile Include="Entidades\Medico.cs" />
     <Compile Include="Entidades\Paciente.cs" />

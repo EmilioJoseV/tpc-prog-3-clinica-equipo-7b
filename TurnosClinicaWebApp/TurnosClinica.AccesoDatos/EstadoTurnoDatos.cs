@@ -7,14 +7,14 @@ namespace TurnosClinica.AccesoDatos
 {
     public class EstadoTurnoDatos
     {
-        private readonly AccesoDatos accesoDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
         public EstadoTurnoDatos()
         {
-            accesoDatos = new AccesoDatos();
+            accesoDatos = new AccesoDatosBase();
         }
 
-        public EstadoTurnoDatos(AccesoDatos accesoDatosCompartido)
+        public EstadoTurnoDatos(AccesoDatosBase accesoDatosCompartido)
         {
             accesoDatos = accesoDatosCompartido;
         }

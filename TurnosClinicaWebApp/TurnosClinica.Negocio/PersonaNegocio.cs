@@ -1,5 +1,4 @@
 using System;
-using AccesoDatosBase = TurnosClinica.AccesoDatos.AccesoDatos;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 
@@ -11,7 +10,7 @@ namespace TurnosClinica.Negocio
 
         public PersonaNegocio()
         {
-            personaDatos = new PersonaDatos();
+            personaDatos = new PersonaDatos(new AccesoDatosBase());
         }
 
         public PersonaNegocio(AccesoDatosBase accesoDatosCompartido)
@@ -30,9 +29,9 @@ namespace TurnosClinica.Negocio
 
                 return personaDatos.ObtenerPorDni(dni.Trim());
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -47,9 +46,41 @@ namespace TurnosClinica.Negocio
 
                 return personaDatos.ObtenerPorEmail(email.Trim());
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
+            }
+        }
+
+        public int Agregar(Persona persona)
+        {
+            try
+            {
+                ValidarPersona(persona, true);
+                return personaDatos.Agregar(persona);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public void Modificar(Persona persona)
+        {
+            try
+            {
+                ValidarPersona(persona, false);
+
+                if (persona.IdPersona <= 0)
+                {
+                    throw new Exception("La persona no existe.");
+                }
+
+                personaDatos.Modificar(persona);
+            }
+            catch
+            {
+                throw;
             }
         }
 
@@ -79,7 +110,7 @@ namespace TurnosClinica.Negocio
 
                 if (string.IsNullOrWhiteSpace(persona.Email))
                 {
-                    throw new Exception("El correo electrónico es obligatorio.");
+                    throw new Exception("El correo electronico es obligatorio.");
                 }
 
                 Persona personaPorDni = personaDatos.ObtenerPorDni(persona.DNI.Trim());
@@ -91,12 +122,12 @@ namespace TurnosClinica.Negocio
                 Persona personaPorEmail = personaDatos.ObtenerPorEmail(persona.Email.Trim());
                 if (personaPorEmail != null && personaPorEmail.IdPersona != persona.IdPersona)
                 {
-                    throw new Exception("Ya existe una persona registrada con ese correo electrónico.");
+                    throw new Exception("Ya existe una persona registrada con ese correo electronico.");
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
     }

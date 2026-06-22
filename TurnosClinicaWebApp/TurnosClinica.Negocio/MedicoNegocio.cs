@@ -1,238 +1,215 @@
 using System;
 using System.Collections.Generic;
-using AccesoDatosBase = TurnosClinica.AccesoDatos.AccesoDatos;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Negocio
 {
-    public class MedicoNegocio
+    public class MedicoNegocio : IEntidadGestionableNegocio<Medico>
     {
         private readonly MedicoDatos medicoDatos;
-        private readonly PersonaNegocio personaNegocio;
 
         public MedicoNegocio()
         {
-            medicoDatos = new MedicoDatos();
-            personaNegocio = new PersonaNegocio();
+            medicoDatos = new MedicoDatos(new AccesoDatosBase());
         }
 
         public List<Medico> Listar(bool? activo = null)
         {
-            try
-            {
-                return medicoDatos.Listar(activo);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return medicoDatos.Listar(activo);
         }
 
-        public List<Medico> ListarFiltroRapido(string filtro)
+        public List<Medico> ListarFiltroRapido(string palabra, bool? activo = null)
         {
-            try
-            {
-                return medicoDatos.ListarFiltroRapido(filtro);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return medicoDatos.ListarConFiltros(null, null, palabra, activo);
         }
 
-        public List<Medico> ListarConFiltros(string campo, string criterio, string filtro, bool? activo = null)
+        public List<Medico> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
         {
-            try
-            {
-                return medicoDatos.ListarConFiltros(campo, criterio, filtro, activo);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return medicoDatos.ListarConFiltros(campo, criterio, filtro, activo);
         }
 
-        public Medico ObtenerPorId(int idMedico)
+        public Medico ObtenerPorId(int id)
         {
-            try
+            if (id <= 0)
             {
-                return medicoDatos.ObtenerPorId(idMedico);
+                throw new Exception("El id del medico no es valido.");
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+
+            return medicoDatos.ObtenerPorId(id);
         }
 
         public void Agregar(Medico medico)
         {
-            ValidarMedico(medico, true);
+            ValidarAlta(medico);
 
-            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
                 try
                 {
-                    transaccionDatos.IniciarTransaccion();
+                    manejador.Iniciar();
 
-                    MedicoDatos medicoDatosTransaccional = new MedicoDatos(transaccionDatos.AccesoDatos);
-                    MedicoEspecialidadesDatos medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(transaccionDatos.AccesoDatos);
-                    HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(transaccionDatos.AccesoDatos);
-                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(transaccionDatos.AccesoDatos);
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    MedicoDatos medicoDatos = new MedicoDatos(manejador.CrearAccesoDatos());
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
+                    MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos(manejador.CrearAccesoDatos());
+                    HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos(manejador.CrearAccesoDatos());
 
-                    medicoDatosTransaccional.Agregar(medico);
-                    SincronizarUsuarioAsociado(medico, usuarioNegocio);
-                    medicoEspecialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
-                    horarioDisponibilidadMedicoDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
+                    medico.Persona.IdPersona = personaNegocio.Agregar(medico.Persona);
+                    medicoDatos.Agregar(medico);
+                    usuarioNegocio.Agregar(ConstruirUsuarioAsociado(medico));
+                    especialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
+                    horariosDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
 
-                    transaccionDatos.Confirmar();
+                    manejador.Confirmar();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    transaccionDatos.Cancelar();
-                    throw ex;
+                    manejador.Cancelar();
+                    throw;
                 }
             }
         }
 
         public void Modificar(Medico medico)
         {
-            ValidarMedico(medico, false);
+            ValidarModificacion(medico);
 
-            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
                 try
                 {
-                    transaccionDatos.IniciarTransaccion();
+                    manejador.Iniciar();
 
-                    MedicoDatos medicoDatosTransaccional = new MedicoDatos(transaccionDatos.AccesoDatos);
-                    MedicoEspecialidadesDatos medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(transaccionDatos.AccesoDatos);
-                    HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(transaccionDatos.AccesoDatos);
-                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(transaccionDatos.AccesoDatos);
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    MedicoDatos datos = new MedicoDatos(manejador.CrearAccesoDatos());
+                    MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos(manejador.CrearAccesoDatos());
+                    HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos(manejador.CrearAccesoDatos());
 
-                    medicoDatosTransaccional.Modificar(medico);
-                    SincronizarUsuarioAsociado(medico, usuarioNegocio);
-                    medicoEspecialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
-                    horarioDisponibilidadMedicoDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
+                    personaNegocio.Modificar(medico.Persona);
+                    datos.Modificar(medico);
+                    especialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
+                    horariosDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
 
-                    transaccionDatos.Confirmar();
+                    manejador.Confirmar();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    transaccionDatos.Cancelar();
-                    throw ex;
+                    manejador.Cancelar();
+                    throw;
                 }
             }
         }
 
-        public bool Desactivar(int idMedico)
+        public void Desactivar(int id)
         {
-            try
+            Medico medico = ObtenerPorId(id);
+            ValidarDesactivacion(medico);
+            medicoDatos.Desactivar(id);
+        }
+
+        public void Activar(int id)
+        {
+            Medico medico = ObtenerPorId(id);
+            ValidarActivacion(medico);
+            medicoDatos.Activar(id);
+        }
+
+        private void ValidarAlta(Medico medico)
+        {
+            ValidarMedico(medico);
+
+            if (medicoDatos.ExisteMatricula(medico.Matricula.Trim()))
             {
-                Medico medico = medicoDatos.ObtenerPorId(idMedico);
-                if (medico == null)
-                {
-                    return false;
-                }
-
-                using (TransaccionDatos transaccionDatos = new TransaccionDatos())
-                {
-                    try
-                    {
-                        transaccionDatos.IniciarTransaccion();
-
-                        MedicoDatos medicoDatosTransaccional = new MedicoDatos(transaccionDatos.AccesoDatos);
-                        UsuarioDatos usuarioDatos = new UsuarioDatos(transaccionDatos.AccesoDatos);
-
-                        bool resultado = medicoDatosTransaccional.Desactivar(idMedico);
-                        if (resultado)
-                        {
-                            Usuario usuario = usuarioDatos.ObtenerPorIdPersona(medico.IdPersona);
-                            if (usuario != null)
-                            {
-                                usuario.EstadoUsuario = new EstadoUsuario
-                                {
-                                    Nombre = EstadoUsuarioEnum.Inactivo.ToString()
-                                };
-                                usuarioDatos.Modificar(usuario);
-                            }
-                        }
-
-                        transaccionDatos.Confirmar();
-                        return resultado;
-                    }
-                    catch (Exception ex)
-                    {
-                        transaccionDatos.Cancelar();
-                        throw ex;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                throw new Exception("Ya existe un medico registrado con esa matricula.");
             }
         }
 
-        private void ValidarMedico(Medico medico, bool esAlta)
+        private void ValidarModificacion(Medico medico)
+        {
+            ValidarMedico(medico);
+
+            if (medico.IdMedico <= 0)
+            {
+                throw new Exception("El id del medico no es valido.");
+            }
+
+            if (medico.Persona.IdPersona <= 0)
+            {
+                throw new Exception("El id de persona no es valido.");
+            }
+
+            Medico medicoActual = ObtenerPorId(medico.IdMedico);
+            if (medicoActual == null)
+            {
+                throw new Exception("El medico no existe.");
+            }
+
+            if (!string.Equals(medicoActual.Matricula, medico.Matricula, StringComparison.OrdinalIgnoreCase)
+                && medicoDatos.ExisteMatricula(medico.Matricula.Trim()))
+            {
+                throw new Exception("Ya existe un medico registrado con esa matricula.");
+            }
+        }
+
+        private void ValidarDesactivacion(Medico medico)
         {
             if (medico == null)
             {
-                throw new Exception("El medico es obligatorio");
+                throw new Exception("El medico no existe.");
+            }
+
+            if (!medico.Activo)
+            {
+                throw new Exception("El medico ya esta inactivo.");
+            }
+        }
+
+        private void ValidarActivacion(Medico medico)
+        {
+            if (medico == null)
+            {
+                throw new Exception("El medico no existe.");
+            }
+
+            if (medico.Activo)
+            {
+                throw new Exception("El medico ya esta activo.");
+            }
+        }
+
+        private void ValidarMedico(Medico medico)
+        {
+            if (medico == null)
+            {
+                throw new Exception("El medico es obligatorio.");
+            }
+
+            if (medico.Persona == null)
+            {
+                throw new Exception("La persona del medico es obligatoria.");
             }
 
             if (string.IsNullOrWhiteSpace(medico.Matricula))
             {
-                throw new Exception("La matricula es obligatoria");
-            }
-
-            personaNegocio.ValidarPersona(medico, esAlta);
-
-            if (esAlta && medicoDatos.ExisteMatricula(medico.Matricula.Trim()))
-            {
-                throw new Exception("Ya existe un medico registrado con esa matricula");
-            }
-
-            if (!esAlta && medico.IdMedico > 0)
-            {
-                Medico medicoActual = medicoDatos.ObtenerPorId(medico.IdMedico);
-                if (medicoActual != null && !string.Equals(medicoActual.Matricula, medico.Matricula, StringComparison.OrdinalIgnoreCase) && medicoDatos.ExisteMatricula(medico.Matricula.Trim()))
-                {
-                    throw new Exception("Ya existe un medico registrado con esa matricula");
-                }
+                throw new Exception("La matricula es obligatoria.");
             }
         }
 
-        private void SincronizarUsuarioAsociado(Medico medico, UsuarioNegocio usuarioNegocio)
+        private Usuario ConstruirUsuarioAsociado(Medico medico)
         {
-            Usuario usuarioExistente = usuarioNegocio.ObtenerPorIdPersona(medico.IdPersona);
-            Usuario usuario = new Usuario
+            return new Usuario
             {
-                IdPersona = medico.IdPersona,
-                DNI = medico.DNI,
-                Nombre = medico.Nombre,
-                Apellido = medico.Apellido,
-                Telefono = medico.Telefono,
-                Email = medico.Email,
-                NombreUsuario = usuarioExistente != null ? usuarioExistente.NombreUsuario : null,
-                PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : null,
-                Imagen = usuarioExistente != null ? usuarioExistente.Imagen : null,
+                Persona = medico.Persona,
+                NombreUsuario = null,
+                PasswordHash = null,
+                Imagen = null,
                 Rol = new Rol
                 {
                     Nombre = RolEnum.Medico.ToString()
                 }
             };
-
-            if (usuarioExistente != null)
-            {
-                usuario.IdUsuario = usuarioExistente.IdUsuario;
-                usuarioNegocio.Modificar(usuario);
-            }
-            else
-            {
-                usuarioNegocio.Agregar(usuario);
-            }
         }
     }
 }

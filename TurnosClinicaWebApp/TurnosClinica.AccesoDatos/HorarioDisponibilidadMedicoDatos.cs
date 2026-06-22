@@ -9,14 +9,14 @@ namespace TurnosClinica.AccesoDatos
 {
     public class HorarioDisponibilidadMedicoDatos : IMapeable<HorarioDisponibilidadMedico>
     {
-        private readonly AccesoDatos accesoDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
         public HorarioDisponibilidadMedicoDatos()
         {
-            accesoDatos = new AccesoDatos();
+            accesoDatos = new AccesoDatosBase();
         }
 
-        public HorarioDisponibilidadMedicoDatos(AccesoDatos accesoDatosCompartido)
+        public HorarioDisponibilidadMedicoDatos(AccesoDatosBase accesoDatosCompartido)
         {
             accesoDatos = accesoDatosCompartido;
         }
@@ -96,7 +96,7 @@ namespace TurnosClinica.AccesoDatos
             Agregar(accesoDatos, horarioDisponibilidadMedico);
         }
 
-        public void Agregar(AccesoDatos datosCompartidos, HorarioDisponibilidadMedico horarioDisponibilidadMedico)
+        public void Agregar(AccesoDatosBase datosCompartidos, HorarioDisponibilidadMedico horarioDisponibilidadMedico)
         {
             try
             {
@@ -128,7 +128,7 @@ namespace TurnosClinica.AccesoDatos
             return EliminarPorMedico(accesoDatos, idMedico);
         }
 
-        public bool EliminarPorMedico(AccesoDatos datosCompartidos, int idMedico)
+        public bool EliminarPorMedico(AccesoDatosBase datosCompartidos, int idMedico)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace TurnosClinica.AccesoDatos
             return ReemplazarPorMedico(accesoDatos, idMedico, horarios);
         }
 
-        public bool ReemplazarPorMedico(AccesoDatos datosCompartidos, int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
+        public bool ReemplazarPorMedico(AccesoDatosBase datosCompartidos, int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
         {
             List<HorarioDisponibilidadMedico> lista = horarios == null
                 ? new List<HorarioDisponibilidadMedico>()

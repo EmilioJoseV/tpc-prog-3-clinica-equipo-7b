@@ -8,14 +8,14 @@ namespace TurnosClinica.AccesoDatos
 {
     public class MedicoEspecialidadesDatos : IMapeable<Especialidad>
     {
-        private readonly AccesoDatos accesoDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
         public MedicoEspecialidadesDatos()
         {
-            accesoDatos = new AccesoDatos();
+            accesoDatos = new AccesoDatosBase();
         }
 
-        public MedicoEspecialidadesDatos(AccesoDatos accesoDatosCompartido)
+        public MedicoEspecialidadesDatos(AccesoDatosBase accesoDatosCompartido)
         {
             accesoDatos = accesoDatosCompartido;
         }
@@ -56,7 +56,7 @@ namespace TurnosClinica.AccesoDatos
             Agregar(accesoDatos, idMedico, idEspecialidad);
         }
 
-        public void Agregar(AccesoDatos datosCompartidos, int idMedico, int idEspecialidad)
+        public void Agregar(AccesoDatosBase datosCompartidos, int idMedico, int idEspecialidad)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace TurnosClinica.AccesoDatos
             return EliminarPorMedico(accesoDatos, idMedico);
         }
 
-        public bool EliminarPorMedico(AccesoDatos datosCompartidos, int idMedico)
+        public bool EliminarPorMedico(AccesoDatosBase datosCompartidos, int idMedico)
         {
             try
             {

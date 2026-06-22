@@ -9,118 +9,183 @@ namespace TurnosClinica.Negocio
     public class UsuarioNegocio
     {
         private readonly UsuarioDatos usuarioDatos;
-        private readonly PersonaNegocio personaNegocio;
-        private readonly bool usaAccesoCompartido;
 
         public UsuarioNegocio()
         {
-            usuarioDatos = new UsuarioDatos();
-            personaNegocio = new PersonaNegocio();
-            usaAccesoCompartido = false;
+            usuarioDatos = new UsuarioDatos(new AccesoDatosBase());
         }
 
-        public UsuarioNegocio(TurnosClinica.AccesoDatos.AccesoDatos accesoDatosCompartido)
+        public UsuarioNegocio(AccesoDatosBase accesoDatos)
         {
-            usuarioDatos = new UsuarioDatos(accesoDatosCompartido);
-            personaNegocio = new PersonaNegocio(accesoDatosCompartido);
-            usaAccesoCompartido = true;
+            usuarioDatos = new UsuarioDatos(accesoDatos);
         }
 
         public List<Usuario> Listar()
         {
-            try
-            {
-                return usuarioDatos.Listar(null, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return usuarioDatos.Listar(null, null);
         }
 
         public Usuario ObtenerPorId(int idUsuario)
         {
-            try
+            if (idUsuario <= 0)
             {
-                if (idUsuario <= 0)
-                {
-                    throw new ArgumentException("El ID de usuario no es válido.");
-                }
+                throw new ArgumentException("El id de usuario no es valido.");
+            }
 
-                return usuarioDatos.ObtenerPorId(idUsuario);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return usuarioDatos.ObtenerPorId(idUsuario);
         }
 
         public Usuario ObtenerPorIdPersona(int idPersona)
         {
-            try
+            if (idPersona <= 0)
             {
-                if (idPersona <= 0)
-                {
-                    return null;
-                }
+                return null;
+            }
 
-                return usuarioDatos.ObtenerPorIdPersona(idPersona);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return usuarioDatos.ObtenerPorIdPersona(idPersona);
         }
 
         public void Agregar(Usuario usuario)
         {
-            usuario.EstadoUsuario = new EstadoUsuario
+            PrepararEstadoInicial(usuario);
+            ValidarAlta(usuario);
+            usuarioDatos.Agregar(usuario);
+        }
+
+        public void AgregarConPersona(Usuario usuario)
+        {
+            PrepararEstadoInicial(usuario);
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
-                Nombre = EstadoUsuarioEnum.Pendiente.ToString()
-            };
-            ValidarUsuario(usuario, true);
-            EjecutarOperacion(datos => datos.Agregar(usuario));
+                try
+                {
+                    manejador.Iniciar();
+
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
+
+                    usuario.Persona.IdPersona = personaNegocio.Agregar(usuario.Persona);
+                    usuarioNegocio.Agregar(usuario);
+
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
+            }
         }
 
         public void Modificar(Usuario usuario)
         {
-            usuario.EstadoUsuario = new EstadoUsuario
+            ValidarModificacion(usuario);
+            usuarioDatos.Modificar(usuario);
+        }
+
+        public void ModificarConPersona(Usuario usuario)
+        {
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
-                Nombre = EstadoUsuarioEnum.Pendiente.ToString()
-            };
-            ValidarUsuario(usuario, false);
-            EjecutarOperacion(datos => datos.Modificar(usuario));
+                try
+                {
+                    manejador.Iniciar();
+
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
+
+                    personaNegocio.Modificar(usuario.Persona);
+                    usuarioNegocio.Modificar(usuario);
+
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
+            }
         }
 
         public void Desactivar(int idUsuario)
         {
-            try
+            if (idUsuario <= 0)
             {
-                if (idUsuario <= 0)
-                {
-                    throw new ArgumentException("ID de usuario no valido para desactivacion.");
-                }
+                throw new ArgumentException("El id de usuario no es valido para desactivacion.");
+            }
 
-                EjecutarOperacion(datos => datos.Desactivar(idUsuario));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            usuarioDatos.Desactivar(idUsuario);
         }
 
-        private void ValidarUsuario(Usuario usuario, bool esAlta)
+        public void Activar(int idUsuario)
+        {
+            if (idUsuario <= 0)
+            {
+                throw new ArgumentException("El id de usuario no es valido para activacion.");
+            }
+
+            usuarioDatos.AltaLogica(idUsuario);
+        }
+
+        private void PrepararEstadoInicial(Usuario usuario)
         {
             if (usuario == null)
             {
                 throw new Exception("El usuario es obligatorio.");
             }
 
-            personaNegocio.ValidarPersona(usuario, esAlta);
+            usuario.EstadoUsuario = new EstadoUsuario
+            {
+                Nombre = EstadoUsuarioEnum.Pendiente.ToString()
+            };
+        }
+
+        private void ValidarAlta(Usuario usuario)
+        {
+            ValidarUsuario(usuario);
+
+            if (usuario.Persona.IdPersona <= 0)
+            {
+                throw new Exception("La persona del usuario debe existir.");
+            }
+        }
+
+        private void ValidarModificacion(Usuario usuario)
+        {
+            ValidarUsuario(usuario);
+
+            if (usuario.IdUsuario <= 0)
+            {
+                throw new Exception("El id de usuario no es valido.");
+            }
+
+            if (usuario.Persona.IdPersona <= 0)
+            {
+                throw new Exception("La persona del usuario debe existir.");
+            }
+        }
+
+        private void ValidarUsuario(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                throw new Exception("El usuario es obligatorio.");
+            }
+
+            if (usuario.Persona == null)
+            {
+                throw new Exception("La persona del usuario es obligatoria.");
+            }
 
             if (usuario.Rol == null || string.IsNullOrWhiteSpace(usuario.Rol.Nombre) || !Enum.TryParse(usuario.Rol.Nombre, true, out RolEnum _))
             {
-                throw new Exception("Debe asignar un rol válido al usuario.");
+                throw new Exception("Debe asignar un rol valido al usuario.");
+            }
+
+            if (usuario.EstadoUsuario == null || string.IsNullOrWhiteSpace(usuario.EstadoUsuario.Nombre))
+            {
+                throw new Exception("Debe asignar un estado valido al usuario.");
             }
 
             usuario.NombreUsuario = string.IsNullOrWhiteSpace(usuario.NombreUsuario) ? null : usuario.NombreUsuario.Trim();
@@ -129,36 +194,12 @@ namespace TurnosClinica.Negocio
             if (!string.IsNullOrWhiteSpace(usuario.NombreUsuario))
             {
                 Usuario usuarioActual = usuario.IdUsuario > 0 ? usuarioDatos.ObtenerPorId(usuario.IdUsuario) : null;
-                bool nombreUsuarioCambio = usuarioActual == null || !string.Equals(usuarioActual.NombreUsuario, usuario.NombreUsuario, StringComparison.OrdinalIgnoreCase);
+                bool nombreUsuarioCambio = usuarioActual == null
+                    || !string.Equals(usuarioActual.NombreUsuario, usuario.NombreUsuario, StringComparison.OrdinalIgnoreCase);
 
-                if ((esAlta || nombreUsuarioCambio) && usuarioDatos.ExisteNombreUsuario(usuario.NombreUsuario))
+                if (nombreUsuarioCambio && usuarioDatos.ExisteNombreUsuario(usuario.NombreUsuario))
                 {
                     throw new Exception("Ya existe un nombre de usuario registrado con ese valor.");
-                }
-            }
-        }
-
-        private void EjecutarOperacion(Action<UsuarioDatos> accion)
-        {
-            if (usaAccesoCompartido)
-            {
-                accion(usuarioDatos);
-                return;
-            }
-
-            using (TransaccionDatos transaccionDatos = new TransaccionDatos())
-            {
-                try
-                {
-                    transaccionDatos.IniciarTransaccion();
-                    UsuarioDatos datos = new UsuarioDatos(transaccionDatos.AccesoDatos);
-                    accion(datos);
-                    transaccionDatos.Confirmar();
-                }
-                catch (Exception ex)
-                {
-                    transaccionDatos.Cancelar();
-                    throw ex;
                 }
             }
         }

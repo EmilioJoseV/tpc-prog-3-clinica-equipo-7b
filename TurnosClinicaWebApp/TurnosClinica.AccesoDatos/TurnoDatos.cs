@@ -7,11 +7,11 @@ namespace TurnosClinica.AccesoDatos
 {
     public class TurnoDatos : IMapeable<Turno>
     {
-        private readonly AccesoDatos accesoDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
         public TurnoDatos()
         {
-            accesoDatos = new AccesoDatos();
+            accesoDatos = new AccesoDatosBase();
         }
 
         public List<Turno> Listar(int? idPaciente, int? idMedico, int? idUsuario, int? idUsuarioAlta, int? idUsuarioModificacion, bool? activo)

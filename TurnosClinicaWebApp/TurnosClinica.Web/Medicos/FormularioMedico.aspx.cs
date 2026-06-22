@@ -67,13 +67,13 @@ namespace TurnosClinica.Web
 
             Medico medico = medicoNegocio.ObtenerPorId(int.Parse(id));
             HfIdMedico.Value = medico.IdMedico.ToString();
-            HfIdPersona.Value = medico.IdPersona.ToString();
+            HfIdPersona.Value = medico.Persona.IdPersona.ToString();
             TxtMatricula.Text = medico.Matricula;
-            TxtDni.Text = medico.DNI;
-            TxtNombre.Text = medico.Nombre;
-            TxtApellido.Text = medico.Apellido;
-            TxtTelefono.Text = medico.Telefono;
-            TxtEmail.Text = medico.Email;
+            TxtDni.Text = medico.Persona.DNI;
+            TxtNombre.Text = medico.Persona.Nombre;
+            TxtApellido.Text = medico.Persona.Apellido;
+            TxtTelefono.Text = medico.Persona.Telefono;
+            TxtEmail.Text = medico.Persona.Email;
             ChkMedicoActivo.Checked = medico.Activo;
 
             foreach (ListItem item in CblEspecialidades.Items)
@@ -177,13 +177,16 @@ namespace TurnosClinica.Web
             {
                 Medico medico = new Medico
                 {
-                    IdPersona = string.IsNullOrWhiteSpace(HfIdPersona.Value) ? 0 : int.Parse(HfIdPersona.Value),
+                    Persona = new Persona
+                    {
+                        IdPersona = string.IsNullOrWhiteSpace(HfIdPersona.Value) ? 0 : int.Parse(HfIdPersona.Value),
+                        DNI = TxtDni.Text,
+                        Nombre = TxtNombre.Text,
+                        Apellido = TxtApellido.Text,
+                        Telefono = TxtTelefono.Text,
+                        Email = TxtEmail.Text
+                    },
                     Matricula = TxtMatricula.Text,
-                    DNI = TxtDni.Text,
-                    Nombre = TxtNombre.Text,
-                    Apellido = TxtApellido.Text,
-                    Telefono = TxtTelefono.Text,
-                    Email = TxtEmail.Text,
                     Activo = ChkMedicoActivo.Checked,
                     Especialidades = ObtenerEspecialidadesSeleccionadas(),
                     HorariosDisponibilidad = ObtenerHorariosTemporales()

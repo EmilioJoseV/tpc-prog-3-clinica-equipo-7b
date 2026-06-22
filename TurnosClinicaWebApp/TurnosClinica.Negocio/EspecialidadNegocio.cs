@@ -47,7 +47,7 @@ namespace TurnosClinica.Negocio
                 try
                 {
                     transaccionDatos.IniciarTransaccion();
-                    EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
+                    EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.CrearAccesoDatos());
                     datos.Agregar(especialidad);
                     transaccionDatos.Confirmar();
                 }
@@ -68,7 +68,7 @@ namespace TurnosClinica.Negocio
                 try
                 {
                     transaccionDatos.IniciarTransaccion();
-                    EspecialidadDatos especialidadDatos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
+                    EspecialidadDatos especialidadDatos = new EspecialidadDatos(transaccionDatos.CrearAccesoDatos());
                     especialidadDatos.Modificar(especialidad);
                     transaccionDatos.Confirmar();
                 }
@@ -94,7 +94,7 @@ namespace TurnosClinica.Negocio
                     try
                     {
                         transaccionDatos.IniciarTransaccion();
-                        EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
+                        EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.CrearAccesoDatos());
                         datos.Desactivar(id);
                         transaccionDatos.Confirmar();
                     }

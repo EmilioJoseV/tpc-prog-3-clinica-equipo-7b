@@ -8,25 +8,11 @@ namespace TurnosClinica.AccesoDatos
 {
     public class MedicoDatos : IFiltrable<Medico>, IMapeable<Medico>
     {
-        private readonly AccesoDatos accesoDatos;
-        private readonly PersonaDatos personaDatos;
-        private readonly MedicoEspecialidadesDatos medicoEspecialidadesDatos;
-        private readonly HorarioDisponibilidadMedicoDatos horarioDisponibilidadMedicoDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
-        public MedicoDatos()
+        public MedicoDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatos();
-            personaDatos = new PersonaDatos(accesoDatos);
-            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(accesoDatos);
-            horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(accesoDatos);
-        }
-
-        public MedicoDatos(AccesoDatos accesoDatosCompartido)
-        {
-            accesoDatos = accesoDatosCompartido;
-            personaDatos = new PersonaDatos(accesoDatosCompartido);
-            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(accesoDatosCompartido);
-            horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(accesoDatosCompartido);
+            this.accesoDatos = accesoDatos;
         }
 
         public List<Medico> Listar(bool? activo)
@@ -41,7 +27,7 @@ namespace TurnosClinica.AccesoDatos
 
         public Medico ObtenerPorId(int idMedico)
         {
-            Medico medico = new Medico();
+            Medico medico = null;
             try
             {
                 accesoDatos.setearConsulta(
@@ -96,20 +82,11 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                if (medico.IdPersona <= 0)
-                {
-                    medico.IdPersona = personaDatos.Agregar(medico);
-                }
-                else
-                {
-                    personaDatos.Modificar(medico);
-                }
-
                 accesoDatos.setearConsulta(
                     "INSERT INTO Medicos (IdPersona, Matricula, Activo)"
                     + " OUTPUT INSERTED.IdMedico"
                     + " VALUES (@idPersona, @matricula, @activo)");
-                accesoDatos.setearParametro("@idPersona", medico.IdPersona);
+                accesoDatos.setearParametro("@idPersona", medico.Persona.IdPersona);
                 accesoDatos.setearParametro("@matricula", medico.Matricula);
                 accesoDatos.setearParametro("@activo", medico.Activo);
                 medico.IdMedico = accesoDatos.ejecutarAccionScalar();
@@ -128,13 +105,11 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
-                personaDatos.Modificar(medico);
-
                 accesoDatos.setearConsulta(
                     "UPDATE Medicos"
                     + " SET IdPersona = @idPersona, Matricula = @matricula, Activo = @activo"
                     + " WHERE IdMedico = @idMedico");
-                accesoDatos.setearParametro("@idPersona", medico.IdPersona);
+                accesoDatos.setearParametro("@idPersona", medico.Persona.IdPersona);
                 accesoDatos.setearParametro("@matricula", medico.Matricula);
                 accesoDatos.setearParametro("@activo", medico.Activo);
                 accesoDatos.setearParametro("@idMedico", medico.IdMedico);
@@ -152,13 +127,24 @@ namespace TurnosClinica.AccesoDatos
 
         public bool Desactivar(int idMedico)
         {
+            return CambiarEstado(idMedico, false);
+        }
+
+        public void Activar(int idMedico)
+        {
+            CambiarEstado(idMedico, true);
+        }
+
+        private bool CambiarEstado(int idMedico, bool activo)
+        {
             try
             {
                 accesoDatos.setearConsulta(
                     "UPDATE Medicos"
-                    + " SET Activo = 0"
+                    + " SET Activo = @activo"
                     + " WHERE IdMedico = @idMedico");
                 accesoDatos.setearParametro("@idMedico", idMedico);
+                accesoDatos.setearParametro("@activo", activo);
                 accesoDatos.ejecutarAccion();
                 return true;
             }
@@ -262,13 +248,16 @@ namespace TurnosClinica.AccesoDatos
             return new Medico
             {
                 IdMedico = Convert.ToInt32(fila["IdMedico"]),
-                IdPersona = Convert.ToInt32(fila["IdPersona"]),
                 Matricula = fila["Matricula"].ToString(),
-                DNI = fila["DNI"].ToString(),
-                Nombre = fila["Nombre"].ToString(),
-                Apellido = fila["Apellido"].ToString(),
-                Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
-                Email = fila["Email"].ToString(),
+                Persona = new Persona
+                {
+                    IdPersona = Convert.ToInt32(fila["IdPersona"]),
+                    DNI = fila["DNI"].ToString(),
+                    Nombre = fila["Nombre"].ToString(),
+                    Apellido = fila["Apellido"].ToString(),
+                    Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
+                    Email = fila["Email"].ToString()
+                },
                 Activo = Convert.ToBoolean(fila["Activo"])
             };
         }

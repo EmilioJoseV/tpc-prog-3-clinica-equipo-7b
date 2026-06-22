@@ -6,19 +6,11 @@ namespace TurnosClinica.AccesoDatos
 {
     public class PersonaDatos
     {
-        private readonly AccesoDatos accesoDatos;
-        private readonly bool esCompartido;
+        private readonly AccesoDatosBase accesoDatos;
 
-        public PersonaDatos()
+        public PersonaDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatos();
-            esCompartido = false;
-        }
-
-        public PersonaDatos(AccesoDatos accesoDatosCompartido)
-        {
-            accesoDatos = accesoDatosCompartido;
-            esCompartido = true;
+            this.accesoDatos = accesoDatos;
         }
 
         public int Agregar(Persona persona)
@@ -42,10 +34,7 @@ namespace TurnosClinica.AccesoDatos
             }
             finally
             {
-                if (!esCompartido)
-                {
-                    accesoDatos.cerrarConexion();
-                }
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -71,10 +60,7 @@ namespace TurnosClinica.AccesoDatos
             }
             finally
             {
-                if (!esCompartido)
-                {
-                    accesoDatos.cerrarConexion();
-                }
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -111,10 +97,7 @@ namespace TurnosClinica.AccesoDatos
             }
             finally
             {
-                if (!esCompartido)
-                {
-                    accesoDatos.cerrarConexion();
-                }
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -151,10 +134,7 @@ namespace TurnosClinica.AccesoDatos
             }
             finally
             {
-                if (!esCompartido)
-                {
-                    accesoDatos.cerrarConexion();
-                }
+                accesoDatos.cerrarConexion();
             }
         }
 

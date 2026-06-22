@@ -76,10 +76,10 @@
         OnRowCommand="dgvMedicos_RowCommand">
         <Columns>
             <asp:BoundField HeaderText="Matricula" DataField="Matricula" />
-            <asp:BoundField HeaderText="Nombre" DataField="Nombre" />
-            <asp:BoundField HeaderText="Apellido" DataField="Apellido" />
-            <asp:BoundField HeaderText="DNI" DataField="DNI" />
-            <asp:BoundField HeaderText="Email" DataField="Email" />
+            <asp:TemplateField HeaderText="Nombre"><ItemTemplate><%#: Eval("Persona.Nombre") %></ItemTemplate></asp:TemplateField>
+            <asp:TemplateField HeaderText="Apellido"><ItemTemplate><%#: Eval("Persona.Apellido") %></ItemTemplate></asp:TemplateField>
+            <asp:TemplateField HeaderText="DNI"><ItemTemplate><%#: Eval("Persona.DNI") %></ItemTemplate></asp:TemplateField>
+            <asp:TemplateField HeaderText="Email"><ItemTemplate><%#: Eval("Persona.Email") %></ItemTemplate></asp:TemplateField>
             <asp:TemplateField HeaderText="Activo">
                 <ItemTemplate>
                     <%# Convert.ToBoolean(Eval("Activo")) ? "Activo" : "Inactivo" %>

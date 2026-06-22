@@ -35,13 +35,13 @@ namespace TurnosClinica.Web
                             }
 
                             CargarDesplegables();
-                            HfIdPersona.Value = usuario.IdPersona.ToString();
-                            txtDni.Text = usuario.DNI;
-                            txtNombre.Text = usuario.Nombre;
-                            txtApellido.Text = usuario.Apellido;
-                            txtTelefono.Text = usuario.Telefono;
+                            HfIdPersona.Value = usuario.Persona.IdPersona.ToString();
+                            txtDni.Text = usuario.Persona.DNI;
+                            txtNombre.Text = usuario.Persona.Nombre;
+                            txtApellido.Text = usuario.Persona.Apellido;
+                            txtTelefono.Text = usuario.Persona.Telefono;
                             txtNombreUsuario.Text = usuario.NombreUsuario;
-                            txtEmail.Text = usuario.Email;
+                            txtEmail.Text = usuario.Persona.Email;
                             txtPassword.Text = string.Empty;
 
                             if (usuario.Rol != null)
@@ -127,19 +127,15 @@ namespace TurnosClinica.Web
                         };
                     }
 
-                if (!string.IsNullOrWhiteSpace(HfIdPersona.Value))
+                usuario.Persona = new Persona
                 {
-                    usuario.IdPersona = Convert.ToInt32(HfIdPersona.Value);
-                }
-                else
-                {
-                    usuario.IdPersona = 0;
-                }
-
-                usuario.DNI = txtDni.Text.Trim();
-                usuario.Nombre = txtNombre.Text.Trim();
-                usuario.Apellido = txtApellido.Text.Trim();
-                usuario.Telefono = txtTelefono.Text.Trim();
+                    IdPersona = string.IsNullOrWhiteSpace(HfIdPersona.Value) ? 0 : Convert.ToInt32(HfIdPersona.Value),
+                    DNI = txtDni.Text.Trim(),
+                    Nombre = txtNombre.Text.Trim(),
+                    Apellido = txtApellido.Text.Trim(),
+                    Telefono = txtTelefono.Text.Trim(),
+                    Email = txtEmail.Text.Trim()
+                };
                 if (Request.QueryString["id"] != null)
                 {
                     usuario.NombreUsuario = string.IsNullOrWhiteSpace(txtNombreUsuario.Text)
@@ -150,7 +146,6 @@ namespace TurnosClinica.Web
                 {
                     usuario.NombreUsuario = null;
                 }
-                usuario.Email = txtEmail.Text.Trim();
                 if (Request.QueryString["id"] != null && string.IsNullOrWhiteSpace(txtPassword.Text))
                 {
                     Usuario usuarioExistente = negocio.ObtenerPorId(usuario.IdUsuario);
@@ -180,11 +175,11 @@ namespace TurnosClinica.Web
 
                 if (usuario.IdUsuario > 0)
                 {
-                    negocio.Modificar(usuario);
+                    negocio.ModificarConPersona(usuario);
                 }
                 else
                 {
-                    negocio.Agregar(usuario);
+                    negocio.AgregarConPersona(usuario);
                 }
 
                 Response.Redirect("ListaUsuarios.aspx");

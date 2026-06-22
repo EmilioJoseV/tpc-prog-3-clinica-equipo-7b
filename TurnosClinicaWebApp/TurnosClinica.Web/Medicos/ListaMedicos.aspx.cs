@@ -90,7 +90,7 @@ namespace TurnosClinica.Web
                 }
 
                 MedicoNegocio negocio = new MedicoNegocio();
-                dgvMedicos.DataSource = negocio.ListarConFiltros(
+                dgvMedicos.DataSource = negocio.ListarFiltroAvanzado(
                     ddlCampo.SelectedItem.ToString(),
                     ddlCriterio.SelectedItem.ToString(),
                     txtFiltroAvanzado.Text,

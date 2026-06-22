@@ -5,163 +5,37 @@ using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class PacienteDatos : IFiltrable<Paciente>, IMapeable<Paciente>
+    public class PacienteDatos : IEntidadGestionable<Paciente>, IMapeable<Paciente>
     {
-        private readonly AccesoDatos accesoDatos;
-        private readonly PersonaDatos personaDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
-        public PacienteDatos()
+        public PacienteDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatos();
-            personaDatos = new PersonaDatos(accesoDatos);
+            this.accesoDatos = accesoDatos;
         }
 
-        public PacienteDatos(AccesoDatos accesoDatosCompartido)
+        public List<Paciente> Listar(bool? activo = null)
         {
-            accesoDatos = accesoDatosCompartido;
-            personaDatos = new PersonaDatos(accesoDatosCompartido);
+            return ListarFiltroAvanzado(null, null, null, activo);
         }
 
-        public List<Paciente> Listar(bool? activo)
+        public List<Paciente> ListarFiltroRapido(string palabra, bool? activo = null)
         {
-            return ListarConFiltros(null, null, null, activo);
+            return ListarFiltroAvanzado(null, null, palabra, activo);
         }
 
-        public List<Paciente> ListarFiltroRapido(string filtro)
-        {
-            return ListarConFiltros("Nombre", "Contiene", filtro, null);
-        }
-
-        public Paciente ObtenerPorId(int idPaciente)
-        {
-            Paciente paciente = new Paciente();
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT Pcte.IdPaciente, Pcte.IdPersona, Pcte.FechaNacimiento, Pcte.Direccion, Pcte.Activo,"
-                    + " Per.DNI, Per.Nombre, Per.Apellido, Per.Telefono, Per.Email"
-                    + " FROM Pacientes Pcte"
-                    + " INNER JOIN Personas Per ON Per.IdPersona = Pcte.IdPersona"
-                    + " WHERE Pcte.IdPaciente = @idPaciente");
-                accesoDatos.setearParametro("@idPaciente", idPaciente);
-                accesoDatos.ejecutarLectura();
-
-                if (accesoDatos.Lector.Read())
-                {
-                    paciente = MapearFilaAEntidad(accesoDatos.Lector);
-                }
-
-                return paciente;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
-        public Paciente ObtenerPorIdPersona(int idPersona)
-        {
-            Paciente paciente = new Paciente();
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT Pcte.IdPaciente, Pcte.IdPersona, Pcte.FechaNacimiento, Pcte.Direccion, Pcte.Activo,"
-                    + " Per.DNI, Per.Nombre, Per.Apellido, Per.Telefono, Per.Email"
-                    + " FROM Pacientes Pcte"
-                    + " INNER JOIN Personas Per ON Per.IdPersona = Pcte.IdPersona"
-                    + " WHERE Pcte.IdPersona = @idPersona");
-                accesoDatos.setearParametro("@idPersona", idPersona);
-                accesoDatos.ejecutarLectura();
-
-                if (accesoDatos.Lector.Read())
-                {
-                    paciente = MapearFilaAEntidad(accesoDatos.Lector);
-                }
-
-                return paciente;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
-        public void Agregar(Paciente paciente)
-        {
-            try
-            {
-                if (paciente.IdPersona <= 0)
-                {
-                    paciente.IdPersona = personaDatos.Agregar(paciente);
-                }
-                else
-                {
-                    personaDatos.Modificar(paciente);
-                }
-
-                accesoDatos.setearConsulta(
-                    "INSERT INTO Pacientes (IdPersona, FechaNacimiento, Direccion, Activo)"
-                    + " VALUES (@idPersona, @fechaNacimiento, @direccion, @activo)");
-                accesoDatos.setearParametro("@idPersona", paciente.IdPersona);
-                accesoDatos.setearParametro("@fechaNacimiento", paciente.FechaNacimiento);
-                accesoDatos.setearParametro("@direccion", string.IsNullOrWhiteSpace(paciente.Direccion) ? (object)DBNull.Value : paciente.Direccion);
-                accesoDatos.setearParametro("@activo", paciente.Activo);
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
-        public void Modificar(Paciente paciente)
-        {
-            try
-            {
-                personaDatos.Modificar(paciente);
-
-                accesoDatos.setearConsulta(
-                    "UPDATE Pacientes"
-                    + " SET IdPersona = @idPersona, FechaNacimiento = @fechaNacimiento, Direccion = @direccion, Activo = @activo"
-                    + " WHERE IdPaciente = @idPaciente");
-                accesoDatos.setearParametro("@idPersona", paciente.IdPersona);
-                accesoDatos.setearParametro("@fechaNacimiento", paciente.FechaNacimiento);
-                accesoDatos.setearParametro("@direccion", string.IsNullOrWhiteSpace(paciente.Direccion) ? (object)DBNull.Value : paciente.Direccion);
-                accesoDatos.setearParametro("@activo", paciente.Activo);
-                accesoDatos.setearParametro("@idPaciente", paciente.IdPaciente);
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
-        public List<Paciente> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
+        public List<Paciente> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
         {
             List<Paciente> pacientes = new List<Paciente>();
+
             try
             {
-                string consulta = "SELECT Pcte.IdPaciente, Pcte.IdPersona, Pcte.FechaNacimiento, Pcte.Direccion, Pcte.Activo, "
-                    + "       Per.DNI, Per.Nombre, Per.Apellido, Per.Telefono, Per.Email "
+                string consulta =
+                    "SELECT Pcte.IdPaciente, Pcte.IdPersona, Pcte.FechaNacimiento, Pcte.Direccion, Pcte.Activo, "
+                    + "Per.DNI, Per.Nombre, Per.Apellido, Per.Telefono, Per.Email "
                     + "FROM Pacientes Pcte "
-                    + "INNER JOIN Personas Per ON Per.IdPersona = Pcte.IdPersona WHERE 1=1";
+                    + "INNER JOIN Personas Per ON Per.IdPersona = Pcte.IdPersona "
+                    + "WHERE 1=1";
 
                 if (activo.HasValue)
                 {
@@ -170,48 +44,25 @@ namespace TurnosClinica.AccesoDatos
 
                 if (!string.IsNullOrWhiteSpace(filtro))
                 {
-                    switch (campo)
-                    {
-                        case "DNI":
-                            consulta += criterio == "Igual a"
-                                ? " AND Per.DNI = @filtro"
-                                : criterio == "Mayor a"
-                                    ? " AND Per.DNI > @filtro"
-                                    : " AND Per.DNI < @filtro";
-                            break;
-                        case "Nombre":
-                            consulta += criterio == "Comienza con"
-                                ? " AND Per.Nombre LIKE @filtro + '%'"
-                                : criterio == "Termina con"
-                                    ? " AND Per.Nombre LIKE '%' + @filtro"
-                                    : " AND Per.Nombre LIKE '%' + @filtro + '%'";
-                            break;
-                        case "Apellido":
-                            consulta += criterio == "Comienza con"
-                                ? " AND Per.Apellido LIKE @filtro + '%'"
-                                : criterio == "Termina con"
-                                    ? " AND Per.Apellido LIKE '%' + @filtro"
-                                    : " AND Per.Apellido LIKE '%' + @filtro + '%'";
-                            break;
-                        default:
-                            consulta += " AND (Per.Nombre LIKE '%' + @filtro + '%' OR Per.Apellido LIKE '%' + @filtro + '%' OR Per.DNI LIKE '%' + @filtro + '%')";
-                            break;
-                    }
+                    consulta += ConstruirFiltro(campo, criterio);
                 }
 
                 consulta += " ORDER BY Per.Apellido, Per.Nombre";
 
                 accesoDatos.setearConsulta(consulta);
+
                 if (activo.HasValue)
                 {
                     accesoDatos.setearParametro("@activo", activo.Value);
                 }
+
                 if (!string.IsNullOrWhiteSpace(filtro))
                 {
-                    accesoDatos.setearParametro("@filtro", filtro);
+                    accesoDatos.setearParametro("@filtro", filtro.Trim());
                 }
 
                 accesoDatos.ejecutarLectura();
+
                 while (accesoDatos.Lector.Read())
                 {
                     pacientes.Add(MapearFilaAEntidad(accesoDatos.Lector));
@@ -219,9 +70,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return pacientes;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -229,26 +80,105 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool Desactivar(int idPaciente)
+        public Paciente ObtenerPorId(int id)
         {
+            Paciente paciente = null;
+
             try
             {
                 accesoDatos.setearConsulta(
-                    "UPDATE Pacientes"
-                    + " SET Activo = 0"
-                    + " WHERE IdPaciente = @idPaciente");
-                accesoDatos.setearParametro("@idPaciente", idPaciente);
-                accesoDatos.ejecutarAccion();
-                return true;
+                    "SELECT Pcte.IdPaciente, Pcte.IdPersona, Pcte.FechaNacimiento, Pcte.Direccion, Pcte.Activo, "
+                    + "Per.DNI, Per.Nombre, Per.Apellido, Per.Telefono, Per.Email "
+                    + "FROM Pacientes Pcte "
+                    + "INNER JOIN Personas Per ON Per.IdPersona = Pcte.IdPersona "
+                    + "WHERE Pcte.IdPaciente = @idPaciente");
+                accesoDatos.setearParametro("@idPaciente", id);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    paciente = MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
+                return paciente;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
                 accesoDatos.cerrarConexion();
             }
+        }
+
+        public int Agregar(Paciente entidad)
+        {
+            try
+            {
+                if (entidad == null)
+                {
+                    throw new Exception("El paciente es obligatorio.");
+                }
+
+                accesoDatos.setearConsulta(
+                    "INSERT INTO Pacientes (IdPersona, FechaNacimiento, Direccion, Activo) "
+                    + "VALUES (@idPersona, @fechaNacimiento, @direccion, @activo)");
+                accesoDatos.setearParametro("@idPersona", entidad.Persona.IdPersona);
+                accesoDatos.setearParametro("@fechaNacimiento", entidad.FechaNacimiento);
+                accesoDatos.setearParametro("@direccion", string.IsNullOrWhiteSpace(entidad.Direccion) ? (object)DBNull.Value : entidad.Direccion.Trim());
+                accesoDatos.setearParametro("@activo", entidad.Activo);
+                accesoDatos.ejecutarAccion();
+                return 0;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public void Modificar(Paciente entidad)
+        {
+            try
+            {
+                if (entidad == null)
+                {
+                    throw new Exception("El paciente es obligatorio.");
+                }
+
+                accesoDatos.setearConsulta(
+                    "UPDATE Pacientes "
+                    + "SET IdPersona = @idPersona, FechaNacimiento = @fechaNacimiento, Direccion = @direccion, Activo = @activo "
+                    + "WHERE IdPaciente = @idPaciente");
+                accesoDatos.setearParametro("@idPersona", entidad.Persona.IdPersona);
+                accesoDatos.setearParametro("@fechaNacimiento", entidad.FechaNacimiento);
+                accesoDatos.setearParametro("@direccion", string.IsNullOrWhiteSpace(entidad.Direccion) ? (object)DBNull.Value : entidad.Direccion.Trim());
+                accesoDatos.setearParametro("@activo", entidad.Activo);
+                accesoDatos.setearParametro("@idPaciente", entidad.IdPaciente);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public void Desactivar(int id)
+        {
+            CambiarEstado(id, false);
+        }
+
+        public void Activar(int id)
+        {
+            CambiarEstado(id, true);
         }
 
         public Paciente MapearFilaAEntidad(SqlDataReader fila)
@@ -256,17 +186,98 @@ namespace TurnosClinica.AccesoDatos
             Paciente paciente = new Paciente
             {
                 IdPaciente = Convert.ToInt32(fila["IdPaciente"]),
-                IdPersona = Convert.ToInt32(fila["IdPersona"]),
-                DNI = fila["DNI"].ToString(),
-                Nombre = fila["Nombre"].ToString(),
-                Apellido = fila["Apellido"].ToString(),
-                Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
-                Email = fila["Email"].ToString(),
                 FechaNacimiento = Convert.ToDateTime(fila["FechaNacimiento"]),
                 Direccion = fila["Direccion"] is DBNull ? string.Empty : fila["Direccion"].ToString(),
-                Activo = Convert.ToBoolean(fila["Activo"])
+                Activo = Convert.ToBoolean(fila["Activo"]),
+                Persona = new Persona
+                {
+                    IdPersona = Convert.ToInt32(fila["IdPersona"]),
+                    DNI = fila["DNI"].ToString(),
+                    Nombre = fila["Nombre"].ToString(),
+                    Apellido = fila["Apellido"].ToString(),
+                    Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
+                    Email = fila["Email"].ToString()
+                }
             };
+
             return paciente;
+        }
+
+        private string ConstruirFiltro(string campo, string criterio)
+        {
+            string campoSql = ObtenerCampoSql(campo);
+            if (string.IsNullOrWhiteSpace(campoSql))
+            {
+                return " AND (Per.DNI LIKE '%' + @filtro + '%' OR Per.Nombre LIKE '%' + @filtro + '%' OR Per.Apellido LIKE '%' + @filtro + '%' OR Per.Email LIKE '%' + @filtro + '%' OR Pcte.Direccion LIKE '%' + @filtro + '%')";
+            }
+
+            if (string.Equals(criterio, "Igual a", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " = @filtro";
+            }
+
+            if (string.Equals(criterio, "Comienza con", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " LIKE @filtro + '%'";
+            }
+
+            if (string.Equals(criterio, "Termina con", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " LIKE '%' + @filtro";
+            }
+
+            return " AND " + campoSql + " LIKE '%' + @filtro + '%'";
+        }
+
+        private string ObtenerCampoSql(string campo)
+        {
+            if (string.IsNullOrWhiteSpace(campo))
+            {
+                return null;
+            }
+
+            switch (campo.Trim())
+            {
+                case "DNI":
+                    return "Per.DNI";
+                case "Nombre":
+                    return "Per.Nombre";
+                case "Apellido":
+                    return "Per.Apellido";
+                case "Email":
+                    return "Per.Email";
+                case "Direccion":
+                    return "Pcte.Direccion";
+                default:
+                    return null;
+            }
+        }
+
+        private void CambiarEstado(int id, bool activo)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    throw new Exception("El id del paciente no es valido.");
+                }
+
+                accesoDatos.setearConsulta(
+                    "UPDATE Pacientes "
+                    + "SET Activo = @activo "
+                    + "WHERE IdPaciente = @idPaciente");
+                accesoDatos.setearParametro("@idPaciente", id);
+                accesoDatos.setearParametro("@activo", activo);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
         }
     }
 }

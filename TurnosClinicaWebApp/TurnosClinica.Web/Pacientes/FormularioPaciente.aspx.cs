@@ -16,7 +16,7 @@ namespace TurnosClinica.Web
             {
                 if (!IsPostBack)
                 {
-                    CargarPacienteSiCorresponde();
+                    CargarPaciente();
                 }
             }
             catch (Exception ex)
@@ -27,47 +27,29 @@ namespace TurnosClinica.Web
             }
         }
 
-        private void CargarPacienteSiCorresponde()
-        {
-            string id = Request.QueryString["id"];
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                return;
-            }
-
-            Paciente paciente = pacienteNegocio.ObtenerPorId(int.Parse(id));
-            HfIdPaciente.Value = paciente.IdPaciente.ToString();
-            HfIdPersona.Value = paciente.IdPersona.ToString();
-            TxtDni.Text = paciente.DNI;
-            TxtNombre.Text = paciente.Nombre;
-            TxtApellido.Text = paciente.Apellido;
-            TxtFechaNacimiento.Text = paciente.FechaNacimiento.ToString("yyyy-MM-dd");
-            TxtTelefono.Text = paciente.Telefono;
-            TxtEmail.Text = paciente.Email;
-            TxtDireccion.Text = paciente.Direccion;
-            ChkActivo.Checked = paciente.Activo;
-        }
-
         protected void BtnGuardar_Click(object sender, EventArgs e)
         {
             try
             {
                 Paciente paciente = new Paciente
                 {
-                    IdPersona = string.IsNullOrWhiteSpace(HfIdPersona.Value) ? 0 : int.Parse(HfIdPersona.Value),
-                    DNI = TxtDni.Text,
-                    Nombre = TxtNombre.Text,
-                    Apellido = TxtApellido.Text,
+                    IdPaciente = string.IsNullOrWhiteSpace(HfIdPaciente.Value) ? 0 : int.Parse(HfIdPaciente.Value),
+                    Persona = new Persona
+                    {
+                        IdPersona = string.IsNullOrWhiteSpace(HfIdPersona.Value) ? 0 : int.Parse(HfIdPersona.Value),
+                        DNI = TxtDni.Text,
+                        Nombre = TxtNombre.Text,
+                        Apellido = TxtApellido.Text,
+                        Telefono = TxtTelefono.Text,
+                        Email = TxtEmail.Text
+                    },
                     FechaNacimiento = DateTime.Parse(TxtFechaNacimiento.Text.Trim(), CultureInfo.InvariantCulture),
-                    Telefono = TxtTelefono.Text,
-                    Email = TxtEmail.Text,
                     Direccion = TxtDireccion.Text,
                     Activo = ChkActivo.Checked
                 };
 
-                if (!string.IsNullOrWhiteSpace(HfIdPaciente.Value))
+                if (paciente.IdPaciente > 0)
                 {
-                    paciente.IdPaciente = int.Parse(HfIdPaciente.Value);
                     pacienteNegocio.Modificar(paciente);
                 }
                 else
@@ -90,6 +72,32 @@ namespace TurnosClinica.Web
         {
             Response.Redirect("ListaPacientes.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
+        }
+
+        private void CargarPaciente()
+        {
+            string id = Request.QueryString["id"];
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return;
+            }
+
+            Paciente paciente = pacienteNegocio.ObtenerPorId(int.Parse(id));
+            if (paciente == null)
+            {
+                throw new Exception("El paciente no existe.");
+            }
+
+            HfIdPaciente.Value = paciente.IdPaciente.ToString();
+            HfIdPersona.Value = paciente.Persona.IdPersona.ToString();
+            TxtDni.Text = paciente.Persona.DNI;
+            TxtNombre.Text = paciente.Persona.Nombre;
+            TxtApellido.Text = paciente.Persona.Apellido;
+            TxtFechaNacimiento.Text = paciente.FechaNacimiento.ToString("yyyy-MM-dd");
+            TxtTelefono.Text = paciente.Persona.Telefono;
+            TxtEmail.Text = paciente.Persona.Email;
+            TxtDireccion.Text = paciente.Direccion;
+            ChkActivo.Checked = paciente.Activo;
         }
     }
 }
