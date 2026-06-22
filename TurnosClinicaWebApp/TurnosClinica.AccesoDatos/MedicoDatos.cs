@@ -135,6 +135,40 @@ namespace TurnosClinica.AccesoDatos
             CambiarEstado(idMedico, true);
         }
 
+        public List<Medico> ListarPorEspecialidad(int idEspecialidad)
+        {
+            List<Medico> medicos = new List<Medico>();
+
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "SELECT M.IdMedico, M.IdPersona, M.Matricula, M.Activo, "
+                    + "P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email "
+                    + "FROM MedicosEspecialidades ME "
+                    + "INNER JOIN Medicos M ON M.IdMedico = ME.IdMedico "
+                    + "INNER JOIN Personas P ON P.IdPersona = M.IdPersona "
+                    + "WHERE ME.IdEspecialidad = @idEspecialidad "
+                    + "ORDER BY P.Apellido, P.Nombre");
+                accesoDatos.setearParametro("@idEspecialidad", idEspecialidad);
+                accesoDatos.ejecutarLectura();
+
+                while (accesoDatos.Lector.Read())
+                {
+                    medicos.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
+
+                return medicos;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
         private void CambiarEstado(int idMedico, bool activo)
         {
             try

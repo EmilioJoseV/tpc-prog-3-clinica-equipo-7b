@@ -32,6 +32,22 @@ namespace TurnosClinica.Negocio
             return medicoDatos.ListarFiltroAvanzado(campo, criterio, filtro, activo);
         }
 
+        public List<Medico> ListarPorEspecialidad(int idEspecialidad)
+        {
+            if (idEspecialidad <= 0)
+            {
+                throw new Exception("El id de la especialidad no es valido.");
+            }
+
+            Especialidad especialidad = especialidadNegocio.ObtenerPorId(idEspecialidad);
+            if (especialidad == null)
+            {
+                throw new Exception("La especialidad no existe.");
+            }
+
+            return medicoDatos.ListarPorEspecialidad(idEspecialidad);
+        }
+
         public Medico ObtenerPorId(int id)
         {
             if (id <= 0)

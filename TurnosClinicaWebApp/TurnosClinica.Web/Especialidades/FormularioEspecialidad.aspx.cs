@@ -8,6 +8,7 @@ namespace TurnosClinica.Web
     public partial class FormularioEspecialidad : Page
     {
         private readonly EspecialidadNegocio especialidadNegocio = new EspecialidadNegocio();
+        private readonly MedicoNegocio medicoNegocio = new MedicoNegocio();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -23,6 +24,7 @@ namespace TurnosClinica.Web
                 int idEspecialidad;
                 if (!int.TryParse(Request.QueryString["id"], out idEspecialidad))
                 {
+                    CargarMedicosAsociados(null);
                     return;
                 }
 
@@ -37,6 +39,7 @@ namespace TurnosClinica.Web
                 txtNombre.Text = especialidad.Nombre;
                 txtDescripcion.Text = especialidad.Descripcion;
                 chkActivo.Checked = especialidad.Activo;
+                CargarMedicosAsociados(idEspecialidad);
             }
             catch (Exception ex)
             {
@@ -79,6 +82,14 @@ namespace TurnosClinica.Web
         {
             Response.Redirect("ListaEspecialidades.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
+        }
+
+        private void CargarMedicosAsociados(int? idEspecialidad)
+        {
+            dgvMedicosAsociados.DataSource = idEspecialidad.HasValue
+                ? medicoNegocio.ListarPorEspecialidad(idEspecialidad.Value)
+                : null;
+            dgvMedicosAsociados.DataBind();
         }
 
         private void MostrarError(Exception ex)

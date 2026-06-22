@@ -28,6 +28,27 @@
                     <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" CausesValidation="false" />
                 </div>
             </div>
+
+            <div class="col-12 col-md-6">
+                <h2 class="h5 mb-3">Medicos asociados</h2>
+                <asp:GridView ID="dgvMedicosAsociados" runat="server" AutoGenerateColumns="false"
+                    CssClass="table table-striped table-bordered align-middle"
+                    GridLines="None" UseAccessibleHeader="true" HeaderStyle-CssClass="table-dark"
+                    EmptyDataText="Sin medicos asociados">
+                    <Columns>
+                        <asp:TemplateField HeaderText="Medico">
+                            <ItemTemplate>
+                                <%# Eval("Persona.Apellido") + ", " + Eval("Persona.Nombre") %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Estado">
+                            <ItemTemplate>
+                                <%# Convert.ToBoolean(Eval("Activo")) ? "Activo" : "Inactivo" %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+            </div>
         </div>
     </div>
 </asp:Content>
