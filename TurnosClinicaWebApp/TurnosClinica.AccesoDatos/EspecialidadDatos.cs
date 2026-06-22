@@ -8,18 +8,15 @@ namespace TurnosClinica.AccesoDatos
     public class EspecialidadDatos : IFiltrable<Especialidad>, IMapeable<Especialidad>
     {
         private readonly AccesoDatosBase accesoDatos;
-        private readonly MedicoEspecialidadesDatos medicoEspecialidadesDatos;
 
         public EspecialidadDatos()
         {
             accesoDatos = new AccesoDatosBase();
-            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos();
         }
 
         public EspecialidadDatos(AccesoDatosBase accesoDatosCompartido)
         {
             accesoDatos = accesoDatosCompartido;
-            medicoEspecialidadesDatos = new MedicoEspecialidadesDatos(accesoDatosCompartido);
         }
 
         public List<Especialidad> Listar(bool? activo)

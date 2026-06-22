@@ -11,14 +11,9 @@ namespace TurnosClinica.AccesoDatos
     {
         private readonly AccesoDatosBase accesoDatos;
 
-        public HorarioDisponibilidadMedicoDatos()
+        public HorarioDisponibilidadMedicoDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatosBase();
-        }
-
-        public HorarioDisponibilidadMedicoDatos(AccesoDatosBase accesoDatosCompartido)
-        {
-            accesoDatos = accesoDatosCompartido;
+            this.accesoDatos = accesoDatos;
         }
 
         public List<HorarioDisponibilidadMedico> Listar(int? idMedico, DiaSemanaEnum? diaSemana, TimeSpan? horaDesde, TimeSpan? horaHasta)
@@ -76,9 +71,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return horarios;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -86,93 +81,70 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public List<HorarioDisponibilidadMedico> ListarPorMedico(int idMedico)
+        public List<HorarioDisponibilidadMedico> ObtenerHorariosAsociadosAMedico(int idMedico)
         {
             return Listar(idMedico, null, null, null);
         }
 
-        public void Agregar(HorarioDisponibilidadMedico horarioDisponibilidadMedico)
-        {
-            Agregar(accesoDatos, horarioDisponibilidadMedico);
-        }
-
-        public void Agregar(AccesoDatosBase datosCompartidos, HorarioDisponibilidadMedico horarioDisponibilidadMedico)
+        private void Agregar(HorarioDisponibilidadMedico horarioDisponibilidadMedico)
         {
             try
             {
-                datosCompartidos.setearConsulta(
+                accesoDatos.setearConsulta(
                     "INSERT INTO HorariosDisponiblidadMedicos (IdMedico, DiaSemana, HoraDesde, HoraHasta)"
                     + " VALUES (@idMedico, @diaSemana, @horaDesde, @horaHasta)");
-                datosCompartidos.setearParametro("@idMedico", horarioDisponibilidadMedico.IdMedico);
-                datosCompartidos.setearParametro("@diaSemana", horarioDisponibilidadMedico.DiaSemana);
-                datosCompartidos.setearParametro("@horaDesde", horarioDisponibilidadMedico.HoraDesde);
-                datosCompartidos.setearParametro("@horaHasta", horarioDisponibilidadMedico.HoraHasta);
-                datosCompartidos.ejecutarAccion();
+                accesoDatos.setearParametro("@idMedico", horarioDisponibilidadMedico.IdMedico);
+                accesoDatos.setearParametro("@diaSemana", horarioDisponibilidadMedico.DiaSemana);
+                accesoDatos.setearParametro("@horaDesde", horarioDisponibilidadMedico.HoraDesde);
+                accesoDatos.setearParametro("@horaHasta", horarioDisponibilidadMedico.HoraHasta);
+                accesoDatos.ejecutarAccion();
                 return;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
-                if (ReferenceEquals(datosCompartidos, accesoDatos))
-                {
-                    accesoDatos.cerrarConexion();
-                }
+                accesoDatos.cerrarConexion();
             }
         }
 
-        public bool EliminarPorMedico(int idMedico)
-        {
-            return EliminarPorMedico(accesoDatos, idMedico);
-        }
-
-        public bool EliminarPorMedico(AccesoDatosBase datosCompartidos, int idMedico)
+        private void EliminarPorMedico(int idMedico)
         {
             try
             {
-                datosCompartidos.setearConsulta(
+                accesoDatos.setearConsulta(
                     "DELETE FROM HorariosDisponiblidadMedicos"
                     + " WHERE IdMedico = @idMedico");
-                datosCompartidos.setearParametro("@idMedico", idMedico);
-                datosCompartidos.ejecutarAccion();
-                return true;
+                accesoDatos.setearParametro("@idMedico", idMedico);
+                accesoDatos.ejecutarAccion();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
-                if (ReferenceEquals(datosCompartidos, accesoDatos))
-                {
-                    accesoDatos.cerrarConexion();
-                }
+                accesoDatos.cerrarConexion();
             }
         }
 
-        public bool AgregarActualizarPorMedico(int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
-        {
-            return ReemplazarPorMedico(accesoDatos, idMedico, horarios);
-        }
-
-        public bool ReemplazarPorMedico(AccesoDatosBase datosCompartidos, int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
+        public void ReemplazarPorMedico(int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
         {
             List<HorarioDisponibilidadMedico> lista = horarios == null
                 ? new List<HorarioDisponibilidadMedico>()
                 : horarios.Where(horario => horario != null)
                     .ToList();
 
-            EliminarPorMedico(datosCompartidos, idMedico);
+            EliminarPorMedico(idMedico);
 
             foreach (HorarioDisponibilidadMedico horario in lista)
             {
                 horario.IdMedico = idMedico;
-                Agregar(datosCompartidos, horario);
+                Agregar(horario);
             }
 
-            return true;
         }
 
         public void Modificar(HorarioDisponibilidadMedico horarioDisponibilidadMedico)
@@ -191,9 +163,9 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.ejecutarAccion();
                 return;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {

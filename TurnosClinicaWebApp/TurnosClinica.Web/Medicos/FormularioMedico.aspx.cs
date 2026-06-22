@@ -15,7 +15,6 @@ namespace TurnosClinica.Web
         private readonly MedicoNegocio medicoNegocio = new MedicoNegocio();
         private readonly EspecialidadNegocio especialidadNegocio = new EspecialidadNegocio();
         private const string HorariosSessionKey = "HorariosMedico";
-        private const string HorarioEditIndexKey = "HorarioEditIndex";
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -61,11 +60,15 @@ namespace TurnosClinica.Web
             if (string.IsNullOrWhiteSpace(id))
             {
                 Session[HorariosSessionKey] = new List<HorarioDisponibilidadMedico>();
-                CancelarEdicionHorario();
                 return;
             }
 
             Medico medico = medicoNegocio.ObtenerPorId(int.Parse(id));
+            if (medico == null)
+            {
+                throw new Exception("El medico no existe.");
+            }
+
             HfIdMedico.Value = medico.IdMedico.ToString();
             HfIdPersona.Value = medico.Persona.IdPersona.ToString();
             TxtMatricula.Text = medico.Matricula;
@@ -82,37 +85,27 @@ namespace TurnosClinica.Web
             }
 
             Session[HorariosSessionKey] = medico.HorariosDisponibilidad ?? new List<HorarioDisponibilidadMedico>();
-            CancelarEdicionHorario();
         }
 
         protected void BtnAgregarHorario_Click(object sender, EventArgs e)
         {
             try
             {
-                List<HorarioDisponibilidadMedico> horarios = ObtenerHorariosTemporales();
+                List<HorarioDisponibilidadMedico> horarios = ObtenerHorariosDesdeListado();
                 TimeSpan horaDesde = TimeSpan.ParseExact(TxtHoraDesde.Text.Trim(), "hh\\:mm", CultureInfo.InvariantCulture);
                 TimeSpan horaHasta = TimeSpan.ParseExact(TxtHoraHasta.Text.Trim(), "hh\\:mm", CultureInfo.InvariantCulture);
-                int? indiceEdicion = ObtenerIndiceHorarioEnEdicion();
                 DiaSemanaEnum diaSemana = (DiaSemanaEnum)int.Parse(DdlDiaSemana.SelectedValue);
 
-                HorarioDisponibilidadMedico horario = new HorarioDisponibilidadMedico
+                horarios.Add(new HorarioDisponibilidadMedico
                 {
                     DiaSemana = diaSemana,
                     HoraDesde = horaDesde,
                     HoraHasta = horaHasta
-                };
-
-                if (indiceEdicion.HasValue && indiceEdicion.Value >= 0 && indiceEdicion.Value < horarios.Count)
-                {
-                    horarios[indiceEdicion.Value] = horario;
-                }
-                else
-                {
-                    horarios.Add(horario);
-                }
+                });
 
                 Session[HorariosSessionKey] = horarios;
-                CancelarEdicionHorario();
+                TxtHoraDesde.Text = string.Empty;
+                TxtHoraHasta.Text = string.Empty;
                 BindHorarios();
             }
             catch (Exception ex)
@@ -127,40 +120,17 @@ namespace TurnosClinica.Web
         {
             try
             {
-                int? indiceEnEdicion = ObtenerIndiceHorarioEnEdicion();
-
                 if (e.CommandName == "EliminarHorario")
                 {
-                    List<HorarioDisponibilidadMedico> horarios = ObtenerHorariosTemporales();
+                    List<HorarioDisponibilidadMedico> horarios = ObtenerHorariosDesdeListado();
                     int index = int.Parse(e.CommandArgument.ToString());
                     if (index >= 0 && index < horarios.Count)
                     {
                         horarios.RemoveAt(index);
-                        if (indiceEnEdicion.HasValue && indiceEnEdicion.Value == index)
-                        {
-                            CancelarEdicionHorario();
-                        }
-                        else if (indiceEnEdicion.HasValue && indiceEnEdicion.Value > index)
-                        {
-                            Session[HorarioEditIndexKey] = indiceEnEdicion.Value - 1;
-                        }
-                    }
-                    else if (indiceEnEdicion.HasValue && indiceEnEdicion.Value == index)
-                    {
-                        CancelarEdicionHorario();
                     }
 
                     Session[HorariosSessionKey] = horarios;
                     BindHorarios();
-                }
-                else if (e.CommandName == "EditarHorario")
-                {
-                    List<HorarioDisponibilidadMedico> horarios = ObtenerHorariosTemporales();
-                    int index = int.Parse(e.CommandArgument.ToString());
-                    if (index >= 0 && index < horarios.Count)
-                    {
-                        CargarHorarioEnEdicion(index, horarios[index]);
-                    }
                 }
             }
             catch (Exception ex)
@@ -189,7 +159,7 @@ namespace TurnosClinica.Web
                     Matricula = TxtMatricula.Text,
                     Activo = ChkMedicoActivo.Checked,
                     Especialidades = ObtenerEspecialidadesSeleccionadas(),
-                    HorariosDisponibilidad = ObtenerHorariosTemporales()
+                    HorariosDisponibilidad = ObtenerHorariosDesdeListado()
                 };
 
                 if (!string.IsNullOrWhiteSpace(HfIdMedico.Value))
@@ -203,7 +173,6 @@ namespace TurnosClinica.Web
                 }
 
                 Session.Remove(HorariosSessionKey);
-                CancelarEdicionHorario();
                 Response.Redirect("ListaMedicos.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
             }
@@ -250,38 +219,31 @@ namespace TurnosClinica.Web
         {
             RptHorarios.DataSource = ObtenerHorariosTemporales();
             RptHorarios.DataBind();
-            BtnAgregarHorario.Text = ObtenerIndiceHorarioEnEdicion().HasValue ? "Actualizar" : "Agregar";
         }
 
-        private int? ObtenerIndiceHorarioEnEdicion()
+        private List<HorarioDisponibilidadMedico> ObtenerHorariosDesdeListado()
         {
-            if (Session[HorarioEditIndexKey] == null)
+            List<HorarioDisponibilidadMedico> horarios = new List<HorarioDisponibilidadMedico>();
+
+            foreach (RepeaterItem item in RptHorarios.Items)
             {
-                return null;
+                HiddenField idHorario = (HiddenField)item.FindControl("HfIdHorario");
+                DropDownList diaSemana = (DropDownList)item.FindControl("DdlDiaSemanaFila");
+                TextBox horaDesde = (TextBox)item.FindControl("TxtHoraDesdeFila");
+                TextBox horaHasta = (TextBox)item.FindControl("TxtHoraHastaFila");
+
+                horarios.Add(new HorarioDisponibilidadMedico
+                {
+                    IdHorarioDisponibilidadMedico = string.IsNullOrWhiteSpace(idHorario.Value)
+                        ? 0
+                        : int.Parse(idHorario.Value),
+                    DiaSemana = (DiaSemanaEnum)int.Parse(diaSemana.SelectedValue),
+                    HoraDesde = TimeSpan.ParseExact(horaDesde.Text.Trim(), "hh\\:mm", CultureInfo.InvariantCulture),
+                    HoraHasta = TimeSpan.ParseExact(horaHasta.Text.Trim(), "hh\\:mm", CultureInfo.InvariantCulture)
+                });
             }
 
-            int indice;
-            if (int.TryParse(Session[HorarioEditIndexKey].ToString(), out indice))
-            {
-                return indice;
-            }
-
-            return null;
-        }
-
-        private void CargarHorarioEnEdicion(int index, HorarioDisponibilidadMedico horario)
-        {
-            DdlDiaSemana.SelectedValue = ((int)horario.DiaSemana).ToString();
-            TxtHoraDesde.Text = horario.HoraDesde.ToString(@"hh\:mm");
-            TxtHoraHasta.Text = horario.HoraHasta.ToString(@"hh\:mm");
-            Session[HorarioEditIndexKey] = index;
-            BtnAgregarHorario.Text = "Actualizar";
-        }
-
-        private void CancelarEdicionHorario()
-        {
-            Session.Remove(HorarioEditIndexKey);
-            BtnAgregarHorario.Text = "Agregar";
+            return horarios;
         }
 
         protected string ObtenerDiaSemanaTexto(object value)

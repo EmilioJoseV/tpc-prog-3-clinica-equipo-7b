@@ -9,10 +9,12 @@ namespace TurnosClinica.Negocio
     public class MedicoNegocio : IEntidadGestionableNegocio<Medico>
     {
         private readonly MedicoDatos medicoDatos;
+        private readonly EspecialidadNegocio especialidadNegocio;
 
         public MedicoNegocio()
         {
             medicoDatos = new MedicoDatos(new AccesoDatosBase());
+            especialidadNegocio = new EspecialidadNegocio();
         }
 
         public List<Medico> Listar(bool? activo = null)
@@ -22,12 +24,12 @@ namespace TurnosClinica.Negocio
 
         public List<Medico> ListarFiltroRapido(string palabra, bool? activo = null)
         {
-            return medicoDatos.ListarConFiltros(null, null, palabra, activo);
+            return medicoDatos.ListarFiltroRapido(palabra, activo);
         }
 
         public List<Medico> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
         {
-            return medicoDatos.ListarConFiltros(campo, criterio, filtro, activo);
+            return medicoDatos.ListarFiltroAvanzado(campo, criterio, filtro, activo);
         }
 
         public Medico ObtenerPorId(int id)
@@ -53,14 +55,11 @@ namespace TurnosClinica.Negocio
                     PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
                     MedicoDatos medicoDatos = new MedicoDatos(manejador.CrearAccesoDatos());
                     UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
-                    MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos(manejador.CrearAccesoDatos());
-                    HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos(manejador.CrearAccesoDatos());
-
                     medico.Persona.IdPersona = personaNegocio.Agregar(medico.Persona);
                     medicoDatos.Agregar(medico);
                     usuarioNegocio.Agregar(ConstruirUsuarioAsociado(medico));
-                    especialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
-                    horariosDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
+                    GuardarEspecialidades(medico, manejador.CrearAccesoDatos());
+                    GuardarHorarios(medico, manejador.CrearAccesoDatos());
 
                     manejador.Confirmar();
                 }
@@ -84,13 +83,10 @@ namespace TurnosClinica.Negocio
 
                     PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
                     MedicoDatos datos = new MedicoDatos(manejador.CrearAccesoDatos());
-                    MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos(manejador.CrearAccesoDatos());
-                    HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos(manejador.CrearAccesoDatos());
-
                     personaNegocio.Modificar(medico.Persona);
                     datos.Modificar(medico);
-                    especialidadesDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.Especialidades);
-                    horariosDatos.AgregarActualizarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
+                    GuardarEspecialidades(medico, manejador.CrearAccesoDatos());
+                    GuardarHorarios(medico, manejador.CrearAccesoDatos());
 
                     manejador.Confirmar();
                 }
@@ -195,6 +191,89 @@ namespace TurnosClinica.Negocio
             {
                 throw new Exception("La matricula es obligatoria.");
             }
+
+            medico.Matricula = medico.Matricula.Trim();
+            ValidarEspecialidades(medico.Especialidades);
+            ValidarHorarios(medico.HorariosDisponibilidad);
+        }
+
+        private void ValidarEspecialidades(List<Especialidad> especialidades)
+        {
+            if (especialidades == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < especialidades.Count; i++)
+            {
+                if (especialidades[i] == null || especialidades[i].IdEspecialidad <= 0)
+                {
+                    throw new Exception("La especialidad seleccionada no es valida.");
+                }
+
+                Especialidad especialidad = especialidadNegocio.ObtenerPorId(especialidades[i].IdEspecialidad);
+                if (especialidad == null || especialidad.IdEspecialidad <= 0 || !especialidad.Activo)
+                {
+                    throw new Exception("La especialidad seleccionada no esta disponible.");
+                }
+
+                for (int j = i + 1; j < especialidades.Count; j++)
+                {
+                    if (especialidades[j] != null
+                        && especialidades[i].IdEspecialidad == especialidades[j].IdEspecialidad)
+                    {
+                        throw new Exception("No se puede repetir una especialidad.");
+                    }
+                }
+            }
+        }
+
+        //Validamos bien los horarios para que no se solapen
+        private void ValidarHorarios(List<HorarioDisponibilidadMedico> horarios)
+        {
+            if (horarios == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < horarios.Count; i++)
+            {
+                HorarioDisponibilidadMedico horario = horarios[i];
+
+                if (horario == null || !Enum.IsDefined(typeof(DiaSemanaEnum), horario.DiaSemana))
+                {
+                    throw new Exception("El dia del horario no es valido.");
+                }
+
+                if (horario.HoraHasta <= horario.HoraDesde)
+                {
+                    throw new Exception("La hora hasta debe ser mayor a la hora desde.");
+                }
+
+                for (int j = i + 1; j < horarios.Count; j++)
+                {
+                    HorarioDisponibilidadMedico otroHorario = horarios[j];
+                    if (otroHorario != null
+                        && horario.DiaSemana == otroHorario.DiaSemana
+                        && horario.HoraDesde < otroHorario.HoraHasta
+                        && otroHorario.HoraDesde < horario.HoraHasta)
+                    {
+                        throw new Exception("Los horarios del mismo dia no pueden superponerse.");
+                    }
+                }
+            }
+        }
+
+        private void GuardarEspecialidades(Medico medico, AccesoDatosBase accesoDatos)
+        {
+            MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos(accesoDatos);
+            especialidadesDatos.ReemplazarPorMedico(medico.IdMedico, medico.Especialidades);
+        }
+
+        private void GuardarHorarios(Medico medico, AccesoDatosBase accesoDatos)
+        {
+            HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos(accesoDatos);
+            horariosDatos.ReemplazarPorMedico(medico.IdMedico, medico.HorariosDisponibilidad);
         }
 
         private Usuario ConstruirUsuarioAsociado(Medico medico)

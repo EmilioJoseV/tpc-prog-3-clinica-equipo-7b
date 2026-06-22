@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class MedicoDatos : IFiltrable<Medico>, IMapeable<Medico>
+    public class MedicoDatos : IEntidadGestionable<Medico>, IMapeable<Medico>
     {
         private readonly AccesoDatosBase accesoDatos;
 
@@ -15,14 +14,14 @@ namespace TurnosClinica.AccesoDatos
             this.accesoDatos = accesoDatos;
         }
 
-        public List<Medico> Listar(bool? activo)
+        public List<Medico> Listar(bool? activo = null)
         {
-            return ListarConFiltros(null, null, null, activo);
+            return ListarFiltroAvanzado(null, null, null, activo);
         }
 
-        public List<Medico> ListarFiltroRapido(string filtro)
+        public List<Medico> ListarFiltroRapido(string palabra, bool? activo = null)
         {
-            return ListarConFiltros("Nombre", "Contiene", filtro, null);
+            return ListarFiltroAvanzado(null, null, palabra, activo);
         }
 
         public Medico ObtenerPorId(int idMedico)
@@ -42,19 +41,19 @@ namespace TurnosClinica.AccesoDatos
                 if (accesoDatos.Lector.Read())
                 {
                     medico = MapearFilaAEntidad(accesoDatos.Lector);
-                    CargarDetalleMedico(medico);
                 }
-
-                return medico;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
                 accesoDatos.cerrarConexion();
             }
+
+            CargarDetalleMedico(medico);
+            return medico;
         }
 
         public bool ExisteMatricula(string matricula)
@@ -68,9 +67,9 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@matricula", matricula);
                 return accesoDatos.ejecutarAccionScalar() > 0;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -78,7 +77,7 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public void Agregar(Medico medico)
+        public int Agregar(Medico medico)
         {
             try
             {
@@ -90,10 +89,11 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@matricula", medico.Matricula);
                 accesoDatos.setearParametro("@activo", medico.Activo);
                 medico.IdMedico = accesoDatos.ejecutarAccionScalar();
+                return medico.IdMedico;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -115,9 +115,9 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@idMedico", medico.IdMedico);
                 accesoDatos.ejecutarAccion();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -125,9 +125,9 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public bool Desactivar(int idMedico)
+        public void Desactivar(int idMedico)
         {
-            return CambiarEstado(idMedico, false);
+            CambiarEstado(idMedico, false);
         }
 
         public void Activar(int idMedico)
@@ -135,7 +135,7 @@ namespace TurnosClinica.AccesoDatos
             CambiarEstado(idMedico, true);
         }
 
-        private bool CambiarEstado(int idMedico, bool activo)
+        private void CambiarEstado(int idMedico, bool activo)
         {
             try
             {
@@ -146,11 +146,10 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@idMedico", idMedico);
                 accesoDatos.setearParametro("@activo", activo);
                 accesoDatos.ejecutarAccion();
-                return true;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -158,7 +157,7 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public List<Medico> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
+        public List<Medico> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
         {
             List<Medico> medicos = new List<Medico>();
             try
@@ -175,40 +174,7 @@ namespace TurnosClinica.AccesoDatos
 
                 if (!string.IsNullOrWhiteSpace(filtro))
                 {
-                    switch (campo)
-                    {
-                        case "Matricula":
-                            consulta += criterio == "Comienza con"
-                                ? " AND M.Matricula LIKE @filtro + '%'"
-                                : criterio == "Termina con"
-                                    ? " AND M.Matricula LIKE '%' + @filtro"
-                                    : " AND M.Matricula LIKE '%' + @filtro + '%'";
-                            break;
-                        case "DNI":
-                            consulta += criterio == "Igual a"
-                                ? " AND P.DNI = @filtro"
-                                : criterio == "Mayor a"
-                                    ? " AND P.DNI > @filtro"
-                                    : " AND P.DNI < @filtro";
-                            break;
-                        case "Nombre":
-                            consulta += criterio == "Comienza con"
-                                ? " AND P.Nombre LIKE @filtro + '%'"
-                                : criterio == "Termina con"
-                                    ? " AND P.Nombre LIKE '%' + @filtro"
-                                    : " AND P.Nombre LIKE '%' + @filtro + '%'";
-                            break;
-                        case "Apellido":
-                            consulta += criterio == "Comienza con"
-                                ? " AND P.Apellido LIKE @filtro + '%'"
-                                : criterio == "Termina con"
-                                    ? " AND P.Apellido LIKE '%' + @filtro"
-                                    : " AND P.Apellido LIKE '%' + @filtro + '%'";
-                            break;
-                        default:
-                            consulta += " AND (P.Nombre LIKE '%' + @filtro + '%' OR P.Apellido LIKE '%' + @filtro + '%' OR P.DNI LIKE '%' + @filtro + '%' OR M.Matricula LIKE '%' + @filtro + '%')";
-                            break;
-                    }
+                    consulta += ConstruirFiltro(campo, criterio);
                 }
 
                 consulta += " ORDER BY P.Apellido, P.Nombre";
@@ -226,20 +192,77 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.ejecutarLectura();
                 while (accesoDatos.Lector.Read())
                 {
-                    Medico medico = MapearFilaAEntidad(accesoDatos.Lector);
-                    CargarDetalleMedico(medico);
-                    medicos.Add(medico);
+                    medicos.Add(MapearFilaAEntidad(accesoDatos.Lector));
                 }
-
-                return medicos;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
                 accesoDatos.cerrarConexion();
+            }
+
+            foreach (Medico medico in medicos)
+            {
+                CargarDetalleMedico(medico);
+            }
+
+            return medicos;
+        }
+
+        private string ConstruirFiltro(string campo, string criterio)
+        {
+            string campoSql = ObtenerCampoSql(campo);
+            if (string.IsNullOrWhiteSpace(campoSql))
+            {
+                return " AND (P.Nombre LIKE '%' + @filtro + '%'"
+                    + " OR P.Apellido LIKE '%' + @filtro + '%'"
+                    + " OR P.DNI LIKE '%' + @filtro + '%'"
+                    + " OR P.Email LIKE '%' + @filtro + '%'"
+                    + " OR M.Matricula LIKE '%' + @filtro + '%')";
+            }
+
+            if (string.Equals(criterio, "Igual a", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " = @filtro";
+            }
+
+            if (string.Equals(criterio, "Comienza con", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " LIKE @filtro + '%'";
+            }
+
+            if (string.Equals(criterio, "Termina con", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " LIKE '%' + @filtro";
+            }
+
+            return " AND " + campoSql + " LIKE '%' + @filtro + '%'";
+        }
+
+        private string ObtenerCampoSql(string campo)
+        {
+            if (string.IsNullOrWhiteSpace(campo))
+            {
+                return null;
+            }
+
+            switch (campo.Trim())
+            {
+                case "Matricula":
+                    return "M.Matricula";
+                case "DNI":
+                    return "P.DNI";
+                case "Nombre":
+                    return "P.Nombre";
+                case "Apellido":
+                    return "P.Apellido";
+                case "Email":
+                    return "P.Email";
+                default:
+                    return null;
             }
         }
 
@@ -269,11 +292,11 @@ namespace TurnosClinica.AccesoDatos
                 return;
             }
 
-            MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos();
-            HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos();
+            MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos(new AccesoDatosBase());
+            HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos(new AccesoDatosBase());
 
-            medico.Especialidades = especialidadesDatos.ListarPorMedico(medico.IdMedico);
-            medico.HorariosDisponibilidad = horariosDatos.ListarPorMedico(medico.IdMedico);
+            medico.Especialidades = especialidadesDatos.ObtenerEspecialidadesAsociadasAMedico(medico.IdMedico);
+            medico.HorariosDisponibilidad = horariosDatos.ObtenerHorariosAsociadosAMedico(medico.IdMedico);
         }
     }
 }
