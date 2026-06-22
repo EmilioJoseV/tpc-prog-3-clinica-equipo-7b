@@ -146,7 +146,6 @@ CREATE TABLE dbo.HorariosDisponiblidadMedicos
     DiaSemana TINYINT NOT NULL,
     HoraDesde TIME NOT NULL,
     HoraHasta TIME NOT NULL,
-    Activo BIT NOT NULL DEFAULT 1,
 
     CONSTRAINT PK_HorariosDisponiblidadMedicos PRIMARY KEY (IdHorarioDisponiblidadMedico),
 
