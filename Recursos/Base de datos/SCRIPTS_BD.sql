@@ -148,6 +148,7 @@ CREATE TABLE dbo.HorariosDisponiblidadMedicos
     HoraHasta TIME NOT NULL,
 
     CONSTRAINT PK_HorariosDisponiblidadMedicos PRIMARY KEY (IdHorarioDisponiblidadMedico),
+    CONSTRAINT UQ_HorariosDisponiblidadMedicos_Horario UNIQUE (IdMedico, DiaSemana, HoraDesde, HoraHasta),
 
     CONSTRAINT FK_HorariosDisponiblidadMedicos_Medicos
         FOREIGN KEY (IdMedico)
