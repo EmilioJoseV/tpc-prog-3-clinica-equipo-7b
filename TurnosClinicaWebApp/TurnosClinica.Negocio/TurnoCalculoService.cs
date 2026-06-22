@@ -22,7 +22,7 @@ namespace TurnosClinica.Negocio
         {
             configuracionTurnoDatos = new ConfiguracionTurnoDatos();
             horarioDisponibilidadMedicoDatos = new HorarioDisponibilidadMedicoDatos(new AccesoDatosBase());
-            especialidadDatos = new EspecialidadDatos();
+            especialidadDatos = new EspecialidadDatos(new AccesoDatosBase());
             turnoDatos = new TurnoDatos();
         }
 

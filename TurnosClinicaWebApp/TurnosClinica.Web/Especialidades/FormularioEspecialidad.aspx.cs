@@ -1,102 +1,91 @@
 using System;
 using System.Web.UI;
+using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
 {
     public partial class FormularioEspecialidad : Page
     {
+        private readonly EspecialidadNegocio especialidadNegocio = new EspecialidadNegocio();
 
-        public bool ConfirmaEliminacion { get; set; }
         protected void Page_Load(object sender, EventArgs e)
         {
-            ConfirmaEliminacion = false;
             try
             {
-                string id = Request.QueryString["id"];
-
-                if (id != null && !IsPostBack)
+                if (IsPostBack)
                 {
-                    TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
-                    TurnosClinica.Dominio.Entidades.Especialidad seleccionada = negocio.ObtenerPorId(int.Parse(id));
-
-                    txtNombre.Text = seleccionada.Nombre;
-                    txtDescripcion.Text = seleccionada.Descripcion;
+                    return;
                 }
 
+                chkActivo.Checked = true;
 
-                // Si el id es nulo,quiere decir que estoy agregando entonces Oculto el botón eliminar.
-                if (id == null)
+                int idEspecialidad;
+                if (!int.TryParse(Request.QueryString["id"], out idEspecialidad))
                 {
-                   
-                    UpdatePanel1.Visible = false;
+                    return;
                 }
+
+                Especialidad especialidad = especialidadNegocio.ObtenerPorId(idEspecialidad);
+                if (especialidad == null)
+                {
+                    throw new Exception("La especialidad no existe.");
+                }
+
+                hfIdEspecialidad.Value = especialidad.IdEspecialidad.ToString();
+                lblTitulo.Text = "Detalle de Especialidad";
+                txtNombre.Text = especialidad.Nombre;
+                txtDescripcion.Text = especialidad.Descripcion;
+                chkActivo.Checked = especialidad.Activo;
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.Message);
-                Response.Redirect("../Error.aspx", false);
+                MostrarError(ex);
             }
         }
-        protected void btnAceptar_Click(object sender, EventArgs e)
+
+        protected void btnGuardar_Click(object sender, EventArgs e)
         {
             try
             {
-                TurnosClinica.Dominio.Entidades.Especialidad especialidad = new TurnosClinica.Dominio.Entidades.Especialidad();
-                especialidad.Nombre = txtNombre.Text;
-                especialidad.Descripcion = txtDescripcion.Text;
-
-                TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
-
-                if (Request.QueryString["id"] != null)
+                Especialidad especialidad = new Especialidad
                 {
-                    especialidad.IdEspecialidad = int.Parse(Request.QueryString["id"]);
-                    negocio.Modificar(especialidad);
+                    Nombre = txtNombre.Text,
+                    Descripcion = txtDescripcion.Text,
+                    Activo = chkActivo.Checked
+                };
+
+                int idEspecialidad;
+                if (int.TryParse(hfIdEspecialidad.Value, out idEspecialidad))
+                {
+                    especialidad.IdEspecialidad = idEspecialidad;
+                    especialidadNegocio.Modificar(especialidad);
                 }
                 else
                 {
-                    negocio.Agregar(especialidad);
+                    especialidadNegocio.Agregar(especialidad);
                 }
 
                 Response.Redirect("ListaEspecialidades.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.Message);
-                Response.Redirect("../Error.aspx", false);
+                MostrarError(ex);
             }
         }
 
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
-            Response.Redirect("ListaEspecialidades.aspx");
+            Response.Redirect("ListaEspecialidades.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
 
-        protected void btnEliminar_Click(object sender, EventArgs e)
+        private void MostrarError(Exception ex)
         {
-            ConfirmaEliminacion = true;
+            Session.Add("error", ex.ToString());
+            Response.Redirect("../Error.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
-
-        protected void btnConfirmaEliminar_Click(object sender, EventArgs e)
-        {
-
-
-            try
-            {
-                if (chkConfirmaEliminacion.Checked)
-                {
-
-                    int id = int.Parse(Request.QueryString["id"]);
-                    TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
-                    negocio.Desactivar(id);
-                    Response.Redirect("ListaEspecialidades.aspx", false);
-                }
-            }
-            catch (Exception ex)
-            {
-
-                Session.Add("error", ex.Message);
-                Response.Redirect("../Error.aspx", false);
-            }
-        } 
-    }  
+    }
 }

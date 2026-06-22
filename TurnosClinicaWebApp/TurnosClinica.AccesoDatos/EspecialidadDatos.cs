@@ -5,37 +5,59 @@ using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class EspecialidadDatos : IFiltrable<Especialidad>, IMapeable<Especialidad>
+    public class EspecialidadDatos : IEntidadGestionable<Especialidad>, IMapeable<Especialidad>
     {
         private readonly AccesoDatosBase accesoDatos;
 
-        public EspecialidadDatos()
+        public EspecialidadDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatosBase();
+            this.accesoDatos = accesoDatos;
         }
 
-        public EspecialidadDatos(AccesoDatosBase accesoDatosCompartido)
+        public List<Especialidad> Listar(bool? activo = null)
         {
-            accesoDatos = accesoDatosCompartido;
+            return ListarFiltroAvanzado(null, null, null, activo);
         }
 
-        public List<Especialidad> Listar(bool? activo)
+        public List<Especialidad> ListarFiltroRapido(string palabra, bool? activo = null)
+        {
+            return ListarFiltroAvanzado(null, null, palabra, activo);
+        }
+
+        public List<Especialidad> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
         {
             List<Especialidad> especialidades = new List<Especialidad>();
 
             try
             {
-                string consulta = "SELECT IdEspecialidad, Nombre, Descripcion, Activo"
-                    + " FROM Especialidades";
+                string consulta =
+                    "SELECT IdEspecialidad, Nombre, Descripcion, Activo "
+                    + "FROM Especialidades "
+                    + "WHERE 1=1";
 
                 if (activo.HasValue)
                 {
-                    consulta += " WHERE Activo = 1";
+                    consulta += " AND Activo = @activo";
                 }
 
-                consulta += " ORDER BY Nombre ASC";
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    consulta += ConstruirFiltro(campo, criterio);
+                }
 
+                consulta += " ORDER BY Nombre";
                 accesoDatos.setearConsulta(consulta);
+
+                if (activo.HasValue)
+                {
+                    accesoDatos.setearParametro("@activo", activo.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    accesoDatos.setearParametro("@filtro", filtro.Trim());
+                }
+
                 accesoDatos.ejecutarLectura();
 
                 while (accesoDatos.Lector.Read())
@@ -45,9 +67,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return especialidades;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -55,16 +77,17 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public Especialidad ObtenerPorId(int idEspecialidad)
+        public Especialidad ObtenerPorId(int id)
         {
-            Especialidad especialidad = new Especialidad();
+            Especialidad especialidad = null;
+
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT IdEspecialidad, Nombre, Descripcion, Activo"
-                    + " FROM Especialidades"
-                    + " WHERE IdEspecialidad = @idEspecialidad");
-                accesoDatos.setearParametro("@idEspecialidad", idEspecialidad);
+                    "SELECT IdEspecialidad, Nombre, Descripcion, Activo "
+                    + "FROM Especialidades "
+                    + "WHERE IdEspecialidad = @idEspecialidad");
+                accesoDatos.setearParametro("@idEspecialidad", id);
                 accesoDatos.ejecutarLectura();
 
                 if (accesoDatos.Lector.Read())
@@ -74,140 +97,112 @@ namespace TurnosClinica.AccesoDatos
 
                 return especialidad;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
                 accesoDatos.cerrarConexion();
             }
+        }
+
+        public int Agregar(Especialidad especialidad)
+        {
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "INSERT INTO Especialidades (Nombre, Descripcion, Activo) "
+                    + "VALUES (@nombre, @descripcion, @activo)");
+                accesoDatos.setearParametro("@nombre", especialidad.Nombre);
+                accesoDatos.setearParametro("@descripcion", string.IsNullOrWhiteSpace(especialidad.Descripcion)
+                    ? (object)DBNull.Value
+                    : especialidad.Descripcion);
+                accesoDatos.setearParametro("@activo", especialidad.Activo);
+                accesoDatos.ejecutarAccion();
+                return 0;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public void Modificar(Especialidad especialidad)
+        {
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "UPDATE Especialidades "
+                    + "SET Nombre = @nombre, Descripcion = @descripcion, Activo = @activo "
+                    + "WHERE IdEspecialidad = @idEspecialidad");
+                accesoDatos.setearParametro("@nombre", especialidad.Nombre);
+                accesoDatos.setearParametro("@descripcion", string.IsNullOrWhiteSpace(especialidad.Descripcion)
+                    ? (object)DBNull.Value
+                    : especialidad.Descripcion);
+                accesoDatos.setearParametro("@activo", especialidad.Activo);
+                accesoDatos.setearParametro("@idEspecialidad", especialidad.IdEspecialidad);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public void Desactivar(int id)
+        {
+            CambiarEstado(id, false);
+        }
+
+        public void Activar(int id)
+        {
+            CambiarEstado(id, true);
         }
 
         public bool ExisteNombre(string nombre, int excluirId = 0)
         {
             try
             {
-                // Cuento si hayotra especialidad con este nombre,pero excluyendo el id actual
-                accesoDatos.setearConsulta("SELECT COUNT(*) FROM Especialidades WHERE Nombre = @Nombre AND IdEspecialidad != @Id");
-                accesoDatos.setearParametro("@Nombre", nombre);
-                accesoDatos.setearParametro("@Id", excluirId);
-
-                int cantidad = accesoDatos.ejecutarAccionScalar();
-                return cantidad > 0;
+                accesoDatos.setearConsulta(
+                    "SELECT COUNT(*) FROM Especialidades "
+                    + "WHERE UPPER(Nombre) = UPPER(@nombre) "
+                    + "AND IdEspecialidad <> @excluirId");
+                accesoDatos.setearParametro("@nombre", nombre);
+                accesoDatos.setearParametro("@excluirId", excluirId);
+                return accesoDatos.ejecutarAccionScalar() > 0;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
                 accesoDatos.cerrarConexion();
             }
-        }
-
-
-        public int Agregar(Especialidad especialidad)
-        {
-            try
-            {
-              
-                string consulta = "INSERT INTO Especialidades (Nombre, Descripcion, Activo) OUTPUT INSERTED.IdEspecialidad VALUES (@Nombre, @Descripcion, 1)";
-                accesoDatos.setearConsulta(consulta);
-
-                
-                accesoDatos.setearParametro("@Nombre", especialidad.Nombre);
-
-                
-                if (string.IsNullOrWhiteSpace(especialidad.Descripcion))
-                {
-                    accesoDatos.setearParametro("@Descripcion", DBNull.Value);
-                }
-                else
-                {
-                    accesoDatos.setearParametro("@Descripcion", especialidad.Descripcion);
-                }
-
-                return accesoDatos.ejecutarAccionScalar();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-             
-        }
-
-
-        public void Modificar(Especialidad especialidad)
-        {
-            try
-            {
-                accesoDatos.setearConsulta("UPDATE Especialidades SET Nombre = @Nombre, Descripcion = @Descripcion WHERE IdEspecialidad = @Id");
-                accesoDatos.setearParametro("@Nombre", especialidad.Nombre); 
-                accesoDatos.setearParametro("@Descripcion", string.IsNullOrWhiteSpace(especialidad.Descripcion) ? (object)DBNull.Value : especialidad.Descripcion);
-                accesoDatos.setearParametro("@Id", especialidad.IdEspecialidad);
-
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-        public void Desactivar(int idEspecialidad)
-        {
-            try
-            { 
-                accesoDatos.setearConsulta("UPDATE Especialidades SET Activo = 0 WHERE IdEspecialidad = @Id");
-                accesoDatos.setearParametro("@Id", idEspecialidad);
-
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
-
-
-        public List<Especialidad> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Especialidad MapearFilaAEntidad(SqlDataReader fila)
-        {
-            Especialidad especialidad = new Especialidad();
-            especialidad.IdEspecialidad = Convert.ToInt32(fila["IdEspecialidad"]);
-            especialidad.Nombre = fila["Nombre"].ToString();
-            especialidad.Descripcion = fila["Descripcion"] is DBNull ? string.Empty : fila["Descripcion"].ToString();
-            especialidad.Activo = Convert.ToBoolean(fila["Activo"]);
-            return especialidad;
         }
 
         public bool EstaAsociadaAMedico(int idEspecialidad)
         {
             try
             {
-                //cuenta cuantos registros hay
-                accesoDatos.setearConsulta("SELECT COUNT(*) FROM MedicosEspecialidades WHERE IdEspecialidad = @Id");
-                accesoDatos.setearParametro("@Id", idEspecialidad);
-
-                int cantidad = accesoDatos.ejecutarAccionScalar();
-                return cantidad > 0; // SI HAY MAS DE UNO ES  ESTA ASOCIADO A UN MEDICO
+                accesoDatos.setearConsulta(
+                    "SELECT COUNT(*) FROM MedicosEspecialidades "
+                    + "WHERE IdEspecialidad = @idEspecialidad");
+                accesoDatos.setearParametro("@idEspecialidad", idEspecialidad);
+                return accesoDatos.ejecutarAccionScalar() > 0;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -215,7 +210,78 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
+        public Especialidad MapearFilaAEntidad(SqlDataReader fila)
+        {
+            return new Especialidad
+            {
+                IdEspecialidad = Convert.ToInt32(fila["IdEspecialidad"]),
+                Nombre = fila["Nombre"].ToString(),
+                Descripcion = fila["Descripcion"] is DBNull ? string.Empty : fila["Descripcion"].ToString(),
+                Activo = Convert.ToBoolean(fila["Activo"])
+            };
+        }
 
+        private string ConstruirFiltro(string campo, string criterio)
+        {
+            string campoSql = ObtenerCampoSql(campo);
 
+            if (string.IsNullOrWhiteSpace(campoSql))
+            {
+                return " AND (Nombre LIKE '%' + @filtro + '%' OR Descripcion LIKE '%' + @filtro + '%')";
+            }
+
+            if (string.Equals(criterio, "Igual a", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " = @filtro";
+            }
+
+            if (string.Equals(criterio, "Comienza con", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " LIKE @filtro + '%'";
+            }
+
+            if (string.Equals(criterio, "Termina con", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " LIKE '%' + @filtro";
+            }
+
+            return " AND " + campoSql + " LIKE '%' + @filtro + '%'";
+        }
+
+        private string ObtenerCampoSql(string campo)
+        {
+            if (string.Equals(campo, "Nombre", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Nombre";
+            }
+
+            if (string.Equals(campo, "Descripcion", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Descripcion";
+            }
+
+            return null;
+        }
+
+        private void CambiarEstado(int id, bool activo)
+        {
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "UPDATE Especialidades SET Activo = @activo "
+                    + "WHERE IdEspecialidad = @idEspecialidad");
+                accesoDatos.setearParametro("@activo", activo);
+                accesoDatos.setearParametro("@idEspecialidad", id);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
     }
 }
