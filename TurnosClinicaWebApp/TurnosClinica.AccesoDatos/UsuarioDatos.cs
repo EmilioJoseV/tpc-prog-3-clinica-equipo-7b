@@ -57,7 +57,7 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT IdUsuario, NombreUsuario, Email, PasswordHash, Activo, IdRol, IdMedico"
+                    "SELECT IdUsuario, NombreUsuario, Nombre, Apellido, Email, PasswordHash, Imagen, Activo, IdRol, IdMedico"
                     + " FROM Usuarios"
                     + " WHERE IdUsuario = @idUsuario");
                 accesoDatos.setearParametro("@idUsuario", idUsuario);
@@ -236,12 +236,26 @@ namespace TurnosClinica.AccesoDatos
             usuario.PasswordHash = fila["PasswordHash"] is DBNull ? string.Empty : fila["PasswordHash"].ToString();
             usuario.Activo = Convert.ToBoolean(fila["Activo"]);
 
+            // MAPEO DE LA IMAGEN (FOTO DE PERFIL) que faltaba:
+            if (!(fila["Imagen"] is DBNull))
+            {
+                usuario.Imagen = (byte[])fila["Imagen"];
+            }
+
             if (fila["IdRol"] != DBNull.Value)
             {
-                usuario.Rol = new Rol
+                usuario.Rol = new Rol();
+                usuario.Rol.IdRol = Convert.ToInt32(fila["IdRol"]);
+
+                // Evitamos que explote si no venís haciendo un JOIN con la tabla de Roles
+                try
                 {
-                    IdRol = Convert.ToInt32(fila["IdRol"]), Nombre = fila["NombreRol"] is DBNull ? string.Empty : fila["NombreRol"].ToString()
-                };
+                    usuario.Rol.Nombre = fila["NombreRol"] is DBNull ? string.Empty : fila["NombreRol"].ToString();
+                }
+                catch
+                {
+                    usuario.Rol.Nombre = string.Empty; // Si no está en el SELECT, no pasa nada
+                }
             }
 
             if (fila["IdMedico"] != DBNull.Value)

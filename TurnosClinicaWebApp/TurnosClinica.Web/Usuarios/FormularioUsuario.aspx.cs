@@ -8,47 +8,48 @@ namespace TurnosClinica.Web
 {
     public partial class FormularioUsuario : Page
     {
+        public Usuario usuarioActual { get; set; }
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                // 1. Preguntamos si viene un ID por la URL (Modificación)
-                if (Request.QueryString["id"] != null)
+                // 1. Siempre recuperamos la entidad para que la foto no se rompa al redibujar
+                if (Request.QueryString["id"] != null || Request.QueryString["Id"] != null)
                 {
-                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
+                    string idUrl = Request.QueryString["id"] ?? Request.QueryString["Id"];
+                    int idUsuario = Convert.ToInt32(idUrl);
                     UsuarioNegocio negocio = new UsuarioNegocio();
-                    Usuario usuario = negocio.ObtenerPorId(idUsuario);
+                    usuarioActual = negocio.ObtenerPorId(idUsuario);
 
-                    if (usuario != null)
+                    if (usuarioActual != null)
                     {
-                        // SOLO cargamos los datos en los controles la PRIMERA VEZ
+                        // PROTECCIÓN TOTAL: La asignación a los TextBox SOLO ocurre en la carga inicial de la página
                         if (!IsPostBack)
                         {
                             CargarDesplegables();
 
-                            lblTitulo.InnerText = "Modificar Usuario";
-                            txtNombre.Text = usuario.Nombre;
-                            txtApellido.Text = usuario.Apellido;
-                            txtNombreUsuario.Text = usuario.NombreUsuario;
-                            txtEmail.Text = usuario.Email;
-                            txtPassword.Text = usuario.PasswordHash;
+                            txtNombre.Text = usuarioActual.Nombre;
+                            txtApellido.Text = usuarioActual.Apellido;
+                            txtNombreUsuario.Text = usuarioActual.NombreUsuario;
+                            txtEmail.Text = usuarioActual.Email;
+                            txtPassword.Text = string.Empty; // Inicia limpio
 
-                            if (usuario.Rol != null)
+                            if (usuarioActual.Rol != null)
                             {
-                                ddlRol.SelectedValue = usuario.Rol.IdRol.ToString();
+                                ddlRol.SelectedValue = usuarioActual.Rol.IdRol.ToString();
                             }
 
-                            if (usuario.Medico != null)
+                            if (usuarioActual.Medico != null)
                             {
-                                ddlMedico.SelectedValue = usuario.Medico.IdMedico.ToString();
+                                ddlMedico.SelectedValue = usuarioActual.Medico.IdMedico.ToString();
                             }
                         }
 
-                        // ESTO SE EJECUTA SIEMPRE (En la primera carga y en cada PostBack)
+                        // Esto se ejecuta siempre para mantener estables los estilos visuales de los botones
                         btnInactivar.Visible = true;
                         btnEliminar.Visible = true;
 
-                        if (usuario.Activo == true)
+                        if (usuarioActual.Activo)
                         {
                             btnInactivar.Text = "Inactivar";
                             btnInactivar.CssClass = "btn btn-warning";
@@ -62,14 +63,12 @@ namespace TurnosClinica.Web
                 }
                 else
                 {
-                    // 2. SI ES UN ALTA NUEVA (No hay ID en la URL)
+                    // MODO ALTA NUEVA
                     if (!IsPostBack)
                     {
                         CargarDesplegables();
-                        lblTitulo.InnerText = "Nuevo Usuario";
                     }
 
-                    // ESTO SE EJECUTA SIEMPRE PARA EL ALTA
                     btnInactivar.Visible = false;
                     btnEliminar.Visible = false;
                 }
@@ -79,7 +78,6 @@ namespace TurnosClinica.Web
                 Session.Add("Error", ex.ToString());
             }
         }
-
         protected void btnAceptar_Click(object sender, EventArgs e)
         {
             try
@@ -92,63 +90,95 @@ namespace TurnosClinica.Web
                 UsuarioNegocio negocio = new UsuarioNegocio();
                 Usuario usuario = new Usuario();
 
-                if (Request.QueryString["id"] != null)
+                if (Request.QueryString["id"] != null || Request.QueryString["Id"] != null)
                 {
-                    usuario.IdUsuario = Convert.ToInt32(Request.QueryString["id"]);
+                    string idUrl = Request.QueryString["id"] ?? Request.QueryString["Id"];
+                    int idUsuario = Convert.ToInt32(idUrl);
 
-                    // Si modificamos, mantenemos el estado Activo que ya tenía en la DB
-                    Usuario usuarioExistente = negocio.ObtenerPorId(usuario.IdUsuario);
-                    if (usuarioExistente != null)
+                    Usuario usuarioDB = negocio.ObtenerPorId(idUsuario);
+
+                    if (usuarioDB != null)
                     {
-                        usuario.Activo = usuarioExistente.Activo;
+                        usuario.IdUsuario = usuarioDB.IdUsuario;
+                        usuario.Activo = usuarioDB.Activo;
+
+                        usuario.Nombre = !string.IsNullOrWhiteSpace(txtNombre.Text) ? txtNombre.Text.Trim() : usuarioDB.Nombre;
+                        usuario.Apellido = !string.IsNullOrWhiteSpace(txtApellido.Text) ? txtApellido.Text.Trim() : usuarioDB.Apellido;
+                        usuario.NombreUsuario = !string.IsNullOrWhiteSpace(txtNombreUsuario.Text) ? txtNombreUsuario.Text.Trim() : usuarioDB.NombreUsuario;
+                        usuario.Email = !string.IsNullOrWhiteSpace(txtEmail.Text) ? txtEmail.Text.Trim() : usuarioDB.Email;
+                        usuario.PasswordHash = !string.IsNullOrEmpty(txtPassword.Text) ? txtPassword.Text : usuarioDB.PasswordHash;
+
+                        // === LOGICA DE LA IMAGEN MODIFICADA PARA MODIFICACIÓN ===
+                        if (Session["ImagenTemporal"] != null)
+                        {
+                            // Si el usuario le dio al botón "Cargar", la foto está guardada en la Session
+                            usuario.Imagen = (byte[])Session["ImagenTemporal"];
+                        }
+                        else if (fileImagen.HasFile)
+                        {
+                            // Por las dudas, si no le dio a "Cargar" pero subió un archivo directo antes de poner Aceptar
+                            usuario.Imagen = fileImagen.FileBytes;
+                        }
+                        else
+                        {
+                            // Si no tocó nada de la foto, mantiene la que ya venía de la Base de Datos
+                            usuario.Imagen = usuarioDB.Imagen;
+                        }
+
+                        usuario.Rol = new Rol();
+                        usuario.Rol.IdRol = ddlRol.SelectedValue != "0" ? Convert.ToInt32(ddlRol.SelectedValue) : usuarioDB.Rol.IdRol;
+
+                        if (ddlMedico.SelectedValue != "0")
+                        {
+                            usuario.Medico = new Medico();
+                            usuario.Medico.IdMedico = Convert.ToInt32(ddlMedico.SelectedValue);
+                        }
+                        else
+                        {
+                            usuario.Medico = usuarioDB.Medico;
+                        }
+                    }
+
+                    negocio.Modificar(usuario);
+
+                    Session["ImagenTemporal"] = null;
+
+                    if (!string.IsNullOrEmpty(txtPassword.Text))
+                    {
+                        string mensaje = "Contraseña actualizada correctamente.";
+                        string script = $"alert('{mensaje}'); window.location='ListaUsuarios.aspx';";
+                        ScriptManager.RegisterClientScriptBlock((Control)sender, sender.GetType(), "alertPassword", script, true);
+                        return;
                     }
                 }
                 else
                 {
-                    // Si es un usuario nuevo, forzamos que nazca ACTIVO (true)
                     usuario.Activo = true;
-                }
+                    usuario.Nombre = txtNombre.Text.Trim();
+                    usuario.Apellido = txtApellido.Text.Trim();
+                    usuario.NombreUsuario = txtNombreUsuario.Text.Trim();
+                    usuario.Email = txtEmail.Text.Trim();
+                    usuario.PasswordHash = txtPassword.Text;
 
-                usuario.Nombre = txtNombre.Text.Trim();
-                usuario.Apellido = txtApellido.Text.Trim();
-                usuario.NombreUsuario = txtNombreUsuario.Text.Trim();
-                usuario.Email = txtEmail.Text.Trim();
-                usuario.PasswordHash = txtPassword.Text;
+                    if (Session["ImagenTemporal"] != null)
+                    {
+                        usuario.Imagen = (byte[])Session["ImagenTemporal"];
+                    }
+                    else if (fileImagen.HasFile)
+                    {
+                        usuario.Imagen = fileImagen.FileBytes;
+                    }
 
-                if (fileImagen.HasFile)
-                {
-                    usuario.Imagen = fileImagen.FileBytes;
-                }
-                else if (usuario.IdUsuario > 0)
-                {
-                    Usuario usuarioActual = negocio.ObtenerPorId(usuario.IdUsuario);
-                    usuario.Imagen = usuarioActual?.Imagen;
-                }
-                else
-                {
-                    usuario.Imagen = null;
-                }
+                    usuario.Rol = new Rol { IdRol = Convert.ToInt32(ddlRol.SelectedValue) };
 
-                usuario.Rol = new Rol();
-                usuario.Rol.IdRol = Convert.ToInt32(ddlRol.SelectedValue);
+                    if (ddlMedico.SelectedValue != "0")
+                    {
+                        usuario.Medico = new Medico { IdMedico = Convert.ToInt32(ddlMedico.SelectedValue) };
+                    }
 
-                if (ddlMedico.SelectedValue != "0")
-                {
-                    usuario.Medico = new Medico();
-                    usuario.Medico.IdMedico = Convert.ToInt32(ddlMedico.SelectedValue);
-                }
-                else
-                {
-                    usuario.Medico = null;
-                }
-
-                if (usuario.IdUsuario > 0)
-                {
-                    negocio.Modificar(usuario);
-                }
-                else
-                {
                     negocio.Agregar(usuario);
+
+                    Session["ImagenTemporal"] = null;
                 }
 
                 Response.Redirect("ListaUsuarios.aspx");
@@ -162,6 +192,28 @@ namespace TurnosClinica.Web
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
             Response.Redirect("ListaUsuarios.aspx");
+        }
+        protected void btnPrevisualizar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (fileImagen.HasFile)
+                {
+                    // Guardamos los bytes en la Session para que no se pierdan en los PostBacks
+                    Session["ImagenTemporal"] = fileImagen.FileBytes;
+
+                    // Mostramos la imagen en el control de servidor convirtiendo los bytes a Base64
+                    imgPerfil.ImageUrl = "data:image/jpeg;base64," + Convert.ToBase64String(fileImagen.FileBytes);
+
+                    // Hacemos visible la foto y ocultamos el panel de la inicial
+                    imgPerfil.Visible = true;
+                    pnlInicial.Visible = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Session.Add("Error", ex.ToString());
+            }
         }
 
         private void CargarDesplegables()
