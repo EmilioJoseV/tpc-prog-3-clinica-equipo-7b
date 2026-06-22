@@ -7,6 +7,7 @@ namespace TurnosClinica.Negocio
     public class ConfiguracionTurnoNegocio
     {
         private readonly ConfiguracionTurnoDatos configuracionTurnoDatos;
+        private static readonly int duracionMinimaTurno = 5;
 
         public ConfiguracionTurnoNegocio()
         {
@@ -23,11 +24,6 @@ namespace TurnosClinica.Negocio
             {
                 throw ex;
             }
-        }
-
-        public ConfiguracionTurno ObtenerConfiguracionTurno()
-        {
-            return Obtener();
         }
 
         public void Modificar(ConfiguracionTurno configuracionTurno)
@@ -58,9 +54,9 @@ namespace TurnosClinica.Negocio
                 throw new Exception("La configuracion de turno es obligatoria.");
             }
 
-            if (configuracionTurno.DuracionMinutos <= 0)
+            if (configuracionTurno.DuracionMinutos < duracionMinimaTurno)
             {
-                throw new Exception("La duracion del turno debe ser mayor a cero.");
+                throw new Exception($"La duracion del turno debe ser al menos de {duracionMinimaTurno} minutos.");
             }
         }
     }

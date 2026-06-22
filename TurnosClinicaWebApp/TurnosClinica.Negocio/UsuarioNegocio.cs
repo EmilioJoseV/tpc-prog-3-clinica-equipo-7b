@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using AccesoDatosBase = TurnosClinica.AccesoDatos.AccesoDatos;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
@@ -20,7 +19,7 @@ namespace TurnosClinica.Negocio
             usaAccesoCompartido = false;
         }
 
-        public UsuarioNegocio(AccesoDatosBase accesoDatosCompartido)
+        public UsuarioNegocio(TurnosClinica.AccesoDatos.AccesoDatos accesoDatosCompartido)
         {
             usuarioDatos = new UsuarioDatos(accesoDatosCompartido);
             personaNegocio = new PersonaNegocio(accesoDatosCompartido);
@@ -103,28 +102,6 @@ namespace TurnosClinica.Negocio
                 }
 
                 EjecutarOperacion(datos => datos.Desactivar(idUsuario));
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public void EliminarLogico(int idUsuario)
-        {
-            Desactivar(idUsuario);
-        }
-
-        public void Activar(int idUsuario)
-        {
-            try
-            {
-                if (idUsuario <= 0)
-                {
-                    throw new ArgumentException("ID de usuario no valido para activacion.");
-                }
-
-                EjecutarOperacion(datos => datos.AltaLogica(idUsuario));
             }
             catch (Exception ex)
             {

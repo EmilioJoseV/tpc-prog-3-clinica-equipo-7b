@@ -87,7 +87,7 @@ namespace TurnosClinica.Web
 
                     int id = int.Parse(Request.QueryString["id"]);
                     TurnosClinica.Negocio.EspecialidadNegocio negocio = new TurnosClinica.Negocio.EspecialidadNegocio();
-                    negocio.Eliminar(id);
+                    negocio.Desactivar(id);
                     Response.Redirect("ListaEspecialidades.aspx", false);
                 }
             }

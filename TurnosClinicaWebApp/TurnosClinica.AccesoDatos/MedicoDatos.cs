@@ -56,6 +56,7 @@ namespace TurnosClinica.AccesoDatos
                 if (accesoDatos.Lector.Read())
                 {
                     medico = MapearFilaAEntidad(accesoDatos.Lector);
+                    CargarDetalleMedico(medico);
                 }
 
                 return medico;
@@ -239,7 +240,9 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.ejecutarLectura();
                 while (accesoDatos.Lector.Read())
                 {
-                    medicos.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                    Medico medico = MapearFilaAEntidad(accesoDatos.Lector);
+                    CargarDetalleMedico(medico);
+                    medicos.Add(medico);
                 }
 
                 return medicos;
@@ -256,7 +259,7 @@ namespace TurnosClinica.AccesoDatos
 
         public Medico MapearFilaAEntidad(SqlDataReader fila)
         {
-            Medico medico = new Medico
+            return new Medico
             {
                 IdMedico = Convert.ToInt32(fila["IdMedico"]),
                 IdPersona = Convert.ToInt32(fila["IdPersona"]),
@@ -268,17 +271,20 @@ namespace TurnosClinica.AccesoDatos
                 Email = fila["Email"].ToString(),
                 Activo = Convert.ToBoolean(fila["Activo"])
             };
+        }
 
-            if (medico.IdMedico > 0)
+        private void CargarDetalleMedico(Medico medico)
+        {
+            if (medico == null || medico.IdMedico <= 0)
             {
-                MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos();
-                HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos();
-
-                medico.Especialidades = especialidadesDatos.ListarPorMedico(medico.IdMedico);
-                medico.HorariosDisponibilidad = horariosDatos.ListarPorMedico(medico.IdMedico);
+                return;
             }
 
-            return medico;
+            MedicoEspecialidadesDatos especialidadesDatos = new MedicoEspecialidadesDatos();
+            HorarioDisponibilidadMedicoDatos horariosDatos = new HorarioDisponibilidadMedicoDatos();
+
+            medico.Especialidades = especialidadesDatos.ListarPorMedico(medico.IdMedico);
+            medico.HorariosDisponibilidad = horariosDatos.ListarPorMedico(medico.IdMedico);
         }
     }
 }

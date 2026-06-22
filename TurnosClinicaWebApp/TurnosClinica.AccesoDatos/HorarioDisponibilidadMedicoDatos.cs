@@ -21,12 +21,12 @@ namespace TurnosClinica.AccesoDatos
             accesoDatos = accesoDatosCompartido;
         }
 
-        public List<HorarioDisponibilidadMedico> Listar(int? idMedico, DiaSemanaEnum? diaSemana, TimeSpan? horaDesde, TimeSpan? horaHasta, bool? activo)
+        public List<HorarioDisponibilidadMedico> Listar(int? idMedico, DiaSemanaEnum? diaSemana, TimeSpan? horaDesde, TimeSpan? horaHasta)
         {
             List<HorarioDisponibilidadMedico> horarios = new List<HorarioDisponibilidadMedico>();
             try
             {
-                string consulta = "SELECT IdHorarioDisponiblidadMedico, IdMedico, DiaSemana, HoraDesde, HoraHasta, Activo"
+                string consulta = "SELECT IdHorarioDisponiblidadMedico, IdMedico, DiaSemana, HoraDesde, HoraHasta"
                     + " FROM HorariosDisponiblidadMedicos WHERE 1=1";
 
                 if (idMedico.HasValue)
@@ -49,11 +49,6 @@ namespace TurnosClinica.AccesoDatos
                     consulta += " AND HoraHasta <= @horaHasta";
                 }
 
-                if (activo.HasValue)
-                {
-                    consulta += " AND Activo = @activo";
-                }
-
                 consulta += " ORDER BY DiaSemana, HoraDesde";
 
                 accesoDatos.setearConsulta(consulta);
@@ -73,11 +68,6 @@ namespace TurnosClinica.AccesoDatos
                 {
                     accesoDatos.setearParametro("@horaHasta", horaHasta.Value);
                 }
-                if (activo.HasValue)
-                {
-                    accesoDatos.setearParametro("@activo", activo.Value);
-                }
-
                 accesoDatos.ejecutarLectura();
                 while (accesoDatos.Lector.Read())
                 {
@@ -98,7 +88,7 @@ namespace TurnosClinica.AccesoDatos
 
         public List<HorarioDisponibilidadMedico> ListarPorMedico(int idMedico)
         {
-            return Listar(idMedico, null, null, null, null);
+            return Listar(idMedico, null, null, null);
         }
 
         public void Agregar(HorarioDisponibilidadMedico horarioDisponibilidadMedico)
@@ -111,13 +101,12 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 datosCompartidos.setearConsulta(
-                    "INSERT INTO HorariosDisponiblidadMedicos (IdMedico, DiaSemana, HoraDesde, HoraHasta, Activo)"
-                    + " VALUES (@idMedico, @diaSemana, @horaDesde, @horaHasta, @activo)");
+                    "INSERT INTO HorariosDisponiblidadMedicos (IdMedico, DiaSemana, HoraDesde, HoraHasta)"
+                    + " VALUES (@idMedico, @diaSemana, @horaDesde, @horaHasta)");
                 datosCompartidos.setearParametro("@idMedico", horarioDisponibilidadMedico.IdMedico);
                 datosCompartidos.setearParametro("@diaSemana", horarioDisponibilidadMedico.DiaSemana);
                 datosCompartidos.setearParametro("@horaDesde", horarioDisponibilidadMedico.HoraDesde);
                 datosCompartidos.setearParametro("@horaHasta", horarioDisponibilidadMedico.HoraHasta);
-                datosCompartidos.setearParametro("@activo", horarioDisponibilidadMedico.Activo);
                 datosCompartidos.ejecutarAccion();
                 return;
             }
@@ -192,13 +181,12 @@ namespace TurnosClinica.AccesoDatos
             {
                 accesoDatos.setearConsulta(
                     "UPDATE HorariosDisponiblidadMedicos"
-                    + " SET IdMedico = @idMedico, DiaSemana = @diaSemana, HoraDesde = @horaDesde, HoraHasta = @horaHasta, Activo = @activo"
+                    + " SET IdMedico = @idMedico, DiaSemana = @diaSemana, HoraDesde = @horaDesde, HoraHasta = @horaHasta"
                     + " WHERE IdHorarioDisponiblidadMedico = @idHorarioDisponiblidadMedico");
                 accesoDatos.setearParametro("@idMedico", horarioDisponibilidadMedico.IdMedico);
                 accesoDatos.setearParametro("@diaSemana", horarioDisponibilidadMedico.DiaSemana);
                 accesoDatos.setearParametro("@horaDesde", horarioDisponibilidadMedico.HoraDesde);
                 accesoDatos.setearParametro("@horaHasta", horarioDisponibilidadMedico.HoraHasta);
-                accesoDatos.setearParametro("@activo", horarioDisponibilidadMedico.Activo);
                 accesoDatos.setearParametro("@idHorarioDisponiblidadMedico", horarioDisponibilidadMedico.IdHorarioDisponibilidadMedico);
                 accesoDatos.ejecutarAccion();
                 return;
@@ -221,7 +209,6 @@ namespace TurnosClinica.AccesoDatos
             horario.DiaSemana = (DiaSemanaEnum)Convert.ToInt32(fila["DiaSemana"]);
             horario.HoraDesde = TimeSpan.Parse(fila["HoraDesde"].ToString());
             horario.HoraHasta = TimeSpan.Parse(fila["HoraHasta"].ToString());
-            horario.Activo = Convert.ToBoolean(fila["Activo"]);
             return horario;
         }
     }

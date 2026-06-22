@@ -90,40 +90,6 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public EstadoUsuario ObtenerPorId(int idEstadoUsuario)
-        {
-            if (idEstadoUsuario <= 0)
-            {
-                return null;
-            }
-
-            EstadoUsuario estadoUsuario = null;
-            try
-            {
-                accesoDatos.setearConsulta(
-                    "SELECT IdEstadoUsuario, Nombre, Descripcion, Activo"
-                    + " FROM EstadosUsuario"
-                    + " WHERE IdEstadoUsuario = @idEstadoUsuario");
-                accesoDatos.setearParametro("@idEstadoUsuario", idEstadoUsuario);
-                accesoDatos.ejecutarLectura();
-
-                if (accesoDatos.Lector.Read())
-                {
-                    estadoUsuario = MapearFilaAEntidad(accesoDatos.Lector);
-                }
-
-                return estadoUsuario;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                accesoDatos.cerrarConexion();
-            }
-        }
-
         private EstadoUsuario MapearFilaAEntidad(SqlDataReader fila)
         {
             return new EstadoUsuario

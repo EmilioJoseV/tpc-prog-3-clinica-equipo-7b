@@ -14,7 +14,7 @@ namespace TurnosClinica.Negocio
             especialidadDatos = new EspecialidadDatos();
         }
 
-        public List<Especialidad> Listar(bool activo)
+        public List<Especialidad> Listar(bool? activo = null)
         {
             try
             {
@@ -68,8 +68,8 @@ namespace TurnosClinica.Negocio
                 try
                 {
                     transaccionDatos.IniciarTransaccion();
-                    EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
-                    datos.Modificar(especialidad);
+                    EspecialidadDatos especialidadDatos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
+                    especialidadDatos.Modificar(especialidad);
                     transaccionDatos.Confirmar();
                 }
                 catch (Exception ex)
@@ -95,7 +95,7 @@ namespace TurnosClinica.Negocio
                     {
                         transaccionDatos.IniciarTransaccion();
                         EspecialidadDatos datos = new EspecialidadDatos(transaccionDatos.AccesoDatos);
-                        datos.Eliminar(id);
+                        datos.Desactivar(id);
                         transaccionDatos.Confirmar();
                     }
                     catch (Exception ex)
@@ -109,11 +109,6 @@ namespace TurnosClinica.Negocio
             {
                 throw ex;
             }
-        }
-
-        public void Eliminar(int id)
-        {
-            Desactivar(id);
         }
 
         private void ValidarEspecialidad(Especialidad especialidad)

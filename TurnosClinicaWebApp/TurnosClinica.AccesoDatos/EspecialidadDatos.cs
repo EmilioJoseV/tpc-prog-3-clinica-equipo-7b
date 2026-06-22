@@ -58,11 +58,6 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public List<Especialidad> ListarPorMedico(int idMedico, bool? activo)
-        {
-            return medicoEspecialidadesDatos.ListarPorMedico(idMedico);
-        }
-
         public Especialidad ObtenerPorId(int idEspecialidad)
         {
             Especialidad especialidad = new Especialidad();
@@ -166,7 +161,7 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.cerrarConexion();
             }
         }
-        public void Eliminar(int idEspecialidad)
+        public void Desactivar(int idEspecialidad)
         {
             try
             { 

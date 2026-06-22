@@ -69,9 +69,6 @@
                             <asp:Label ID="LblHoraHasta" runat="server" Text="Hora hasta" CssClass="form-label" />
                             <asp:TextBox ID="TxtHoraHasta" runat="server" CssClass="form-control" />
                         </div>
-                        <div class="col-12 col-md-2">
-                            <asp:CheckBox ID="ChkHorarioActivo" runat="server" Text="Activo" Checked="true" />
-                        </div>
                         <div class="col-12 col-md-1">
                             <asp:Button ID="BtnAgregarHorario" runat="server" CssClass="btn btn-outline-primary" Text="Agregar" OnClick="BtnAgregarHorario_Click" />
                         </div>
@@ -86,8 +83,7 @@
                                             <th>Dia</th>
                                             <th>Desde</th>
                                             <th>Hasta</th>
-                                            <th>Estado</th>
-                                            <th>Activo</th>
+                                            <th>Accion</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
@@ -98,9 +94,8 @@
                                             <td><%# ObtenerDiaSemanaTexto(Eval("DiaSemana")) %></td>
                                             <td><%# FormatearHora(Eval("HoraDesde")) %></td>
                                             <td><%# FormatearHora(Eval("HoraHasta")) %></td>
-                                            <td><%# ((bool)Eval("Activo")) ? "Activo" : "Inactivo" %></td>
                                             <td>
-                                                <asp:CheckBox ID="ChkHorarioActivo" runat="server" Checked='<%# Convert.ToBoolean(Eval("Activo")) %>' />
+                                                <asp:LinkButton ID="BtnEditarHorario" runat="server" CssClass="btn btn-outline-secondary" CommandName="EditarHorario" CommandArgument='<%# Container.ItemIndex %>'>Editar</asp:LinkButton>
                                             </td>
                                             <td>
                                                 <asp:LinkButton ID="BtnEliminarHorario" runat="server" CssClass="btn btn-outline-danger" CommandName="EliminarHorario" CommandArgument='<%# Container.ItemIndex %>'>Quitar</asp:LinkButton>

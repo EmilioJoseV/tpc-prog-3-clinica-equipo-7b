@@ -25,7 +25,7 @@ namespace TurnosClinica.Web
                 {
                     int idEliminar = int.Parse(Request.QueryString["idBaja"]);
 
-                    negocio.Eliminar(idEliminar);
+                    negocio.Desactivar(idEliminar);
                 }
 
 

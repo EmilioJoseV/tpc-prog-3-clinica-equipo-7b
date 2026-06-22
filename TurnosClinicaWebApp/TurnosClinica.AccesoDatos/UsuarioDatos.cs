@@ -34,16 +34,7 @@ namespace TurnosClinica.AccesoDatos
             List<Usuario> usuarios = new List<Usuario>();
             try
             {
-                string consulta = "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, "
-                    + "       U.IdRol, U.IdEstadoUsuario, "
-                    + "       P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email, "
-                    + "       R.Nombre AS NombreRol, "
-                    + "       EU.Nombre AS NombreEstadoUsuario "
-                    + "FROM Usuarios U "
-                    + "INNER JOIN Personas P ON U.IdPersona = P.IdPersona "
-                    + "INNER JOIN Roles R ON U.IdRol = R.IdRol "
-                    + "INNER JOIN EstadosUsuario EU ON U.IdEstadoUsuario = EU.IdEstadoUsuario "
-                    + "WHERE 1=1";
+                string consulta = ObtenerConsultaBase() + " WHERE 1=1";
 
                 if (!string.IsNullOrWhiteSpace(rolLiteral))
                 {
@@ -91,14 +82,7 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, U.IdRol, U.IdEstadoUsuario,"
-                    + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email,"
-                    + " R.Nombre AS NombreRol,"
-                    + " EU.Nombre AS NombreEstadoUsuario"
-                    + " FROM Usuarios U"
-                    + " INNER JOIN Personas P ON U.IdPersona = P.IdPersona"
-                    + " INNER JOIN Roles R ON U.IdRol = R.IdRol"
-                    + " INNER JOIN EstadosUsuario EU ON U.IdEstadoUsuario = EU.IdEstadoUsuario"
+                    ObtenerConsultaBase()
                     + " WHERE U.IdUsuario = @idUsuario");
                 accesoDatos.setearParametro("@idUsuario", idUsuario);
                 accesoDatos.ejecutarLectura();
@@ -126,14 +110,7 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, U.IdRol, U.IdEstadoUsuario,"
-                    + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email,"
-                    + " R.Nombre AS NombreRol,"
-                    + " EU.Nombre AS NombreEstadoUsuario"
-                    + " FROM Usuarios U"
-                    + " INNER JOIN Personas P ON U.IdPersona = P.IdPersona"
-                    + " INNER JOIN Roles R ON U.IdRol = R.IdRol"
-                    + " INNER JOIN EstadosUsuario EU ON U.IdEstadoUsuario = EU.IdEstadoUsuario"
+                    ObtenerConsultaBase()
                     + " WHERE U.IdPersona = @idPersona");
                 accesoDatos.setearParametro("@idPersona", idPersona);
                 accesoDatos.ejecutarLectura();
@@ -160,14 +137,7 @@ namespace TurnosClinica.AccesoDatos
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, U.IdRol, U.IdEstadoUsuario,"
-                    + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email,"
-                    + " R.Nombre AS NombreRol,"
-                    + " EU.Nombre AS NombreEstadoUsuario"
-                    + " FROM Usuarios U"
-                    + " INNER JOIN Personas P ON U.IdPersona = P.IdPersona"
-                    + " INNER JOIN Roles R ON U.IdRol = R.IdRol"
-                    + " INNER JOIN EstadosUsuario EU ON U.IdEstadoUsuario = EU.IdEstadoUsuario"
+                    ObtenerConsultaBase()
                     + " WHERE U.NombreUsuario = @nombreUsuario"
                     + " AND U.PasswordHash = @password"
                     + " AND UPPER(EU.Nombre) = UPPER(@estadoUsuarioActivo)");
@@ -370,17 +340,9 @@ namespace TurnosClinica.AccesoDatos
                 Email = fila["Email"].ToString(),
                 PasswordHash = fila["PasswordHash"] is DBNull ? null : fila["PasswordHash"].ToString(),
                 Imagen = fila["Imagen"] is DBNull ? null : (byte[])fila["Imagen"],
+                Rol = MapearRol(fila),
+                EstadoUsuario = MapearEstadoUsuario(fila)
             };
-
-            if (fila["IdRol"] != DBNull.Value)
-            {
-                usuario.Rol = rolDatos.ObtenerPorId(Convert.ToInt32(fila["IdRol"]));
-            }
-
-            if (fila["IdEstadoUsuario"] != DBNull.Value)
-            {
-                usuario.EstadoUsuario = estadoUsuarioDatos.ObtenerPorId(Convert.ToInt32(fila["IdEstadoUsuario"]));
-            }
 
             return usuario;
         }
@@ -392,5 +354,49 @@ namespace TurnosClinica.AccesoDatos
                 : null);
         }
 
+        private string ObtenerConsultaBase()
+        {
+            return "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen, "
+                + "       U.IdRol, U.IdEstadoUsuario, "
+                + "       P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email, "
+                + "       R.Nombre AS NombreRol, R.Descripcion AS DescripcionRol, R.Activo AS ActivoRol, "
+                + "       EU.Nombre AS NombreEstadoUsuario, EU.Descripcion AS DescripcionEstadoUsuario, EU.Activo AS ActivoEstadoUsuario "
+                + "FROM Usuarios U "
+                + "INNER JOIN Personas P ON U.IdPersona = P.IdPersona "
+                + "INNER JOIN Roles R ON U.IdRol = R.IdRol "
+                + "INNER JOIN EstadosUsuario EU ON U.IdEstadoUsuario = EU.IdEstadoUsuario";
+        }
+
+        private Rol MapearRol(SqlDataReader fila)
+        {
+            if (fila["IdRol"] == DBNull.Value)
+            {
+                return null;
+            }
+
+            return new Rol
+            {
+                IdRol = Convert.ToInt32(fila["IdRol"]),
+                Nombre = fila["NombreRol"] is DBNull ? null : fila["NombreRol"].ToString(),
+                Descripcion = fila["DescripcionRol"] is DBNull ? string.Empty : fila["DescripcionRol"].ToString(),
+                Activo = fila["ActivoRol"] is DBNull ? false : Convert.ToBoolean(fila["ActivoRol"])
+            };
+        }
+
+        private EstadoUsuario MapearEstadoUsuario(SqlDataReader fila)
+        {
+            if (fila["IdEstadoUsuario"] == DBNull.Value)
+            {
+                return null;
+            }
+
+            return new EstadoUsuario
+            {
+                IdEstadoUsuario = Convert.ToInt32(fila["IdEstadoUsuario"]),
+                Nombre = fila["NombreEstadoUsuario"] is DBNull ? null : fila["NombreEstadoUsuario"].ToString(),
+                Descripcion = fila["DescripcionEstadoUsuario"] is DBNull ? string.Empty : fila["DescripcionEstadoUsuario"].ToString(),
+                Activo = fila["ActivoEstadoUsuario"] is DBNull ? false : Convert.ToBoolean(fila["ActivoEstadoUsuario"])
+            };
+        }
     }
 }
