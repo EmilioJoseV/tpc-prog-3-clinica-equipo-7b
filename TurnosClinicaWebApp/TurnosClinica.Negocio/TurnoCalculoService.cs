@@ -55,7 +55,6 @@ namespace TurnosClinica.Negocio
 
                 List<HorarioDisponibilidadMedico> horariosDelDia = horarioDisponibilidadMedicoNegocio.ListarPorMedico(medico.IdMedico)
                     .Where(horario => horario.DiaSemana == diaSemana)
-                    .OrderBy(horario => horario.HoraDesde)
                     .ToList();
 
                 if (horariosDelDia.Count == 0)
@@ -85,6 +84,31 @@ namespace TurnosClinica.Negocio
                 })
                 .Select(grupo => grupo.First())
                 .ToList();
+        }
+
+        public List<TurnoDisponibleDTO> ListarTurnosDisponiblesMasProximos(
+            int idEspecialidad,
+            DateTime fechaDesde)
+        {
+            ValidarConsulta(idEspecialidad, fechaDesde);
+
+            DateTime fechaLimite = DateTime.Today.AddDays(DiasMaximosAnticipacion);
+            DateTime fechaConsulta = fechaDesde.Date;
+
+            while (fechaConsulta <= fechaLimite)
+            {
+                List<TurnoDisponibleDTO> disponibles =
+                    ListarTurnosDisponibles(idEspecialidad, fechaConsulta);
+
+                if (disponibles.Count > 0)
+                {
+                    return disponibles;
+                }
+
+                fechaConsulta = fechaConsulta.AddDays(1);
+            }
+
+            return new List<TurnoDisponibleDTO>();
         }
 
         private void ValidarConsulta(int idEspecialidad, DateTime fechaConsulta)
@@ -156,8 +180,10 @@ namespace TurnosClinica.Negocio
             while (horaActual.Add(duracion) <= horario.HoraHasta)
             {
                 TimeSpan horaFin = horaActual.Add(duracion);
+                DateTime inicioTurno = fecha.Date.Add(horaActual);
 
-                if (!turnosOcupados.Any(turno => SeSuperpone(turno.HoraInicio, turno.HoraFin, horaActual, horaFin)))
+                if (inicioTurno > DateTime.Now
+                    && !turnosOcupados.Any(turno => SeSuperpone(turno.HoraInicio, turno.HoraFin, horaActual, horaFin)))
                 {
                     turnos.Add(new TurnoDisponibleDTO
                     {

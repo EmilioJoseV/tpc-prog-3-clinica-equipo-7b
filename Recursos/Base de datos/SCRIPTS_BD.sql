@@ -203,7 +203,6 @@ GO
 CREATE TABLE dbo.Turnos
 (
     IdTurno INT IDENTITY(1,1) NOT NULL,
-    NumeroTurno VARCHAR(20) NOT NULL,
 
     IdPaciente INT NOT NULL,
     IdMedico INT NOT NULL,
@@ -223,9 +222,6 @@ CREATE TABLE dbo.Turnos
     IdUsuarioModificacion INT NULL,
 
     CONSTRAINT PK_Turnos PRIMARY KEY (IdTurno),
-    CONSTRAINT UQ_Turnos_NumeroTurno UNIQUE (NumeroTurno),
-    CONSTRAINT UQ_Turnos_Medico_FechaHora UNIQUE (IdMedico, FechaTurno, HoraInicio),
-    CONSTRAINT UQ_Turnos_Paciente_FechaHora UNIQUE (IdPaciente, FechaTurno, HoraInicio),
 
     CONSTRAINT FK_Turnos_Pacientes
         FOREIGN KEY (IdPaciente)
@@ -251,7 +247,6 @@ CREATE TABLE dbo.Turnos
         FOREIGN KEY (IdUsuarioModificacion)
         REFERENCES dbo.Usuarios(IdUsuario),
 
-    CONSTRAINT CK_Turnos_NumeroTurno_NoVacio CHECK (LEN(LTRIM(RTRIM(NumeroTurno))) > 0),
     CONSTRAINT CK_Turnos_HorarioValido CHECK (HoraFin > HoraInicio),
     CONSTRAINT CK_Turnos_Observaciones_NoVacio CHECK (LEN(LTRIM(RTRIM(Observaciones))) > 0)
 );
@@ -408,16 +403,22 @@ INSERT INTO dbo.Usuarios
     IdEstadoUsuario
 )
 VALUES
-(11, NULL, NULL, NULL, 1, 1),
-(12, NULL, NULL, NULL, 2, 1),
-(6, NULL, NULL, NULL, 3, 1),
-(7, NULL, NULL, NULL, 3, 1),
-(10, NULL, NULL, NULL, 3, 1);
+(11, 'admin', '3b612c75a7b5048a435fb6ec81e52ff92d6d795a8b5a9c17070f6a63c97a53b2', NULL, 1, 2), -- La clave sin encriptar para pruebitas es: Admin123
+(12, 'recepcion', '0c01954c0f4f6bbda12d86eaecbd6a524225a0cad0fac52e6aaf4c237f7f9cbe', NULL, 2, 2), -- La clave sin encriptar para pruebitas es: Recep123
+(6, 'medico1', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2), -- La clave sin encriptar para pruebitas es: Medico123
+(7, 'medico2', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2), -- La clave sin encriptar para pruebitas es: Medico123
+(8, 'medico3', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2), -- La clave sin encriptar para pruebitas es: Medico123
+(9, 'medico4', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2), -- La clave sin encriptar para pruebitas es: Medico123
+(10, 'medico5', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2), -- La clave sin encriptar para pruebitas es: Medico123
+(1, 'paciente1', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- La clave sin encriptar para pruebitas es: Paciente123
+(2, 'paciente2', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- La clave sin encriptar para pruebitas es: Paciente123
+(3, 'paciente3', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- La clave sin encriptar para pruebitas es: Paciente123
+(4, 'paciente4', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- La clave sin encriptar para pruebitas es: Paciente123
+(5, 'paciente5', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2); -- La clave sin encriptar para pruebitas es: Paciente123
 GO
 
 INSERT INTO dbo.Turnos
 (
-    NumeroTurno,
     IdPaciente,
     IdMedico,
     IdEspecialidad,
@@ -432,12 +433,13 @@ INSERT INTO dbo.Turnos
     IdUsuarioModificacion
 )
 VALUES
-('T-000001', 1, 1, 1, 1, '2026-06-01', '09:00', '10:00', 'Dolor de cabeza constante', NULL, 2, NULL, NULL),
-('T-000002', 2, 2, 3, 1, '2026-06-02', '14:00', '15:00', 'Dolor de muela', NULL, 2, NULL, NULL),
-('T-000003', 3, 3, 4, 2, '2026-06-03', '10:00', '11:00', 'Control pediatrico reprogramado', NULL, 2, GETDATE(), 2),
-('T-000004', 4, 4, 5, 3, '2026-06-04', '08:00', '09:00', 'Molestia en rodilla - turno cancelado', NULL, 2, GETDATE(), 2),
-('T-000005', 5, 5, 2, 5, '2026-06-05', '10:00', '11:00', 'Control cardiologico', 'Paciente evaluada. Se solicita control posterior.', 2, GETDATE(), 5);
+(1, 1, 1, 1, '2026-06-01', '09:00', '10:00', 'Dolor de cabeza constante', NULL, 2, NULL, NULL), -- Numero de turno: T-001
+(2, 2, 3, 1, '2026-06-02', '14:00', '15:00', 'Dolor de muela', NULL, 2, NULL, NULL), -- Numero de turno: T-002
+(3, 3, 4, 2, '2026-06-03', '10:00', '11:00', 'Control pediatrico reprogramado', NULL, 2, GETDATE(), 2), -- Numero de turno: T-003
+(4, 4, 5, 3, '2026-06-04', '08:00', '09:00', 'Molestia en rodilla - turno cancelado', NULL, 2, GETDATE(), 2), -- Numero de turno: T-004
+(5, 5, 2, 5, '2026-06-05', '10:00', '11:00', 'Control cardiologico', 'Paciente evaluada. Se solicita control posterior.', 2, GETDATE(), 5); -- Numero de turno: T-005
 GO
 
 SELECT 'Base de datos creada OK...' AS Resultado;
 GO
+

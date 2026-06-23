@@ -8,5 +8,21 @@ namespace TurnosClinica.Web
 {
     public partial class FormularioTurno
     {
+        protected global::System.Web.UI.WebControls.DropDownList DdlPaciente;
+        protected global::System.Web.UI.WebControls.DropDownList DdlEspecialidad;
+        protected global::System.Web.UI.WebControls.CheckBox ChkBuscarPorFecha;
+        protected global::System.Web.UI.WebControls.CheckBox ChkBuscarProximo;
+        protected global::System.Web.UI.WebControls.TextBox TxtFecha;
+        protected global::System.Web.UI.WebControls.Button BtnBuscar;
+        protected global::System.Web.UI.WebControls.Panel PnlDisponibilidad;
+        protected global::System.Web.UI.WebControls.GridView DgvDisponibilidad;
+        protected global::System.Web.UI.WebControls.HiddenField HfIdMedicoSeleccionado;
+        protected global::System.Web.UI.WebControls.HiddenField HfHoraInicio;
+        protected global::System.Web.UI.WebControls.HiddenField HfHoraFin;
+        protected global::System.Web.UI.WebControls.Panel PnlSeleccion;
+        protected global::System.Web.UI.WebControls.Label LblSeleccion;
+        protected global::System.Web.UI.WebControls.TextBox TxtObservaciones;
+        protected global::System.Web.UI.WebControls.Button BtnGuardar;
+        protected global::System.Web.UI.WebControls.Button BtnCancelar;
     }
 }

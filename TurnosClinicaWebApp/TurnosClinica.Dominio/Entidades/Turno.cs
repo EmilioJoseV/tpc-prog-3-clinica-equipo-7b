@@ -5,7 +5,10 @@ namespace TurnosClinica.Dominio.Entidades
     public class Turno
     {
         public int IdTurno { get; set; }
-        public string NumeroTurno { get; set; }
+        public string NumeroTurno
+        {
+            get { return "T-" + IdTurno.ToString("D3"); }
+        }
         public DateTime FechaTurno { get; set; }
         public TimeSpan HoraInicio { get; set; }
         public TimeSpan HoraFin { get; set; }

@@ -152,7 +152,7 @@ namespace TurnosClinica.AccesoDatos
             {
                 accesoDatos.setearConsulta(
                     ObtenerConsultaBase()
-                    + " WHERE U.NombreUsuario = @nombreUsuario"
+                    + " WHERE UPPER(U.NombreUsuario) = UPPER(@nombreUsuario)"
                     + " AND U.PasswordHash = @password"
                     + " AND UPPER(EU.Nombre) = UPPER(@estadoActivo)");
                 accesoDatos.setearParametro("@nombreUsuario", nombreUsuario);

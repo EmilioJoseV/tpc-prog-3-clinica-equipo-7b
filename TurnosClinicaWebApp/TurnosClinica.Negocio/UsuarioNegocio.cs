@@ -62,7 +62,8 @@ namespace TurnosClinica.Negocio
                 return null;
             }
 
-            return usuarioDatos.ValidarCredenciales(nombreUsuario.Trim(), password);
+            string passwordHash = new SeguridadService().CalcularHash(password);
+            return usuarioDatos.ValidarCredenciales(nombreUsuario.Trim(), passwordHash);
         }
 
         public void Agregar(Usuario usuario)
