@@ -94,9 +94,7 @@ namespace TurnosClinica.Web
 
         private void MostrarError(Exception ex)
         {
-            Session.Add("error", ex.ToString());
-            Response.Redirect("../Error.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
+            ((MasterLayout)Master).MostrarError(ex.Message);
         }
     }
 }

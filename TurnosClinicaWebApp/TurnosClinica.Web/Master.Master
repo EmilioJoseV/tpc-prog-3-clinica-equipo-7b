@@ -44,6 +44,12 @@
 
         <div class="container">
             <hr />
+            <asp:Panel ID="PnlMensajeError" runat="server" Visible="false" EnableViewState="false"
+                CssClass="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>No se pudo completar la operacion</strong>
+                <asp:Label ID="LblMensajeError" runat="server" CssClass="d-block mt-1" />
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </asp:Panel>
             <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
             </asp:ContentPlaceHolder>
         </div>

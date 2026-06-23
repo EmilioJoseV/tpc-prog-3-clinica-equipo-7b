@@ -21,9 +21,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("../Error.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                ((MasterLayout)Master).MostrarError(ex.Message);
             }
         }
 
@@ -62,9 +60,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("../Error.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                ((MasterLayout)Master).MostrarError(ex.Message);
             }
         }
 
