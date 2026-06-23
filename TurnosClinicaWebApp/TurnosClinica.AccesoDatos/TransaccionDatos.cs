@@ -9,12 +9,10 @@ namespace TurnosClinica.AccesoDatos
     {
         private readonly SqlConnection conexion;
         private SqlTransaction transaccion;
-        public AccesoDatos AccesoDatos { get; private set; }
 
         public TransaccionDatos()
         {
             conexion = new SqlConnection(ConfigurationManager.AppSettings["cadenaConexion"]);
-            AccesoDatos = new AccesoDatos(conexion, transaccion);
         }
 
         public void IniciarTransaccion()
@@ -25,7 +23,16 @@ namespace TurnosClinica.AccesoDatos
             }
 
             transaccion = conexion.BeginTransaction();
-            AccesoDatos = new AccesoDatos(conexion, transaccion);
+        }
+
+        public AccesoDatosBase CrearAccesoDatos()
+        {
+            if (transaccion == null)
+            {
+                throw new InvalidOperationException("La transaccion no fue iniciada.");
+            }
+
+            return new AccesoDatosBase(conexion, transaccion);
         }
 
         public void Confirmar()
@@ -64,7 +71,6 @@ namespace TurnosClinica.AccesoDatos
         {
             transaccion.Dispose();
             transaccion = null;
-            AccesoDatos = new AccesoDatos(conexion, transaccion);
         }
     }
 }

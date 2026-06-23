@@ -1,141 +1,325 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Negocio
 {
-    public class UsuarioNegocio
+    public class UsuarioNegocio : IEntidadGestionableNegocio<Usuario>
     {
         private readonly UsuarioDatos usuarioDatos;
 
         public UsuarioNegocio()
         {
-            usuarioDatos = new UsuarioDatos();
+            usuarioDatos = new UsuarioDatos(new AccesoDatosBase());
         }
 
-        public List<Usuario> ListarTodos()
+        public UsuarioNegocio(AccesoDatosBase accesoDatos)
         {
-            try
+            usuarioDatos = new UsuarioDatos(accesoDatos);
+        }
+
+        public List<Usuario> Listar(bool? activo = null)
+        {
+            return usuarioDatos.Listar(activo);
+        }
+
+        public List<Usuario> ListarFiltroRapido(string palabra, bool? activo = null)
+        {
+            return usuarioDatos.ListarFiltroRapido(palabra, activo);
+        }
+
+        public List<Usuario> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
+        {
+            return usuarioDatos.ListarFiltroAvanzado(campo, criterio, filtro, activo);
+        }
+
+        public Usuario ObtenerPorId(int id)
+        {
+            if (id <= 0)
             {
-                return usuarioDatos.Listar(null, null, null);
+                throw new Exception("El id de usuario no es valido.");
             }
-            catch (Exception ex)
+
+            return usuarioDatos.ObtenerPorId(id);
+        }
+
+        public Usuario ObtenerPorIdPersona(int idPersona)
+        {
+            if (idPersona <= 0)
             {
-                throw ex;
+                return null;
             }
+
+            return usuarioDatos.ObtenerPorIdPersona(idPersona);
+        }
+
+        public Usuario ValidarCredenciales(string nombreUsuario, string password)
+        {
+            if (string.IsNullOrWhiteSpace(nombreUsuario) || string.IsNullOrWhiteSpace(password))
+            {
+                return null;
+            }
+
+            return usuarioDatos.ValidarCredenciales(nombreUsuario.Trim(), password);
         }
 
         public void Agregar(Usuario usuario)
         {
-            try
+            PrepararEstadoInicial(usuario);
+            ValidarAlta(usuario);
+            usuarioDatos.Agregar(usuario);
+        }
+
+        public void AgregarConPersona(Usuario usuario)
+        {
+            ValidarRolAdministrativo(usuario);
+            PrepararEstadoInicial(usuario);
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
-                if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
-                    throw new Exception("El nombre de usuario es obligatorio.");
+                try
+                {
+                    manejador.Iniciar();
 
-                if (string.IsNullOrWhiteSpace(usuario.Email))
-                    throw new Exception("El correo electrónico es obligatorio.");
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
 
-                if (usuario.Rol == null || usuario.Rol.IdRol <= 0)
-                    throw new Exception("Debe asignar un Rol válido al usuario.");
+                    usuario.Persona.IdPersona = personaNegocio.Agregar(usuario.Persona);
+                    usuarioNegocio.Agregar(usuario);
 
-                usuario.Activo = true;
-                usuarioDatos.Agregar(usuario);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
             }
         }
 
         public void Modificar(Usuario usuario)
         {
-            try
-            {
-                if (usuario.IdUsuario <= 0)
-                    throw new Exception("No se puede modificar un usuario sin un ID válido.");
-
-                if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
-                    throw new Exception("El nombre de usuario no puede quedar vacío.");
-
-                usuarioDatos.Modificar(usuario);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public void EliminarLogico(int idUsuario)
-        {
-            try
-            {
-                if (idUsuario <= 0)
-                    throw new ArgumentException("ID de usuario no válido para eliminación.");
-
-                usuarioDatos.EliminarLogico(idUsuario);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            ValidarModificacion(usuario);
+            usuarioDatos.Modificar(usuario);
         }
 
-        public void AltaLogica(int idUsuario)
+        public void ModificarConPersona(Usuario usuario)
         {
-            try
-            {
-                UsuarioDatos datos = new UsuarioDatos();
+            ValidarRolAdministrativo(usuario);
+            Usuario usuarioActual = ObtenerPorId(usuario.IdUsuario);
+            ValidarUsuarioAdministrativoExistente(usuarioActual);
 
-                datos.AltaLogica(idUsuario);
-            }
-            catch (Exception ex)
+            if (usuario.Persona == null
+                || usuarioActual.Persona.IdPersona != usuario.Persona.IdPersona)
             {
-                throw ex;
+                throw new Exception("La persona asociada al usuario no se puede cambiar.");
+            }
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
+            {
+                try
+                {
+                    manejador.Iniciar();
+
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
+
+                    personaNegocio.Modificar(usuario.Persona);
+                    usuarioNegocio.Modificar(usuario);
+
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
             }
         }
 
-        public void EliminarFisico(int idUsuario)
+        public void Desactivar(int id)
         {
-            try
-            {
-                if (idUsuario <= 0)
-                    throw new ArgumentException("ID de usuario no válido para eliminación.");
+            Usuario usuario = ObtenerPorId(id);
+            ValidarDesactivacion(usuario);
+            usuarioDatos.Desactivar(id);
+        }
 
-                usuarioDatos.EliminarFisico(idUsuario);
-            }
-            catch (Exception ex)
+        public void Activar(int id)
+        {
+            Usuario usuario = ObtenerPorId(id);
+            ValidarActivacion(usuario);
+            usuarioDatos.Activar(id);
+        }
+
+        private void ValidarAlta(Usuario usuario)
+        {
+            ValidarUsuario(usuario);
+
+            if (usuario.Persona.IdPersona <= 0)
             {
-                throw ex;
+                throw new Exception("La persona del usuario debe existir.");
             }
         }
 
-        public List<Usuario> ListarConFiltros(int? idRol, int? idMedico, bool? activo)
+        private void ValidarModificacion(Usuario usuario)
         {
-            try
+            ValidarUsuario(usuario);
+
+            if (usuario.IdUsuario <= 0)
             {
-                return usuarioDatos.Listar(idRol, idMedico, activo);
+                throw new Exception("El id de usuario no es valido.");
             }
-            catch (Exception ex)
+
+            if (usuario.Persona.IdPersona <= 0)
             {
-                throw ex;
+                throw new Exception("La persona del usuario debe existir.");
+            }
+
+            Usuario usuarioActual = ObtenerPorId(usuario.IdUsuario);
+            if (usuarioActual == null)
+            {
+                throw new Exception("El usuario no existe.");
+            }
+
+            if (!EsEstado(usuarioActual, EstadoUsuarioEnum.Inactivo)
+                && EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                ValidarDesactivacion(usuarioActual);
+            }
+
+            if (EsEstado(usuarioActual, EstadoUsuarioEnum.Inactivo)
+                && !EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                ValidarActivacion(usuarioActual);
             }
         }
-        public Usuario ObtenerPorId(int idUsuario)
-        {
-            try
-            {
-                if (idUsuario <= 0)
-                    throw new ArgumentException("El ID de usuario no es válido.");
 
-                return usuarioDatos.ObtenerPorId(idUsuario);
-            }
-            catch (Exception ex)
+        private void ValidarDesactivacion(Usuario usuario)
+        {
+            ValidarUsuarioAdministrativoExistente(usuario);
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
             {
-                throw ex;
+                throw new Exception("El usuario ya esta inactivo.");
             }
+        }
+
+        private void ValidarActivacion(Usuario usuario)
+        {
+            ValidarUsuarioAdministrativoExistente(usuario);
+
+            if (!EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                throw new Exception("El usuario ya esta activo.");
+            }
+
+            if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
+            {
+                throw new Exception("El usuario debe tener un nombre de usuario para poder activarse.");
+            }
+
+            if (string.IsNullOrWhiteSpace(usuario.PasswordHash))
+            {
+                throw new Exception("El usuario debe tener una contrasena para poder activarse.");
+            }
+        }
+
+        private void ValidarUsuario(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                throw new Exception("El usuario es obligatorio.");
+            }
+
+            if (usuario.Persona == null)
+            {
+                throw new Exception("La persona del usuario es obligatoria.");
+            }
+
+            if (usuario.Rol == null
+                || string.IsNullOrWhiteSpace(usuario.Rol.Nombre)
+                || !Enum.TryParse(usuario.Rol.Nombre, true, out RolEnum _))
+            {
+                throw new Exception("Debe asignar un rol valido al usuario.");
+            }
+
+            if (usuario.EstadoUsuario == null
+                || string.IsNullOrWhiteSpace(usuario.EstadoUsuario.Nombre)
+                || !Enum.TryParse(usuario.EstadoUsuario.Nombre, true, out EstadoUsuarioEnum _))
+            {
+                throw new Exception("Debe asignar un estado valido al usuario.");
+            }
+
+            usuario.NombreUsuario = string.IsNullOrWhiteSpace(usuario.NombreUsuario)
+                ? null
+                : usuario.NombreUsuario.Trim();
+            usuario.PasswordHash = string.IsNullOrWhiteSpace(usuario.PasswordHash)
+                ? null
+                : usuario.PasswordHash.Trim();
+
+            if (!string.IsNullOrWhiteSpace(usuario.NombreUsuario)
+                && usuarioDatos.ExisteNombreUsuario(usuario.NombreUsuario, usuario.IdUsuario))
+            {
+                throw new Exception("Ya existe un nombre de usuario registrado con ese valor.");
+            }
+        }
+
+        private void ValidarRolAdministrativo(Usuario usuario)
+        {
+            if (usuario == null || usuario.Rol == null)
+            {
+                throw new Exception("Debe asignar un rol valido al usuario.");
+            }
+
+            bool esAdministrador = string.Equals(
+                usuario.Rol.Nombre,
+                RolEnum.Administrador.ToString(),
+                StringComparison.OrdinalIgnoreCase);
+            bool esRecepcionista = string.Equals(
+                usuario.Rol.Nombre,
+                RolEnum.Recepcionista.ToString(),
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!esAdministrador && !esRecepcionista)
+            {
+                throw new Exception("Solo se pueden administrar usuarios Administrador o Recepcionista.");
+            }
+        }
+
+        private void ValidarUsuarioAdministrativoExistente(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                throw new Exception("El usuario no existe.");
+            }
+
+            ValidarRolAdministrativo(usuario);
+        }
+
+        private void PrepararEstadoInicial(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                throw new Exception("El usuario es obligatorio.");
+            }
+
+            usuario.NombreUsuario = null;
+            usuario.PasswordHash = null;
+            usuario.EstadoUsuario = new EstadoUsuario
+            {
+                Nombre = EstadoUsuarioEnum.Pendiente.ToString()
+            };
+        }
+
+        private bool EsEstado(Usuario usuario, EstadoUsuarioEnum estado)
+        {
+            return usuario.EstadoUsuario != null
+                && string.Equals(
+                    usuario.EstadoUsuario.Nombre,
+                    estado.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
         }
     }
 }

@@ -1,129 +1,151 @@
 using System;
-using System.Collections.Generic;
-using TurnosClinica.Dominio.Entidades;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 using TurnosClinica.Negocio;
-using TurnosClinica.Web;
-using System.Web.UI;
 
 namespace TurnosClinica.Web
 {
     public partial class ListaEspecialidades : Page
     {
-        
-        public List<Especialidad> ListaEspecialidad { get; set; }
-        public bool FiltroAvanzado { get; set; }
+        private readonly EspecialidadNegocio especialidadNegocio = new EspecialidadNegocio();
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            FiltroAvanzado = chkAvanzado.Checked;
-            if (!IsPostBack)
+            try
             {
-                
-                EspecialidadNegocio negocio = new EspecialidadNegocio();
-                if (Request.QueryString["idBaja"] != null)
+                if (!IsPostBack)
                 {
-                    int idEliminar = int.Parse(Request.QueryString["idBaja"]);
-
-                    negocio.Eliminar(idEliminar);
+                    CargarLista();
                 }
-
-
-                Session.Add("listaEspecialidades", negocio.Listar(true));
             }
-
-            
-            ListaEspecialidad = (List<Especialidad>)Session["listaEspecialidades"];
+            catch (Exception ex)
+            {
+                MostrarError(ex);
+            }
         }
 
-        
         protected void txtFiltro_TextChanged(object sender, EventArgs e)
         {
-            // Recupero la lista de la Session
-            List<Especialidad> listaOriginal = (List<Especialidad>)Session["listaEspecialidades"];
+            try
+            {
+                if (chkAvanzado.Checked)
+                {
+                    BuscarAvanzado();
+                    return;
+                }
 
-            // lista con findall 
-            List<Especialidad> listaFiltrada = listaOriginal.FindAll(x =>
-                x.Nombre.ToUpper().Contains(txtFiltro.Text.ToUpper()));
-
-            ListaEspecialidad = listaFiltrada;
+                CargarLista(txtFiltro.Text);
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex);
+            }
         }
+
         protected void chkAvanzado_CheckedChanged(object sender, EventArgs e)
         {
-            FiltroAvanzado = chkAvanzado.Checked;
-            txtFiltro.Enabled = !FiltroAvanzado;
-
-                        if (FiltroAvanzado)
-            {
-                List<Especialidad> lista = (List<Especialidad>)Session["listaEspecialidades"];
-                ddlFiltroNombre.DataSource = lista;
-                ddlFiltroNombre.DataTextField = "Nombre"; 
-                ddlFiltroNombre.DataValueField = "IdEspecialidad"; 
-                ddlFiltroNombre.DataBind();
-                ddlFiltroNombre.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Todas las especialidades", "0"));
-            }
-        }
-
-        protected void btnBuscar_Click(object sender, EventArgs e)
-        {
-            List<Especialidad> listaOriginal = (List<Especialidad>)Session["listaEspecialidades"];
-            List<Especialidad> filtrada = listaOriginal;
-
-                        string nombreElegido = ddlFiltroNombre.SelectedItem.Text;
-            if (nombreElegido != "Todas las especialidades")
-            {
-                filtrada = filtrada.FindAll(x => x.Nombre == nombreElegido);
-            }
-
-                        string estado = ddlEstado.SelectedItem.ToString();
-            if (estado == "Activo")
-            {
-                filtrada = filtrada.FindAll(x => x.Activo == true);
-            }
-            else if (estado == "Inactivo")
-            {
-                filtrada = filtrada.FindAll(x => x.Activo == false);
-            }
-
-            ListaEspecialidad = filtrada;
+            txtFiltro.Text = string.Empty;
+            txtFiltroAvanzado.Text = string.Empty;
+            ddlEstado.SelectedIndex = 0;
+            CargarLista();
         }
 
         protected void btnLimpiar_Click(object sender, EventArgs e)
         {
-            ddlFiltroNombre.SelectedIndex = 0; 
-            ddlEstado.SelectedIndex = 0; 
-
-            ListaEspecialidad = (List<Especialidad>)Session["listaEspecialidades"];
+            txtFiltro.Text = string.Empty;
+            txtFiltroAvanzado.Text = string.Empty;
+            chkAvanzado.Checked = false;
+            ddlCampo.SelectedIndex = 0;
+            ddlCriterio.SelectedIndex = 0;
+            ddlEstado.SelectedIndex = 0;
+            CargarLista();
         }
 
-        public string ObtenerMedicosPorEspecialidad(int idEspecialidad)
+        protected void btnBuscar_Click(object sender, EventArgs e)
         {
-            MedicoNegocio medicoNegocio = new MedicoNegocio();
-            List<Medico> todosLosMedicos = medicoNegocio.Listar();
-
-            //  Filtro los médicos. 
-            // Como un médico tiene una lista con Exists para buscar si dentro de sus especialidades está la que busco
-            var medicosAsociados = todosLosMedicos.FindAll(m =>
-                m.Especialidades != null &&
-                m.Especialidades.Exists(esp => esp.IdEspecialidad == idEspecialidad)
-            );
-
-            if (medicosAsociados.Count > 0)
+            try
             {
-                // uni los nombres
-                List<string> nombres = new List<string>();
-                foreach (var med in medicosAsociados)
-                {
-                    nombres.Add(med.Nombre + " " + med.Apellido);
-                }
-                return string.Join(", ", nombres);
+                BuscarAvanzado();
             }
-            else
+            catch (Exception ex)
             {
-                return "Sin médicos asociados";
+                MostrarError(ex);
             }
         }
 
+        protected void dgvEspecialidades_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if (e.CommandName != "Ver" && e.CommandName != "Toggle")
+            {
+                return;
+            }
+
+            try
+            {
+                string[] argumentos = e.CommandArgument.ToString().Split('|');
+                int idEspecialidad = Convert.ToInt32(argumentos[0]);
+                bool activo = argumentos.Length > 1 && Convert.ToBoolean(argumentos[1]);
+
+                if (e.CommandName == "Ver")
+                {
+                    Response.Redirect("FormularioEspecialidad.aspx?id=" + idEspecialidad, false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
+                }
+
+                if (activo)
+                {
+                    especialidadNegocio.Desactivar(idEspecialidad);
+                }
+                else
+                {
+                    especialidadNegocio.Activar(idEspecialidad);
+                }
+
+                CargarLista(txtFiltro.Text);
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex);
+            }
+        }
+
+        private void CargarLista(string palabra = null)
+        {
+            dgvEspecialidades.DataSource = string.IsNullOrWhiteSpace(palabra)
+                ? especialidadNegocio.Listar()
+                : especialidadNegocio.ListarFiltroRapido(palabra);
+            dgvEspecialidades.DataBind();
+        }
+
+        private void BuscarAvanzado()
+        {
+            dgvEspecialidades.DataSource = especialidadNegocio.ListarFiltroAvanzado(
+                ddlCampo.SelectedValue,
+                ddlCriterio.SelectedValue,
+                txtFiltroAvanzado.Text,
+                ObtenerActivoSeleccionado());
+            dgvEspecialidades.DataBind();
+        }
+
+        private bool? ObtenerActivoSeleccionado()
+        {
+            if (ddlEstado.SelectedValue == "Activo")
+            {
+                return true;
+            }
+
+            if (ddlEstado.SelectedValue == "Inactivo")
+            {
+                return false;
+            }
+
+            return null;
+        }
+
+        private void MostrarError(Exception ex)
+        {
+            ((MasterLayout)Master).MostrarError(ex.Message);
+        }
     }
 }
-

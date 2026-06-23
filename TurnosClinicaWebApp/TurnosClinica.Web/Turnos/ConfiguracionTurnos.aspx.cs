@@ -20,15 +20,13 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("../Error.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                ((MasterLayout)Master).MostrarError(ex.Message);
             }
         }
 
         private void CargarConfiguracion()
         {
-            ConfiguracionTurno configuracionTurno = configuracionTurnoNegocio.ObtenerConfiguracionTurno();
+            ConfiguracionTurno configuracionTurno = configuracionTurnoNegocio.Obtener();
 
             HfIdConfiguracionTurno.Value = configuracionTurno.IdConfiguracionTurno.ToString();
             TxtDuracionMinutos.Text = configuracionTurno.DuracionMinutos > 0
@@ -47,15 +45,13 @@ namespace TurnosClinica.Web
                     Activo = true
                 };
 
-                configuracionTurnoNegocio.ModificarConfiguracionTurno(configuracionTurno);
+                configuracionTurnoNegocio.Modificar(configuracionTurno);
                 Response.Redirect("../PanelPrincipal.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("../Error.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                ((MasterLayout)Master).MostrarError(ex.Message);
             }
         }
 

@@ -5,21 +5,21 @@ using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class RolDatos
+    public class EstadoUsuarioDatos
     {
         private readonly AccesoDatosBase accesoDatos;
 
-        public RolDatos(AccesoDatosBase accesoDatosCompartido)
+        public EstadoUsuarioDatos(AccesoDatosBase accesoDatosCompartido)
         {
             accesoDatos = accesoDatosCompartido;
         }
 
-        public List<Rol> Listar(bool? activo)
+        public List<EstadoUsuario> Listar(bool? activo)
         {
-            List<Rol> roles = new List<Rol>();
+            List<EstadoUsuario> estados = new List<EstadoUsuario>();
             try
             {
-                string consulta = "SELECT IdRol, Nombre, Descripcion, Activo FROM Roles WHERE 1=1";
+                string consulta = "SELECT IdEstadoUsuario, Nombre, Descripcion, Activo FROM EstadosUsuario WHERE 1=1";
 
                 if (activo.HasValue)
                 {
@@ -36,10 +36,10 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.ejecutarLectura();
                 while (accesoDatos.Lector.Read())
                 {
-                    roles.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                    estados.Add(MapearFilaAEntidad(accesoDatos.Lector));
                 }
 
-                return roles;
+                return estados;
             }
             catch
             {
@@ -51,29 +51,29 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public Rol ObtenerPorNombre(string nombre)
+        public EstadoUsuario ObtenerPorNombre(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
             {
                 return null;
             }
 
-            Rol rol = null;
+            EstadoUsuario estadoUsuario = null;
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT IdRol, Nombre, Descripcion, Activo"
-                    + " FROM Roles"
+                    "SELECT IdEstadoUsuario, Nombre, Descripcion, Activo"
+                    + " FROM EstadosUsuario"
                     + " WHERE UPPER(Nombre) = UPPER(@nombre)");
                 accesoDatos.setearParametro("@nombre", nombre.Trim());
                 accesoDatos.ejecutarLectura();
 
                 if (accesoDatos.Lector.Read())
                 {
-                    rol = MapearFilaAEntidad(accesoDatos.Lector);
+                    estadoUsuario = MapearFilaAEntidad(accesoDatos.Lector);
                 }
 
-                return rol;
+                return estadoUsuario;
             }
             catch
             {
@@ -85,11 +85,11 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        private Rol MapearFilaAEntidad(SqlDataReader fila)
+        private EstadoUsuario MapearFilaAEntidad(SqlDataReader fila)
         {
-            return new Rol
+            return new EstadoUsuario
             {
-                IdRol = Convert.ToInt32(fila["IdRol"]),
+                IdEstadoUsuario = Convert.ToInt32(fila["IdEstadoUsuario"]),
                 Nombre = fila["Nombre"].ToString(),
                 Descripcion = fila["Descripcion"] is DBNull ? string.Empty : fila["Descripcion"].ToString(),
                 Activo = Convert.ToBoolean(fila["Activo"])

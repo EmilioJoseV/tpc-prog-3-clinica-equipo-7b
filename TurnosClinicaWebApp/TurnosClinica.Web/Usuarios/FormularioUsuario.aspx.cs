@@ -1,294 +1,304 @@
 using System;
-using System.Linq;
+using System.IO;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
 {
     public partial class FormularioUsuario : Page
     {
-        public Usuario usuarioActual { get; set; }
+        private readonly UsuarioNegocio usuarioNegocio = new UsuarioNegocio();
+        private const string ImagenTemporalSessionKey = "ImagenTemporalUsuario";
+        private const string ImagenTemporalTipoSessionKey = "ImagenTemporalUsuarioTipo";
+
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                // 1. Siempre recuperamos la entidad para que la foto no se rompa al redibujar
-                if (Request.QueryString["id"] != null || Request.QueryString["Id"] != null)
+                if (!IsPostBack)
                 {
-                    string idUrl = Request.QueryString["id"] ?? Request.QueryString["Id"];
-                    int idUsuario = Convert.ToInt32(idUrl);
-                    UsuarioNegocio negocio = new UsuarioNegocio();
-                    usuarioActual = negocio.ObtenerPorId(idUsuario);
-
-                    if (usuarioActual != null)
-                    {
-                        // PROTECCIÓN TOTAL: La asignación a los TextBox SOLO ocurre en la carga inicial de la página
-                        if (!IsPostBack)
-                        {
-                            CargarDesplegables();
-
-                            txtNombre.Text = usuarioActual.Nombre;
-                            txtApellido.Text = usuarioActual.Apellido;
-                            txtNombreUsuario.Text = usuarioActual.NombreUsuario;
-                            txtEmail.Text = usuarioActual.Email;
-                            txtPassword.Text = string.Empty; // Inicia limpio
-
-                            if (usuarioActual.Rol != null)
-                            {
-                                ddlRol.SelectedValue = usuarioActual.Rol.IdRol.ToString();
-                            }
-
-                            if (usuarioActual.Medico != null)
-                            {
-                                ddlMedico.SelectedValue = usuarioActual.Medico.IdMedico.ToString();
-                            }
-                        }
-
-                        // Esto se ejecuta siempre para mantener estables los estilos visuales de los botones
-                        btnInactivar.Visible = true;
-                        btnEliminar.Visible = true;
-
-                        if (usuarioActual.Activo)
-                        {
-                            btnInactivar.Text = "Inactivar";
-                            btnInactivar.CssClass = "btn btn-warning";
-                        }
-                        else
-                        {
-                            btnInactivar.Text = "Activar";
-                            btnInactivar.CssClass = "btn btn-success";
-                        }
-                    }
+                    LimpiarImagenTemporal();
+                    CargarUsuario();
                 }
-                else
+                else if (Session[ImagenTemporalSessionKey] is byte[] imagenTemporal)
                 {
-                    // MODO ALTA NUEVA
-                    if (!IsPostBack)
-                    {
-                        CargarDesplegables();
-                    }
-
-                    btnInactivar.Visible = false;
-                    btnEliminar.Visible = false;
+                    MostrarImagen(
+                        imagenTemporal,
+                        Convert.ToString(Session[ImagenTemporalTipoSessionKey]));
                 }
             }
             catch (Exception ex)
             {
-                Session.Add("Error", ex.ToString());
+                MostrarError(ex);
             }
         }
-        protected void btnAceptar_Click(object sender, EventArgs e)
+
+        protected void btnGuardar_Click(object sender, EventArgs e)
         {
             try
             {
-                if (ddlRol.SelectedValue == "0")
+                int idUsuario = ObtenerId(hfIdUsuario.Value);
+                Usuario usuarioActual = idUsuario > 0 ? usuarioNegocio.ObtenerPorId(idUsuario) : null;
+
+                Usuario usuario = new Usuario
                 {
-                    return;
-                }
+                    IdUsuario = idUsuario,
+                    Persona = new Persona
+                    {
+                        IdPersona = ObtenerId(hfIdPersona.Value),
+                        DNI = txtDni.Text,
+                        Nombre = txtNombre.Text,
+                        Apellido = txtApellido.Text,
+                        Telefono = txtTelefono.Text,
+                        Email = txtEmail.Text
+                    },
+                    Rol = new Rol
+                    {
+                        Nombre = ddlRol.SelectedValue
+                    },
+                    NombreUsuario = usuarioActual != null ? usuarioActual.NombreUsuario : null,
+                    PasswordHash = usuarioActual != null ? usuarioActual.PasswordHash : null,
+                    Imagen = ObtenerImagenParaGuardar(usuarioActual),
+                    EstadoUsuario = ObtenerEstadoParaGuardar(usuarioActual)
+                };
 
-                UsuarioNegocio negocio = new UsuarioNegocio();
-                Usuario usuario = new Usuario();
-
-                if (Request.QueryString["id"] != null || Request.QueryString["Id"] != null)
+                if (usuario.IdUsuario > 0)
                 {
-                    string idUrl = Request.QueryString["id"] ?? Request.QueryString["Id"];
-                    int idUsuario = Convert.ToInt32(idUrl);
-
-                    Usuario usuarioDB = negocio.ObtenerPorId(idUsuario);
-
-                    if (usuarioDB != null)
-                    {
-                        usuario.IdUsuario = usuarioDB.IdUsuario;
-                        usuario.Activo = usuarioDB.Activo;
-
-                        usuario.Nombre = !string.IsNullOrWhiteSpace(txtNombre.Text) ? txtNombre.Text.Trim() : usuarioDB.Nombre;
-                        usuario.Apellido = !string.IsNullOrWhiteSpace(txtApellido.Text) ? txtApellido.Text.Trim() : usuarioDB.Apellido;
-                        usuario.NombreUsuario = !string.IsNullOrWhiteSpace(txtNombreUsuario.Text) ? txtNombreUsuario.Text.Trim() : usuarioDB.NombreUsuario;
-                        usuario.Email = !string.IsNullOrWhiteSpace(txtEmail.Text) ? txtEmail.Text.Trim() : usuarioDB.Email;
-                        usuario.PasswordHash = !string.IsNullOrEmpty(txtPassword.Text) ? txtPassword.Text : usuarioDB.PasswordHash;
-
-                        // === LOGICA DE LA IMAGEN MODIFICADA PARA MODIFICACIÓN ===
-                        if (Session["ImagenTemporal"] != null)
-                        {
-                            // Si el usuario le dio al botón "Cargar", la foto está guardada en la Session
-                            usuario.Imagen = (byte[])Session["ImagenTemporal"];
-                        }
-                        else if (fileImagen.HasFile)
-                        {
-                            // Por las dudas, si no le dio a "Cargar" pero subió un archivo directo antes de poner Aceptar
-                            usuario.Imagen = fileImagen.FileBytes;
-                        }
-                        else
-                        {
-                            // Si no tocó nada de la foto, mantiene la que ya venía de la Base de Datos
-                            usuario.Imagen = usuarioDB.Imagen;
-                        }
-
-                        usuario.Rol = new Rol();
-                        usuario.Rol.IdRol = ddlRol.SelectedValue != "0" ? Convert.ToInt32(ddlRol.SelectedValue) : usuarioDB.Rol.IdRol;
-
-                        if (ddlMedico.SelectedValue != "0")
-                        {
-                            usuario.Medico = new Medico();
-                            usuario.Medico.IdMedico = Convert.ToInt32(ddlMedico.SelectedValue);
-                        }
-                        else
-                        {
-                            usuario.Medico = usuarioDB.Medico;
-                        }
-                    }
-
-                    negocio.Modificar(usuario);
-
-                    Session["ImagenTemporal"] = null;
-
-                    if (!string.IsNullOrEmpty(txtPassword.Text))
-                    {
-                        string mensaje = "Contraseña actualizada correctamente.";
-                        string script = $"alert('{mensaje}'); window.location='ListaUsuarios.aspx';";
-                        ScriptManager.RegisterClientScriptBlock((Control)sender, sender.GetType(), "alertPassword", script, true);
-                        return;
-                    }
+                    usuarioNegocio.ModificarConPersona(usuario);
                 }
                 else
                 {
-                    usuario.Activo = true;
-                    usuario.Nombre = txtNombre.Text.Trim();
-                    usuario.Apellido = txtApellido.Text.Trim();
-                    usuario.NombreUsuario = txtNombreUsuario.Text.Trim();
-                    usuario.Email = txtEmail.Text.Trim();
-                    usuario.PasswordHash = txtPassword.Text;
-
-                    if (Session["ImagenTemporal"] != null)
-                    {
-                        usuario.Imagen = (byte[])Session["ImagenTemporal"];
-                    }
-                    else if (fileImagen.HasFile)
-                    {
-                        usuario.Imagen = fileImagen.FileBytes;
-                    }
-
-                    usuario.Rol = new Rol { IdRol = Convert.ToInt32(ddlRol.SelectedValue) };
-
-                    if (ddlMedico.SelectedValue != "0")
-                    {
-                        usuario.Medico = new Medico { IdMedico = Convert.ToInt32(ddlMedico.SelectedValue) };
-                    }
-
-                    negocio.Agregar(usuario);
-
-                    Session["ImagenTemporal"] = null;
+                    usuarioNegocio.AgregarConPersona(usuario);
                 }
 
-                Response.Redirect("ListaUsuarios.aspx");
+                LimpiarImagenTemporal();
+                Response.Redirect("ListaUsuarios.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
-                Session.Add("Error", ex.ToString());
+                MostrarError(ex);
             }
         }
 
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
-            Response.Redirect("ListaUsuarios.aspx");
+            LimpiarImagenTemporal();
+            Response.Redirect("ListaUsuarios.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
         protected void btnPrevisualizar_Click(object sender, EventArgs e)
         {
             try
             {
-                if (fileImagen.HasFile)
+                if (!fileImagen.HasFile)
                 {
-                    // Guardamos los bytes en la Session para que no se pierdan en los PostBacks
-                    Session["ImagenTemporal"] = fileImagen.FileBytes;
-
-                    // Mostramos la imagen en el control de servidor convirtiendo los bytes a Base64
-                    imgPerfil.ImageUrl = "data:image/jpeg;base64," + Convert.ToBase64String(fileImagen.FileBytes);
-
-                    // Hacemos visible la foto y ocultamos el panel de la inicial
-                    imgPerfil.Visible = true;
-                    pnlInicial.Visible = false;
+                    throw new Exception("Debe seleccionar una imagen para previsualizar.");
                 }
+
+                string extension = Path.GetExtension(fileImagen.FileName);
+                if (!string.Equals(extension, ".jpg", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".jpeg", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new Exception("La imagen debe tener formato JPG, JPEG o PNG.");
+                }
+
+                Session[ImagenTemporalSessionKey] = fileImagen.FileBytes;
+                Session[ImagenTemporalTipoSessionKey] = ObtenerTipoImagen(extension);
+                MostrarImagen(fileImagen.FileBytes, ObtenerTipoImagen(extension));
             }
             catch (Exception ex)
             {
-                Session.Add("Error", ex.ToString());
+                MostrarError(ex);
             }
         }
 
-        private void CargarDesplegables()
+        private void CargarUsuario()
         {
-            var roles = Enum.GetValues(typeof(TurnosClinica.Dominio.Enums.RolEnum))
-                            .Cast<TurnosClinica.Dominio.Enums.RolEnum>()
-                            .Select(r => new
-                            {
-                                Id = (int)r,
-                                Nombre = r.ToString()
-                            }).ToList();
-
-            ddlRol.DataSource = roles;
-            ddlRol.DataValueField = "Id";
-            ddlRol.DataTextField = "Nombre";
-            ddlRol.DataBind();
-            ddlRol.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Rol", "0"));
-
-            MedicoNegocio medicoNegocio = new MedicoNegocio();
-            ddlMedico.DataSource = medicoNegocio.Listar();
-            ddlMedico.DataValueField = "IdMedico";
-            ddlMedico.DataTextField = "Apellido";
-            ddlMedico.DataBind();
-            ddlMedico.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Medico", "0"));
-        }
-        protected void btnInactivar_Click(object sender, EventArgs e)
-        {
-            try
+            int idUsuario;
+            if (!int.TryParse(Request.QueryString["id"], out idUsuario))
             {
-                if (Request.QueryString["id"] != null)
+                chkActivo.Checked = true;
+                MostrarInicial(null, null);
+                return;
+            }
+
+            Usuario usuario = usuarioNegocio.ObtenerPorId(idUsuario);
+            if (usuario == null)
+            {
+                throw new Exception("El usuario no existe.");
+            }
+
+            ValidarRolAdministrativo(usuario);
+
+            hfIdUsuario.Value = usuario.IdUsuario.ToString();
+            hfIdPersona.Value = usuario.Persona.IdPersona.ToString();
+            lblTitulo.Text = "Detalle de Usuario";
+            txtDni.Text = usuario.Persona.DNI;
+            txtNombre.Text = usuario.Persona.Nombre;
+            txtApellido.Text = usuario.Persona.Apellido;
+            txtTelefono.Text = usuario.Persona.Telefono;
+            txtEmail.Text = usuario.Persona.Email;
+            ddlRol.SelectedValue = usuario.Rol.Nombre;
+            lblEstado.Text = usuario.EstadoUsuario.Nombre;
+            lblEstado.CssClass = ObtenerClaseEstado(usuario.EstadoUsuario.Nombre);
+            chkActivo.Checked = !EsEstado(usuario, EstadoUsuarioEnum.Inactivo);
+            MostrarImagenActual(usuario);
+        }
+
+        private byte[] ObtenerImagenParaGuardar(Usuario usuarioActual)
+        {
+            if (Session[ImagenTemporalSessionKey] is byte[] imagenTemporal)
+            {
+                return imagenTemporal;
+            }
+
+            if (fileImagen.HasFile)
+            {
+                return fileImagen.FileBytes;
+            }
+
+            return usuarioActual != null ? usuarioActual.Imagen : null;
+        }
+
+        private void MostrarImagenActual(Usuario usuario)
+        {
+            if (usuario.Imagen != null && usuario.Imagen.Length > 0)
+            {
+                MostrarImagen(usuario.Imagen, "image/jpeg");
+                return;
+            }
+
+            MostrarInicial(usuario.Persona.Nombre, usuario.Persona.Apellido);
+        }
+
+        private void MostrarImagen(byte[] imagen, string tipo)
+        {
+            imgPerfil.ImageUrl = "data:" + tipo + ";base64," + Convert.ToBase64String(imagen);
+            imgPerfil.Visible = true;
+            pnlInicial.Visible = false;
+        }
+
+        private void MostrarInicial(string nombre, string apellido)
+        {
+            string inicial = !string.IsNullOrWhiteSpace(nombre)
+                ? nombre.Trim().Substring(0, 1)
+                : !string.IsNullOrWhiteSpace(apellido)
+                    ? apellido.Trim().Substring(0, 1)
+                    : "U";
+
+            litInicial.Text = inicial.ToUpper();
+            imgPerfil.Visible = false;
+            pnlInicial.Visible = true;
+        }
+
+        private string ObtenerTipoImagen(string extension)
+        {
+            return string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase)
+                ? "image/png"
+                : "image/jpeg";
+        }
+
+        private void LimpiarImagenTemporal()
+        {
+            Session.Remove(ImagenTemporalSessionKey);
+            Session.Remove(ImagenTemporalTipoSessionKey);
+        }
+
+        private EstadoUsuario ObtenerEstadoParaGuardar(Usuario usuarioActual)
+        {
+            if (usuarioActual == null)
+            {
+                return new EstadoUsuario
                 {
-                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
-                    UsuarioNegocio negocio = new UsuarioNegocio();
-
-                    Usuario usuario = negocio.ObtenerPorId(idUsuario);
-
-                    if (usuario != null)
-                    {
-                        if (usuario.Activo == true)
-                        {
-                            negocio.EliminarLogico(idUsuario);
-                        }
-                        else
-                        {
-                            negocio.AltaLogica(idUsuario);
-                        }
-
-                        Response.Redirect("ListaUsuarios.aspx");
-                    }
-                }
+                    Nombre = EstadoUsuarioEnum.Pendiente.ToString()
+                };
             }
-            catch (Exception ex)
+
+            if (!chkActivo.Checked)
             {
-                Session.Add("Error", ex.ToString());
+                return new EstadoUsuario
+                {
+                    Nombre = EstadoUsuarioEnum.Inactivo.ToString()
+                };
+            }
+
+            if (EsEstado(usuarioActual, EstadoUsuarioEnum.Inactivo))
+            {
+                return new EstadoUsuario
+                {
+                    Nombre = EstadoUsuarioEnum.Activo.ToString()
+                };
+            }
+
+            return usuarioActual.EstadoUsuario;
+        }
+
+        private void ValidarRolAdministrativo(Usuario usuario)
+        {
+            bool esAdministrador = usuario.Rol != null
+                && string.Equals(
+                    usuario.Rol.Nombre,
+                    RolEnum.Administrador.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
+            bool esRecepcionista = usuario.Rol != null
+                && string.Equals(
+                    usuario.Rol.Nombre,
+                    RolEnum.Recepcionista.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
+
+            if (!esAdministrador && !esRecepcionista)
+            {
+                throw new Exception("El usuario no pertenece a esta funcionalidad.");
             }
         }
-        protected void btnEliminar_Click(object sender, EventArgs e)
+
+        private bool EsEstado(Usuario usuario, EstadoUsuarioEnum estado)
         {
-            try
+            return usuario.EstadoUsuario != null
+                && string.Equals(
+                    usuario.EstadoUsuario.Nombre,
+                    estado.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        private string ObtenerClaseEstado(string estado)
+        {
+            if (string.Equals(estado, EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                if (Request.QueryString["id"] != null)
-                {
-                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
-
-                    TurnosClinica.AccesoDatos.UsuarioDatos datos = new TurnosClinica.AccesoDatos.UsuarioDatos();
-
-                    datos.EliminarFisico(idUsuario);
-
-                    Response.Redirect("ListaUsuarios.aspx");
-                }
+                return "badge bg-success";
             }
-            catch (Exception ex)
+
+            if (string.Equals(estado, EstadoUsuarioEnum.Pendiente.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                Session.Add("Error", ex.ToString());
+                return "badge bg-warning text-dark";
             }
+
+            if (string.Equals(estado, EstadoUsuarioEnum.Bloqueado.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-danger";
+            }
+
+            if (string.Equals(estado, EstadoUsuarioEnum.CambioClavePendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-info text-dark";
+            }
+
+            return "badge bg-secondary";
+        }
+
+        private int ObtenerId(string valor)
+        {
+            int id;
+            return int.TryParse(valor, out id) ? id : 0;
+        }
+
+        private void MostrarError(Exception ex)
+        {
+            ((MasterLayout)Master).MostrarError(ex.Message);
         }
     }
 }

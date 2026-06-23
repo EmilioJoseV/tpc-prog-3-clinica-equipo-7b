@@ -5,36 +5,72 @@ using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class EstadoTurnoDatos : IMapeable<EstadoTurno>
+    public class EstadoTurnoDatos
     {
-        private readonly AccesoDatos accesoDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
         public EstadoTurnoDatos()
         {
-            accesoDatos = new AccesoDatos();
+            accesoDatos = new AccesoDatosBase();
         }
 
-        public EstadoTurno MapearFilaAEntidad(SqlDataReader fila)
+        public EstadoTurnoDatos(AccesoDatosBase accesoDatosCompartido)
         {
-            EstadoTurno estadoTurno = new EstadoTurno();
-            estadoTurno.IdEstadoTurno = Convert.ToInt32(fila["IdEstadoTurno"]);
-            estadoTurno.Nombre = fila["Nombre"].ToString();
-            estadoTurno.Descripcion = fila["Descripcion"] is DBNull ? string.Empty : fila["Descripcion"].ToString();
-            estadoTurno.EsFinal = Convert.ToBoolean(fila["EsFinal"]);
-            estadoTurno.Activo = Convert.ToBoolean(fila["Activo"]);
-            return estadoTurno;
+            accesoDatos = accesoDatosCompartido;
         }
 
-        public EstadoTurno ObtenerPorId(int idEstadoTurno)
+        public List<EstadoTurno> Listar(bool? activo)
         {
-            EstadoTurno estadoTurno = new EstadoTurno();
+            List<EstadoTurno> estados = new List<EstadoTurno>();
+            try
+            {
+                string consulta = "SELECT IdEstadoTurno, Nombre, Descripcion, EsFinal, Activo FROM EstadosTurno WHERE 1=1";
+
+                if (activo.HasValue)
+                {
+                    consulta += " AND Activo = @activo";
+                }
+
+                accesoDatos.setearConsulta(consulta);
+
+                if (activo.HasValue)
+                {
+                    accesoDatos.setearParametro("@activo", activo.Value);
+                }
+
+                accesoDatos.ejecutarLectura();
+                while (accesoDatos.Lector.Read())
+                {
+                    estados.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
+
+                return estados;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public EstadoTurno ObtenerPorNombre(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                return null;
+            }
+
+            EstadoTurno estadoTurno = null;
             try
             {
                 accesoDatos.setearConsulta(
                     "SELECT IdEstadoTurno, Nombre, Descripcion, EsFinal, Activo"
                     + " FROM EstadosTurno"
-                    + " WHERE IdEstadoTurno = @idEstadoTurno");
-                accesoDatos.setearParametro("@idEstadoTurno", idEstadoTurno);
+                    + " WHERE UPPER(Nombre) = UPPER(@nombre)");
+                accesoDatos.setearParametro("@nombre", nombre.Trim());
                 accesoDatos.ejecutarLectura();
 
                 if (accesoDatos.Lector.Read())
@@ -52,6 +88,18 @@ namespace TurnosClinica.AccesoDatos
             {
                 accesoDatos.cerrarConexion();
             }
+        }
+
+        private EstadoTurno MapearFilaAEntidad(SqlDataReader fila)
+        {
+            return new EstadoTurno
+            {
+                IdEstadoTurno = Convert.ToInt32(fila["IdEstadoTurno"]),
+                Nombre = fila["Nombre"].ToString(),
+                Descripcion = fila["Descripcion"] is DBNull ? string.Empty : fila["Descripcion"].ToString(),
+                EsFinal = Convert.ToBoolean(fila["EsFinal"]),
+                Activo = Convert.ToBoolean(fila["Activo"])
+            };
         }
     }
 }

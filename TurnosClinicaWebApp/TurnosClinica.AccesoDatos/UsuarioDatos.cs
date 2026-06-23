@@ -2,40 +2,70 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class UsuarioDatos : IFiltrable<Usuario>, IMapeable<Usuario>
+    public class UsuarioDatos : IEntidadGestionable<Usuario>, IMapeable<Usuario>
     {
-        private readonly AccesoDatos accesoDatos;
+        private readonly AccesoDatosBase accesoDatos;
+        private readonly RolDatos rolDatos;
+        private readonly EstadoUsuarioDatos estadoUsuarioDatos;
 
-        public UsuarioDatos()
+        public UsuarioDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatos();
+            this.accesoDatos = accesoDatos;
+            rolDatos = new RolDatos(accesoDatos.CrearContextoCompartido());
+            estadoUsuarioDatos = new EstadoUsuarioDatos(accesoDatos.CrearContextoCompartido());
         }
 
-        public List<Usuario> Listar(int? idRol, int? idMedico, bool? activo)
+        public List<Usuario> Listar(bool? activo = null)
+        {
+            return ListarFiltroAvanzado(null, null, null, activo);
+        }
+
+        public List<Usuario> ListarFiltroRapido(string palabra, bool? activo = null)
+        {
+            return ListarFiltroAvanzado(null, null, palabra, activo);
+        }
+
+        public List<Usuario> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
         {
             List<Usuario> usuarios = new List<Usuario>();
+
             try
             {
-                string consulta = @"
-            SELECT U.IdUsuario, U.NombreUsuario, U.Nombre, U.Apellido, U.Email, 
-                   U.PasswordHash, U.Imagen, U.Activo, U.IdRol, U.IdMedico,
-                   R.Nombre AS NombreRol 
-            FROM Usuarios U
-            INNER JOIN Roles R ON U.IdRol = R.IdRol
-            WHERE 1=1";
+                string consulta = ObtenerConsultaBase()
+                    + " WHERE (UPPER(R.Nombre) = UPPER(@rolAdministrador)"
+                    + " OR UPPER(R.Nombre) = UPPER(@rolRecepcionista))";
 
-                if (idRol.HasValue) consulta += " AND U.IdRol = @idRol";
-                if (idMedico.HasValue) consulta += " AND U.IdMedico = @idMedico";
-                if (activo.HasValue) consulta += " AND U.Activo = @activo";
+                if (activo.HasValue)
+                {
+                    consulta += activo.Value
+                        ? " AND UPPER(EU.Nombre) <> UPPER(@estadoInactivo)"
+                        : " AND UPPER(EU.Nombre) = UPPER(@estadoInactivo)";
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    consulta += ConstruirFiltro(campo, criterio);
+                }
+
+                consulta += " ORDER BY P.Apellido, P.Nombre";
 
                 accesoDatos.setearConsulta(consulta);
+                accesoDatos.setearParametro("@rolAdministrador", RolEnum.Administrador.ToString());
+                accesoDatos.setearParametro("@rolRecepcionista", RolEnum.Recepcionista.ToString());
 
-                if (idRol.HasValue) accesoDatos.setearParametro("@idRol", idRol.Value);
-                if (idMedico.HasValue) accesoDatos.setearParametro("@idMedico", idMedico.Value);
-                if (activo.HasValue) accesoDatos.setearParametro("@activo", activo.Value);
+                if (activo.HasValue)
+                {
+                    accesoDatos.setearParametro("@estadoInactivo", EstadoUsuarioEnum.Inactivo.ToString());
+                }
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                {
+                    accesoDatos.setearParametro("@filtro", filtro.Trim());
+                }
 
                 accesoDatos.ejecutarLectura();
 
@@ -43,24 +73,29 @@ namespace TurnosClinica.AccesoDatos
                 {
                     usuarios.Add(MapearFilaAEntidad(accesoDatos.Lector));
                 }
+
                 return usuarios;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
-        public Usuario ObtenerPorId(int idUsuario)
+        public Usuario ObtenerPorId(int id)
         {
-            Usuario usuario = new Usuario();
+            Usuario usuario = null;
+
             try
             {
                 accesoDatos.setearConsulta(
-                    "SELECT IdUsuario, NombreUsuario, Nombre, Apellido, Email, PasswordHash, Imagen, Activo, IdRol, IdMedico"
-                    + " FROM Usuarios"
-                    + " WHERE IdUsuario = @idUsuario");
-                accesoDatos.setearParametro("@idUsuario", idUsuario);
+                    ObtenerConsultaBase()
+                    + " WHERE U.IdUsuario = @idUsuario");
+                accesoDatos.setearParametro("@idUsuario", id);
                 accesoDatos.ejecutarLectura();
 
                 if (accesoDatos.Lector.Read())
@@ -70,74 +105,132 @@ namespace TurnosClinica.AccesoDatos
 
                 return usuario;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public Usuario ObtenerPorIdPersona(int idPersona)
+        {
+            Usuario usuario = null;
+
+            try
+            {
+                accesoDatos.setearConsulta(
+                    ObtenerConsultaBase()
+                    + " WHERE U.IdPersona = @idPersona");
+                accesoDatos.setearParametro("@idPersona", idPersona);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    usuario = MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
+                return usuario;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
         public Usuario ValidarCredenciales(string nombreUsuario, string password)
         {
-            Usuario usuario = new Usuario();
+            Usuario usuario = null;
+
             try
             {
+                accesoDatos.setearConsulta(
+                    ObtenerConsultaBase()
+                    + " WHERE U.NombreUsuario = @nombreUsuario"
+                    + " AND U.PasswordHash = @password"
+                    + " AND UPPER(EU.Nombre) = UPPER(@estadoActivo)");
+                accesoDatos.setearParametro("@nombreUsuario", nombreUsuario);
+                accesoDatos.setearParametro("@password", password);
+                accesoDatos.setearParametro("@estadoActivo", EstadoUsuarioEnum.Activo.ToString());
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    usuario = MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
                 return usuario;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
-        public bool ExisteNombreUsuario(string nombreUsuario)
-        {
-            try
-            {
-                return false;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public bool ExisteEmail(string email)
-        {
-            try
-            {
-                return false;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public void Agregar(Usuario usuario)
+        public bool ExisteNombreUsuario(string nombreUsuario, int excluirId = 0)
         {
             try
             {
                 accesoDatos.setearConsulta(
-                    "INSERT INTO Usuarios (NombreUsuario, Nombre, Apellido, Email, PasswordHash, Imagen, Activo, IdRol, IdMedico) " +
-                    "VALUES (@nombreUsuario, @nombre, @apellido, @email, @passwordHash, @imagen, @activo, @idRol, @idMedico)");
-
-                accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
-                accesoDatos.setearParametro("@nombre", usuario.Nombre);
-                accesoDatos.setearParametro("@apellido", usuario.Apellido);
-                accesoDatos.setearParametro("@email", usuario.Email);
-                accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
-                accesoDatos.setearParametro("@activo", usuario.Activo);
-
-                accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
-
-                accesoDatos.setearParametro("@idRol", (usuario.Rol != null && usuario.Rol.IdRol > 0) ? (object)usuario.Rol.IdRol : DBNull.Value);
-                accesoDatos.setearParametro("@idMedico", (usuario.Medico != null && usuario.Medico.IdMedico > 0) ? (object)usuario.Medico.IdMedico : DBNull.Value);
-
-                accesoDatos.ejecutarAccion();
+                    "SELECT COUNT(1) FROM Usuarios"
+                    + " WHERE UPPER(NombreUsuario) = UPPER(@nombreUsuario)"
+                    + " AND IdUsuario <> @excluirId");
+                accesoDatos.setearParametro("@nombreUsuario", nombreUsuario);
+                accesoDatos.setearParametro("@excluirId", excluirId);
+                return accesoDatos.ejecutarAccionScalar() > 0;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public int Agregar(Usuario usuario)
+        {
+            try
+            {
+                Rol rol = rolDatos.ObtenerPorNombre(usuario.Rol.Nombre);
+                EstadoUsuario estado = estadoUsuarioDatos.ObtenerPorNombre(usuario.EstadoUsuario.Nombre);
+                ValidarReferencias(rol, estado);
+
+                accesoDatos.setearConsulta(
+                    "INSERT INTO Usuarios"
+                    + " (IdPersona, NombreUsuario, PasswordHash, Imagen, IdRol, IdEstadoUsuario)"
+                    + " VALUES (@idPersona, @nombreUsuario, @passwordHash, @imagen, @idRol, @idEstadoUsuario)");
+                accesoDatos.setearParametro("@idPersona", usuario.Persona.IdPersona);
+                accesoDatos.setearParametro("@nombreUsuario", string.IsNullOrWhiteSpace(usuario.NombreUsuario)
+                    ? (object)DBNull.Value
+                    : usuario.NombreUsuario);
+                accesoDatos.setearParametro("@passwordHash", string.IsNullOrWhiteSpace(usuario.PasswordHash)
+                    ? (object)DBNull.Value
+                    : usuario.PasswordHash);
+                accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
+                accesoDatos.setearParametro("@idRol", rol.IdRol);
+                accesoDatos.setearParametro("@idEstadoUsuario", estado.IdEstadoUsuario);
+                accesoDatos.ejecutarAccion();
+                return 0;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
@@ -145,133 +238,200 @@ namespace TurnosClinica.AccesoDatos
         {
             try
             {
+                Rol rol = rolDatos.ObtenerPorNombre(usuario.Rol.Nombre);
+                EstadoUsuario estado = estadoUsuarioDatos.ObtenerPorNombre(usuario.EstadoUsuario.Nombre);
+                ValidarReferencias(rol, estado);
+
                 accesoDatos.setearConsulta(
-                    "UPDATE Usuarios SET " +
-                    "NombreUsuario = @nombreUsuario, " +
-                    "Nombre = @nombre, " +
-                    "Apellido = @apellido, " +
-                    "Email = @email, " +
-                    "PasswordHash = @passwordHash, " +
-                    "Imagen = @imagen, " +
-                    "Activo = @activo, " +
-                    "IdRol = @idRol, " +
-                    "IdMedico = @idMedico " +
-                    "WHERE IdUsuario = @idUsuario");
-
+                    "UPDATE Usuarios SET"
+                    + " NombreUsuario = @nombreUsuario,"
+                    + " PasswordHash = @passwordHash,"
+                    + " Imagen = @imagen,"
+                    + " IdRol = @idRol,"
+                    + " IdEstadoUsuario = @idEstadoUsuario"
+                    + " WHERE IdUsuario = @idUsuario");
                 accesoDatos.setearParametro("@idUsuario", usuario.IdUsuario);
-
-                accesoDatos.setearParametro("@nombreUsuario", usuario.NombreUsuario);
-                accesoDatos.setearParametro("@nombre", usuario.Nombre);
-                accesoDatos.setearParametro("@apellido", usuario.Apellido);
-                accesoDatos.setearParametro("@email", usuario.Email);
-                accesoDatos.setearParametro("@passwordHash", usuario.PasswordHash);
-                accesoDatos.setearParametro("@activo", usuario.Activo);
-
+                accesoDatos.setearParametro("@nombreUsuario", string.IsNullOrWhiteSpace(usuario.NombreUsuario)
+                    ? (object)DBNull.Value
+                    : usuario.NombreUsuario);
+                accesoDatos.setearParametro("@passwordHash", string.IsNullOrWhiteSpace(usuario.PasswordHash)
+                    ? (object)DBNull.Value
+                    : usuario.PasswordHash);
                 accesoDatos.setearParametro("@imagen", usuario.Imagen != null ? (object)usuario.Imagen : DBNull.Value);
-
-                accesoDatos.setearParametro("@idRol", (usuario.Rol != null && usuario.Rol.IdRol > 0) ? (object)usuario.Rol.IdRol : DBNull.Value);
-                accesoDatos.setearParametro("@idMedico", (usuario.Medico != null && usuario.Medico.IdMedico > 0) ? (object)usuario.Medico.IdMedico : DBNull.Value);
-
+                accesoDatos.setearParametro("@idRol", rol.IdRol);
+                accesoDatos.setearParametro("@idEstadoUsuario", estado.IdEstadoUsuario);
                 accesoDatos.ejecutarAccion();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
             }
         }
 
-        public void EliminarFisico(int idUsuario)
+        public void Desactivar(int id)
         {
-            try
-            {
-                accesoDatos.setearConsulta("DELETE FROM Usuarios WHERE IdUsuario = @idUsuario");
-                accesoDatos.setearParametro("@idUsuario", idUsuario);
-
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            CambiarEstado(id, EstadoUsuarioEnum.Inactivo);
         }
 
-        public void EliminarLogico(int idUsuario)
+        public void Activar(int id)
         {
-            try
-            {
-                accesoDatos.setearConsulta("UPDATE Usuarios SET Activo = 0 WHERE IdUsuario = @idUsuario");
-                accesoDatos.setearParametro("@idUsuario", idUsuario);
-
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public void AltaLogica(int idUsuario)
-        {
-            try
-            {
-                accesoDatos.setearConsulta("UPDATE Usuarios SET Activo = 1 WHERE IdUsuario = @idUsuario");
-                accesoDatos.setearParametro("@idUsuario", idUsuario);
-
-                accesoDatos.ejecutarAccion();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            CambiarEstado(id, EstadoUsuarioEnum.Activo);
         }
 
         public Usuario MapearFilaAEntidad(SqlDataReader fila)
         {
-            Usuario usuario = new Usuario();
-            usuario.IdUsuario = Convert.ToInt32(fila["IdUsuario"]);
-            usuario.NombreUsuario = fila["NombreUsuario"].ToString();
-            usuario.Nombre = fila["Nombre"] is DBNull ? string.Empty : fila["Nombre"].ToString();
-            usuario.Apellido = fila["Apellido"] is DBNull ? string.Empty : fila["Apellido"].ToString();
-            usuario.Email = fila["Email"].ToString();
-            usuario.PasswordHash = fila["PasswordHash"] is DBNull ? string.Empty : fila["PasswordHash"].ToString();
-            usuario.Activo = Convert.ToBoolean(fila["Activo"]);
-
-            // MAPEO DE LA IMAGEN (FOTO DE PERFIL) que faltaba:
-            if (!(fila["Imagen"] is DBNull))
+            return new Usuario
             {
-                usuario.Imagen = (byte[])fila["Imagen"];
-            }
-
-            if (fila["IdRol"] != DBNull.Value)
-            {
-                usuario.Rol = new Rol();
-                usuario.Rol.IdRol = Convert.ToInt32(fila["IdRol"]);
-
-                // Evitamos que explote si no venís haciendo un JOIN con la tabla de Roles
-                try
+                IdUsuario = Convert.ToInt32(fila["IdUsuario"]),
+                NombreUsuario = fila["NombreUsuario"] is DBNull ? null : fila["NombreUsuario"].ToString(),
+                PasswordHash = fila["PasswordHash"] is DBNull ? null : fila["PasswordHash"].ToString(),
+                Imagen = fila["Imagen"] is DBNull ? null : (byte[])fila["Imagen"],
+                Persona = new Persona
                 {
-                    usuario.Rol.Nombre = fila["NombreRol"] is DBNull ? string.Empty : fila["NombreRol"].ToString();
+                    IdPersona = Convert.ToInt32(fila["IdPersona"]),
+                    DNI = fila["DNI"].ToString(),
+                    Nombre = fila["Nombre"].ToString(),
+                    Apellido = fila["Apellido"].ToString(),
+                    Telefono = fila["Telefono"] is DBNull ? string.Empty : fila["Telefono"].ToString(),
+                    Email = fila["Email"].ToString()
+                },
+                Rol = new Rol
+                {
+                    IdRol = Convert.ToInt32(fila["IdRol"]),
+                    Nombre = fila["NombreRol"].ToString(),
+                    Descripcion = fila["DescripcionRol"] is DBNull ? string.Empty : fila["DescripcionRol"].ToString(),
+                    Activo = Convert.ToBoolean(fila["ActivoRol"])
+                },
+                EstadoUsuario = new EstadoUsuario
+                {
+                    IdEstadoUsuario = Convert.ToInt32(fila["IdEstadoUsuario"]),
+                    Nombre = fila["NombreEstadoUsuario"].ToString(),
+                    Descripcion = fila["DescripcionEstadoUsuario"] is DBNull
+                        ? string.Empty
+                        : fila["DescripcionEstadoUsuario"].ToString(),
+                    Activo = Convert.ToBoolean(fila["ActivoEstadoUsuario"])
                 }
-                catch
-                {
-                    usuario.Rol.Nombre = string.Empty; // Si no está en el SELECT, no pasa nada
-                }
-            }
-
-            if (fila["IdMedico"] != DBNull.Value)
-            {
-                usuario.Medico = new Medico
-                {
-                    IdMedico = Convert.ToInt32(fila["IdMedico"])
-                };
-            }
-
-            return usuario;
+            };
         }
 
-        public List<Usuario> ListarConFiltros(string campo, string criterio, string filtro, bool? activo)
+        private string ObtenerConsultaBase()
         {
-            throw new NotImplementedException();
+            return "SELECT U.IdUsuario, U.IdPersona, U.NombreUsuario, U.PasswordHash, U.Imagen,"
+                + " U.IdRol, U.IdEstadoUsuario,"
+                + " P.DNI, P.Nombre, P.Apellido, P.Telefono, P.Email,"
+                + " R.Nombre AS NombreRol, R.Descripcion AS DescripcionRol, R.Activo AS ActivoRol,"
+                + " EU.Nombre AS NombreEstadoUsuario,"
+                + " EU.Descripcion AS DescripcionEstadoUsuario,"
+                + " EU.Activo AS ActivoEstadoUsuario"
+                + " FROM Usuarios U"
+                + " INNER JOIN Personas P ON P.IdPersona = U.IdPersona"
+                + " INNER JOIN Roles R ON R.IdRol = U.IdRol"
+                + " INNER JOIN EstadosUsuario EU ON EU.IdEstadoUsuario = U.IdEstadoUsuario";
+        }
+
+        private string ConstruirFiltro(string campo, string criterio)
+        {
+            string campoSql = ObtenerCampoSql(campo);
+
+            if (string.IsNullOrWhiteSpace(campoSql))
+            {
+                return " AND (P.DNI LIKE '%' + @filtro + '%'"
+                    + " OR P.Nombre LIKE '%' + @filtro + '%'"
+                    + " OR P.Apellido LIKE '%' + @filtro + '%'"
+                    + " OR P.Email LIKE '%' + @filtro + '%'"
+                    + " OR R.Nombre LIKE '%' + @filtro + '%'"
+                    + " OR EU.Nombre LIKE '%' + @filtro + '%'"
+                    + " OR U.NombreUsuario LIKE '%' + @filtro + '%')";
+            }
+
+            if (string.Equals(criterio, "Igual a", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " = @filtro";
+            }
+
+            if (string.Equals(criterio, "Comienza con", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " LIKE @filtro + '%'";
+            }
+
+            if (string.Equals(criterio, "Termina con", StringComparison.OrdinalIgnoreCase))
+            {
+                return " AND " + campoSql + " LIKE '%' + @filtro";
+            }
+
+            return " AND " + campoSql + " LIKE '%' + @filtro + '%'";
+        }
+
+        private string ObtenerCampoSql(string campo)
+        {
+            if (string.IsNullOrWhiteSpace(campo))
+            {
+                return null;
+            }
+
+            switch (campo.Trim())
+            {
+                case "DNI":
+                    return "P.DNI";
+                case "Nombre":
+                    return "P.Nombre";
+                case "Apellido":
+                    return "P.Apellido";
+                case "Email":
+                    return "P.Email";
+                case "Rol":
+                    return "R.Nombre";
+                case "Estado":
+                    return "EU.Nombre";
+                case "NombreUsuario":
+                    return "U.NombreUsuario";
+                default:
+                    return null;
+            }
+        }
+
+        private void CambiarEstado(int id, EstadoUsuarioEnum estadoRequerido)
+        {
+            try
+            {
+                EstadoUsuario estado = estadoUsuarioDatos.ObtenerPorNombre(estadoRequerido.ToString());
+                if (estado == null)
+                {
+                    throw new Exception("El estado del usuario no existe.");
+                }
+
+                accesoDatos.setearConsulta(
+                    "UPDATE Usuarios SET IdEstadoUsuario = @idEstadoUsuario"
+                    + " WHERE IdUsuario = @idUsuario");
+                accesoDatos.setearParametro("@idUsuario", id);
+                accesoDatos.setearParametro("@idEstadoUsuario", estado.IdEstadoUsuario);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        private void ValidarReferencias(Rol rol, EstadoUsuario estado)
+        {
+            if (rol == null)
+            {
+                throw new Exception("El rol del usuario no existe.");
+            }
+
+            if (estado == null)
+            {
+                throw new Exception("El estado del usuario no existe.");
+            }
         }
     }
 }

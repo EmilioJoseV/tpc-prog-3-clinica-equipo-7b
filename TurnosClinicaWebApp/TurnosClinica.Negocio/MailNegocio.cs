@@ -26,7 +26,7 @@ namespace TurnosClinica.Negocio
         public void EnviarConfirmacionTurnoNuevo(Turno turno)
         {
             // verifico si el paciente exist y el mail
-            if (turno.Paciente == null || string.IsNullOrEmpty(turno.Paciente.Email))
+            if (turno.Paciente == null || turno.Paciente.Persona == null || string.IsNullOrEmpty(turno.Paciente.Persona.Email))
             {
                 return; 
             }
@@ -34,12 +34,12 @@ namespace TurnosClinica.Negocio
             string asunto = $"Confirmación de Turno Médico - Clínica";
 
             // cuerpo del correo
-            string cuerpoHtml = $"<h2>¡Hola {turno.Paciente.Nombre} {turno.Paciente.Apellido}!</h2>" +
+            string cuerpoHtml = $"<h2>¡Hola {turno.Paciente.Persona.Nombre} {turno.Paciente.Persona.Apellido}!</h2>" +
                                 $"<p>Tu turno en la clínica ha sido confirmado con éxito.</p>" +
                                 $"<ul>" +
                                 $"<li><strong>Nro de Turno:</strong> {turno.NumeroTurno}</li>" +
                                 $"<li><strong>Especialidad:</strong> {turno.Especialidad.Nombre}</li>" +
-                                $"<li><strong>Médico:</strong> {turno.Medico.Nombre} {turno.Medico.Apellido}</li>" +
+                                $"<li><strong>Médico:</strong> {turno.Medico.Persona.Nombre} {turno.Medico.Persona.Apellido}</li>" +
                                 $"<li><strong>Fecha:</strong> {turno.FechaTurno.ToString("dd/MM/yyyy")}</li>" +
                                 $"<li><strong>Hora:</strong> {turno.HoraInicio.ToString(@"hh\:mm")} hs</li>" +
                                 $"</ul>" +
@@ -49,7 +49,7 @@ namespace TurnosClinica.Negocio
             
             email = new MailMessage();
             email.From = new MailAddress("noresponder@clinicamedica.com", "Turnos Clínica");
-            email.To.Add(turno.Paciente.Email);
+            email.To.Add(turno.Paciente.Persona.Email);
             email.Subject = asunto;
             email.IsBodyHtml = true;
             email.Body = cuerpoHtml;

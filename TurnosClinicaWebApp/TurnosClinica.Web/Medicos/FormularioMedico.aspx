@@ -5,9 +5,10 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <h1 class="h3 mb-3">Formulario de Medico</h1>
-    <p class="text-secondary">Complete los datos requeridos</p>
+    <p class="text-secondary">Complete los datos requeridos. La cuenta de acceso se genera automaticamente en estado pendiente.</p>
 
     <asp:HiddenField ID="HfIdMedico" runat="server" />
+    <asp:HiddenField ID="HfIdPersona" runat="server" />
 
     <div class="row g-3">
         <div class="col-12 col-md-4">
@@ -62,14 +63,11 @@
                         </div>
                         <div class="col-12 col-md-3">
                             <asp:Label ID="LblHoraDesde" runat="server" Text="Hora desde" CssClass="form-label" />
-                            <asp:TextBox ID="TxtHoraDesde" runat="server" CssClass="form-control" />
+                            <asp:TextBox ID="TxtHoraDesde" runat="server" TextMode="Time" CssClass="form-control" />
                         </div>
                         <div class="col-12 col-md-3">
                             <asp:Label ID="LblHoraHasta" runat="server" Text="Hora hasta" CssClass="form-label" />
-                            <asp:TextBox ID="TxtHoraHasta" runat="server" CssClass="form-control" />
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <asp:CheckBox ID="ChkHorarioActivo" runat="server" Text="Activo" Checked="true" />
+                            <asp:TextBox ID="TxtHoraHasta" runat="server" TextMode="Time" CssClass="form-control" />
                         </div>
                         <div class="col-12 col-md-1">
                             <asp:Button ID="BtnAgregarHorario" runat="server" CssClass="btn btn-outline-primary" Text="Agregar" OnClick="BtnAgregarHorario_Click" />
@@ -85,8 +83,6 @@
                                             <th>Dia</th>
                                             <th>Desde</th>
                                             <th>Hasta</th>
-                                            <th>Estado</th>
-                                            <th>Activo</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
@@ -94,12 +90,26 @@
                             </HeaderTemplate>
                             <ItemTemplate>
                                         <tr>
-                                            <td><%# ObtenerDiaSemanaTexto(Eval("DiaSemana")) %></td>
-                                            <td><%# FormatearHora(Eval("HoraDesde")) %></td>
-                                            <td><%# FormatearHora(Eval("HoraHasta")) %></td>
-                                            <td><%# ((bool)Eval("Activo")) ? "Activo" : "Inactivo" %></td>
                                             <td>
-                                                <asp:CheckBox ID="ChkHorarioActivo" runat="server" Checked='<%# Convert.ToBoolean(Eval("Activo")) %>' />
+                                                <asp:HiddenField ID="HfIdHorario" runat="server" Value='<%# Eval("IdHorarioDisponibilidadMedico") %>' />
+                                                <asp:DropDownList ID="DdlDiaSemanaFila" runat="server" CssClass="form-control"
+                                                    SelectedValue='<%# Convert.ToInt32(Eval("DiaSemana")).ToString() %>'>
+                                                    <asp:ListItem Text="Lunes" Value="1" />
+                                                    <asp:ListItem Text="Martes" Value="2" />
+                                                    <asp:ListItem Text="Miercoles" Value="3" />
+                                                    <asp:ListItem Text="Jueves" Value="4" />
+                                                    <asp:ListItem Text="Viernes" Value="5" />
+                                                    <asp:ListItem Text="Sabado" Value="6" />
+                                                    <asp:ListItem Text="Domingo" Value="7" />
+                                                </asp:DropDownList>
+                                            </td>
+                                            <td>
+                                                <asp:TextBox ID="TxtHoraDesdeFila" runat="server" TextMode="Time"
+                                                    CssClass="form-control" Text='<%# FormatearHora(Eval("HoraDesde")) %>' />
+                                            </td>
+                                            <td>
+                                                <asp:TextBox ID="TxtHoraHastaFila" runat="server" TextMode="Time"
+                                                    CssClass="form-control" Text='<%# FormatearHora(Eval("HoraHasta")) %>' />
                                             </td>
                                             <td>
                                                 <asp:LinkButton ID="BtnEliminarHorario" runat="server" CssClass="btn btn-outline-danger" CommandName="EliminarHorario" CommandArgument='<%# Container.ItemIndex %>'>Quitar</asp:LinkButton>

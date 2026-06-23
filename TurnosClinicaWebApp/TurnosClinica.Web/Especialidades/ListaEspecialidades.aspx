@@ -4,121 +4,96 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    
     <div class="container mt-4">
-        
         <div class="row mb-3">
             <div class="col">
-                <h1 class="h3 mb-3">Administración de Especialidades</h1>
-                <p class="text-secondary">Desde aquí puedes ver todas las especialidades registradas en la clínica.</p>
+                <h1 class="h3 mb-3">Administracion de Especialidades</h1>
+                <p class="text-secondary">Listado de especialidades registradas</p>
             </div>
             <div class="col text-end">
-                <a href="FormularioEspecialidad.aspx" class="btn btn-primary">
-                    + Nueva Especialidad
-                </a>
-            </div>
-        </div>
-            <div class="row">
-        <div class="col-6">
-            <div class="mb-3">
-                <asp:Label Text="Filtrar" runat="server" />
-                <asp:TextBox runat="server" ID="txtFiltro" CssClass="form-control" AutoPostBack="true" OnTextChanged="txtFiltro_TextChanged" />
-            </div>
-        </div>
-        <div class="col-6" style="display: flex; flex-direction: column; justify-content: flex-end;">
-            <div class="mb-3">
-                <asp:CheckBox Text="Filtro Avanzado"
-                    ID="chkAvanzado" runat="server"
-                    AutoPostBack="true"
-                    OnCheckedChanged="chkAvanzado_CheckedChanged" />
+                <a href="FormularioEspecialidad.aspx" class="btn btn-primary">+ Nueva Especialidad</a>
             </div>
         </div>
 
-        <% if (FiltroAvanzado)
-            { %>
-        <div class="row">
-            
-                              <div class="col-4">
-                    <div class="mb-3">
-                        <asp:Label Text="Especialidad" runat="server" />
-                        <asp:DropDownList runat="server" ID="ddlFiltroNombre" CssClass="form-control">
-                        </asp:DropDownList>
-                    </div>
-                </div>
-
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Label Text="Estado" runat="server" />
-                    <asp:DropDownList runat="server" ID="ddlEstado" CssClass="form-control">
-                        <asp:ListItem Text="Todos" />
-                        <asp:ListItem Text="Activo" />
-                        <asp:ListItem Text="Inactivo" />
-                    </asp:DropDownList>
-                </div>
+        <div class="row mb-3">
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" Text="Filtrar" CssClass="form-label" />
+                <asp:TextBox ID="txtFiltro" runat="server" CssClass="form-control" AutoPostBack="true" OnTextChanged="txtFiltro_TextChanged" />
+            </div>
+            <div class="col-12 col-md-6 d-flex align-items-end gap-2">
+                <asp:CheckBox ID="chkAvanzado" runat="server" Text="Filtro avanzado" AutoPostBack="true" OnCheckedChanged="chkAvanzado_CheckedChanged" />
+                <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar" CssClass="btn btn-outline-primary" OnClick="btnLimpiar_Click" />
             </div>
         </div>
-        <div class="row">
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Button Text="Buscar" runat="server" CssClass="btn btn-primary" ID="btnBuscar" OnClick="btnBuscar_Click" />
-                </div>
+
+        <% if (chkAvanzado.Checked)
+           { %>
+        <div class="row mb-3">
+            <div class="col-12 col-md-3">
+                <asp:Label runat="server" Text="Campo" CssClass="form-label" />
+                <asp:DropDownList ID="ddlCampo" runat="server" CssClass="form-control">
+                    <asp:ListItem Text="Nombre" />
+                    <asp:ListItem Text="Descripcion" />
+                </asp:DropDownList>
             </div>
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Button Text="Limpiar" runat="server" CssClass="btn btn-outline-primary" ID="btnLimpiar" OnClick="btnLimpiar_Click" />
-                </div>
+            <div class="col-12 col-md-3">
+                <asp:Label runat="server" Text="Criterio" CssClass="form-label" />
+                <asp:DropDownList ID="ddlCriterio" runat="server" CssClass="form-control">
+                    <asp:ListItem Text="Contiene" />
+                    <asp:ListItem Text="Igual a" />
+                    <asp:ListItem Text="Comienza con" />
+                    <asp:ListItem Text="Termina con" />
+                </asp:DropDownList>
+            </div>
+            <div class="col-12 col-md-3">
+                <asp:Label runat="server" Text="Filtro" CssClass="form-label" />
+                <asp:TextBox ID="txtFiltroAvanzado" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-3">
+                <asp:Label runat="server" Text="Estado" CssClass="form-label" />
+                <asp:DropDownList ID="ddlEstado" runat="server" CssClass="form-control">
+                    <asp:ListItem Text="Todos" />
+                    <asp:ListItem Text="Activo" />
+                    <asp:ListItem Text="Inactivo" />
+                </asp:DropDownList>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-12">
+                <asp:Button ID="btnBuscar" runat="server" Text="Buscar" CssClass="btn btn-primary" OnClick="btnBuscar_Click" />
             </div>
         </div>
         <% } %>
+
+        <asp:GridView ID="dgvEspecialidades" runat="server" AutoGenerateColumns="false"
+            CssClass="table table-striped table-hover table-bordered align-middle"
+            GridLines="None" UseAccessibleHeader="true" HeaderStyle-CssClass="table-dark"
+            OnRowCommand="dgvEspecialidades_RowCommand">
+            <Columns>
+                <asp:BoundField DataField="Nombre" HeaderText="Nombre" />
+                <asp:BoundField DataField="Descripcion" HeaderText="Descripcion" />
+                <asp:TemplateField HeaderText="Estado">
+                    <ItemTemplate>
+                        <%# Convert.ToBoolean(Eval("Activo")) ? "<span class='badge bg-success'>Activo</span>" : "<span class='badge bg-danger'>Inactivo</span>" %>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="Ver">
+                    <ItemTemplate>
+                        <asp:LinkButton ID="btnVer" runat="server" CommandName="Ver"
+                            CommandArgument='<%# Eval("IdEspecialidad") + "|" + Eval("Activo") %>'
+                            CssClass="btn btn-warning btn-sm">Ver</asp:LinkButton>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="Cambiar estado">
+                    <ItemTemplate>
+                        <asp:LinkButton ID="btnToggle" runat="server" CommandName="Toggle"
+                            CommandArgument='<%# Eval("IdEspecialidad") + "|" + Eval("Activo") %>'
+                            CssClass='<%# Convert.ToBoolean(Eval("Activo")) ? "btn btn-sm btn-outline-danger" : "btn btn-sm btn-outline-success" %>'>
+                            <%# Convert.ToBoolean(Eval("Activo")) ? "Desactivar" : "Activar" %>
+                        </asp:LinkButton>
+                    </ItemTemplate>
+                </asp:TemplateField>
+            </Columns>
+        </asp:GridView>
     </div>
- 
-        <table class="table table-striped table-hover table-bordered align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col"># ID</th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Descripción</th>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Acciones</th>
-                    <th scope="col">Baja</th>
-                   <th scope ="col">Médicos Asociados</th> 
-                    
-                          
-
-                </tr>
-            </thead>
-            <tbody>
-                
-                <% foreach (TurnosClinica.Dominio.Entidades.Especialidad esp in ListaEspecialidad) { %>
-                    <tr>
-                        <td><%: esp.IdEspecialidad %></td>
-                        <td class="fw-bold"><%: esp.Nombre %></td>
-                        <td><%: esp.Descripcion %></td>
-                        <td>
-                            <% if (esp.Activo) { %>
-                                <span class="badge bg-success">Activo</span>
-                            <% } else { %>
-                                <span class="badge bg-danger">Inactivo</span>
-                            <% } %>
-                        </td>
-                        <td>
-                            <a href="FormularioEspecialidad.aspx?id=<%: esp.IdEspecialidad %>" class="btn btn-warning btn-sm">
-                                Modificar
-                            </a>
-                        </td>
-                        
-                        <td>
-                            
-                            <a href="ListaEspecialidades.aspx?idBaja=<%: esp.IdEspecialidad %>" class="btn btn-danger" onclick="return confirm('¿Estás seguro que deseas dar de baja esta especialidad?');">Dar de baja</a>
-                        </td>
-                        <td><%: ObtenerMedicosPorEspecialidad(esp.IdEspecialidad) %> </td>
-
-
-                    </tr>
-                <% } %>
-                
-            </tbody>
-        </table>
-    
-
 </asp:Content>

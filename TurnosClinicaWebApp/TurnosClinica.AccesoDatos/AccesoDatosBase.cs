@@ -5,7 +5,7 @@ using System.Data;
 
 namespace TurnosClinica.AccesoDatos
 {
-    public class AccesoDatos
+    public class AccesoDatosBase
     {
         private readonly SqlConnection conexion;
         private readonly SqlCommand comando;
@@ -18,18 +18,23 @@ namespace TurnosClinica.AccesoDatos
             get { return lector; }
         }
 
-        public AccesoDatos()
+        public AccesoDatosBase()
         {
             conexion = new SqlConnection(ConfigurationManager.AppSettings["cadenaConexion"]);
             comando = new SqlCommand();
         }
 
-        public AccesoDatos(SqlConnection conexionCompartida, SqlTransaction transaccionCompartida)
+        public AccesoDatosBase(SqlConnection conexionCompartida, SqlTransaction transaccionCompartida)
         {
             conexion = conexionCompartida;
             transaccion = transaccionCompartida;
             esContextoExterno = true;
             comando = new SqlCommand();
+        }
+
+        public AccesoDatosBase CrearContextoCompartido()
+        {
+            return new AccesoDatosBase(conexion, transaccion);
         }
 
         public void setearConsulta(string consulta)

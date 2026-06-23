@@ -6,11 +6,16 @@ namespace TurnosClinica.AccesoDatos
 {
     public class ConfiguracionTurnoDatos : IMapeable<ConfiguracionTurno>
     {
-        private readonly AccesoDatos accesoDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
         public ConfiguracionTurnoDatos()
         {
-            accesoDatos = new AccesoDatos();
+            accesoDatos = new AccesoDatosBase();
+        }
+
+        public ConfiguracionTurnoDatos(AccesoDatosBase accesoDatosCompartido)
+        {
+            accesoDatos = accesoDatosCompartido;
         }
 
         public ConfiguracionTurno ObtenerConfiguracion()

@@ -8,19 +8,14 @@ namespace TurnosClinica.AccesoDatos
 {
     public class MedicoEspecialidadesDatos : IMapeable<Especialidad>
     {
-        private readonly AccesoDatos accesoDatos;
+        private readonly AccesoDatosBase accesoDatos;
 
-        public MedicoEspecialidadesDatos()
+        public MedicoEspecialidadesDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatos();
+            this.accesoDatos = accesoDatos;
         }
 
-        public MedicoEspecialidadesDatos(AccesoDatos accesoDatosCompartido)
-        {
-            accesoDatos = accesoDatosCompartido;
-        }
-
-        public List<Especialidad> ListarPorMedico(int idMedico)
+        public List<Especialidad> ObtenerEspecialidadesAsociadasAMedico(int idMedico)
         {
             List<Especialidad> especialidades = new List<Especialidad>();
             try
@@ -41,9 +36,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return especialidades;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -51,64 +46,48 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
-        public void Agregar(int idMedico, int idEspecialidad)
-        {
-            Agregar(accesoDatos, idMedico, idEspecialidad);
-        }
-
-        public void Agregar(AccesoDatos datosCompartidos, int idMedico, int idEspecialidad)
+        private void Agregar(int idMedico, int idEspecialidad)
         {
             try
             {
-                datosCompartidos.setearConsulta(
+                accesoDatos.setearConsulta(
                     "INSERT INTO MedicosEspecialidades (IdMedico, IdEspecialidad)"
                     + " VALUES (@idMedico, @idEspecialidad)");
-                datosCompartidos.setearParametro("@idMedico", idMedico);
-                datosCompartidos.setearParametro("@idEspecialidad", idEspecialidad);
-                datosCompartidos.ejecutarAccion();
+                accesoDatos.setearParametro("@idMedico", idMedico);
+                accesoDatos.setearParametro("@idEspecialidad", idEspecialidad);
+                accesoDatos.ejecutarAccion();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
-                if (ReferenceEquals(datosCompartidos, accesoDatos))
-                {
-                    accesoDatos.cerrarConexion();
-                }
+                accesoDatos.cerrarConexion();
             }
         }
 
-        public bool EliminarPorMedico(int idMedico)
-        {
-            return EliminarPorMedico(accesoDatos, idMedico);
-        }
-
-        public bool EliminarPorMedico(AccesoDatos datosCompartidos, int idMedico)
+        private void EliminarPorMedico(int idMedico)
         {
             try
             {
-                datosCompartidos.setearConsulta(
+                accesoDatos.setearConsulta(
                     "DELETE FROM MedicosEspecialidades"
                     + " WHERE IdMedico = @idMedico");
-                datosCompartidos.setearParametro("@idMedico", idMedico);
-                datosCompartidos.ejecutarAccion();
-                return true;
+                accesoDatos.setearParametro("@idMedico", idMedico);
+                accesoDatos.ejecutarAccion();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
-                if (ReferenceEquals(datosCompartidos, accesoDatos))
-                {
-                    accesoDatos.cerrarConexion();
-                }
+                accesoDatos.cerrarConexion();
             }
         }
-        public bool AgregarActualizarPorMedico(int idMedico, List<Especialidad> especialidadesRequeridas)
+
+        public void ReemplazarPorMedico(int idMedico, List<Especialidad> especialidadesRequeridas)
         {
             List<Especialidad> especialidadesFiltradas = especialidadesRequeridas == null
                 ? new List<Especialidad>()
@@ -117,14 +96,13 @@ namespace TurnosClinica.AccesoDatos
                     .Select(grupo => grupo.First())
                     .ToList();
 
-            EliminarPorMedico(accesoDatos, idMedico);
+            EliminarPorMedico(idMedico);
 
             foreach (Especialidad especialidad in especialidadesFiltradas)
             {
-                Agregar(accesoDatos, idMedico, especialidad.IdEspecialidad);
+                Agregar(idMedico, especialidad.IdEspecialidad);
             }
 
-            return true;
         }
 
         public Especialidad MapearFilaAEntidad(SqlDataReader fila)

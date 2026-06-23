@@ -4,54 +4,51 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-  <h2>Nueva Especialidad</h2>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label for="txtNombre" class="form-label">Nombre de la Especialidad</label>
-                <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control"></asp:TextBox>
+    <div class="container mt-4">
+        <asp:HiddenField ID="hfIdEspecialidad" runat="server" />
+        <h1 class="h3 mb-3">
+            <asp:Label ID="lblTitulo" runat="server" Text="Nueva Especialidad" />
+        </h1>
+
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="mb-3">
+                    <asp:Label runat="server" AssociatedControlID="txtNombre" Text="Nombre" CssClass="form-label" />
+                    <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" />
+                </div>
+                <div class="mb-3">
+                    <asp:Label runat="server" AssociatedControlID="txtDescripcion" Text="Descripcion" CssClass="form-label" />
+                    <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" />
+                </div>
+                <div class="mb-3">
+                    <asp:CheckBox ID="chkActivo" runat="server" Text="Activo" />
+                </div>
+                <div class="mb-3">
+                    <asp:Button ID="btnGuardar" runat="server" Text="Guardar" CssClass="btn btn-primary" OnClick="btnGuardar_Click" />
+                    <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" CausesValidation="false" />
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="txtDescripcion" class="form-label">Descripción</label>
-                <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3"></asp:TextBox>
+
+            <div class="col-12 col-md-6">
+                <h2 class="h5 mb-3">Medicos asociados</h2>
+                <asp:GridView ID="dgvMedicosAsociados" runat="server" AutoGenerateColumns="false"
+                    CssClass="table table-striped table-bordered align-middle"
+                    GridLines="None" UseAccessibleHeader="true" HeaderStyle-CssClass="table-dark"
+                    EmptyDataText="Sin medicos asociados">
+                    <Columns>
+                        <asp:TemplateField HeaderText="Medico">
+                            <ItemTemplate>
+                                <%# Eval("Persona.Apellido") + ", " + Eval("Persona.Nombre") %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Estado">
+                            <ItemTemplate>
+                                <%# Convert.ToBoolean(Eval("Activo")) ? "Activo" : "Inactivo" %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
             </div>
         </div>
     </div>
-
-    <div class="row">
-    <div class="col-md-6">
-        <div class="mb-3">
-            <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" OnClick="btnAceptar_Click" />
-            <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
-        </div>
-    </div>
-</div>
-    <div class="row">
-        <div class="col-6">
-            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
-                <ContentTemplate>
-
-
-
-                    <div class="mb-3">
-
-                        <asp:Button Text="Eliminar" ID="btnEliminar" OnClick="btnEliminar_Click" CssClass="btn btn-danger" runat="server" />
-
-
-                    </div>
-                    <%if (ConfirmaEliminacion)
-                        { %>
-
-                    <div class="mb-3">
-                        <asp:CheckBox Text="Confirmar Eliminacion" ID="chkConfirmaEliminacion" runat="server" />
-                        <asp:Button Text="Eliminar" ID="btnConfirmaEliminar" OnClick="btnConfirmaEliminar_Click" CssClass="btn btn-outline-danger" runat="server" />
-
-                    </div>
-                    <%  } %>
-                </ContentTemplate>
-            </asp:UpdatePanel>
-        </div
-    </div>
-
-
 </asp:Content>

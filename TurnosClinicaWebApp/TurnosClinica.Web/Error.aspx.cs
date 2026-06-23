@@ -7,14 +7,6 @@ namespace TurnosClinica.Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            {
-                if (Session["error"] != null)
-                {
-
-                    lblMensajeError.Text = Session["error"].ToString();
-                }
-
-            }
         }
     }
 }

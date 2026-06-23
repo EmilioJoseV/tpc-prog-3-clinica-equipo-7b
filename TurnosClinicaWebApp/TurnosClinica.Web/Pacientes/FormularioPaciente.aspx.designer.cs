@@ -9,19 +9,13 @@ namespace TurnosClinica.Web
     public partial class FormularioPaciente
     {
         protected global::System.Web.UI.WebControls.HiddenField HfIdPaciente;
-        protected global::System.Web.UI.WebControls.Label LblDni;
+        protected global::System.Web.UI.WebControls.HiddenField HfIdPersona;
         protected global::System.Web.UI.WebControls.TextBox TxtDni;
-        protected global::System.Web.UI.WebControls.Label LblNombre;
         protected global::System.Web.UI.WebControls.TextBox TxtNombre;
-        protected global::System.Web.UI.WebControls.Label LblApellido;
         protected global::System.Web.UI.WebControls.TextBox TxtApellido;
-        protected global::System.Web.UI.WebControls.Label LblFechaNacimiento;
         protected global::System.Web.UI.WebControls.TextBox TxtFechaNacimiento;
-        protected global::System.Web.UI.WebControls.Label LblTelefono;
         protected global::System.Web.UI.WebControls.TextBox TxtTelefono;
-        protected global::System.Web.UI.WebControls.Label LblEmail;
         protected global::System.Web.UI.WebControls.TextBox TxtEmail;
-        protected global::System.Web.UI.WebControls.Label LblDireccion;
         protected global::System.Web.UI.WebControls.TextBox TxtDireccion;
         protected global::System.Web.UI.WebControls.CheckBox ChkActivo;
         protected global::System.Web.UI.WebControls.Button BtnGuardar;
