@@ -79,6 +79,28 @@ namespace TurnosClinica.Web
             Response.Redirect("ListaUsuarios.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
+        protected void btnPrevisualizar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (fileImagen.HasFile)
+                {
+                    // Guardamos los bytes en la Session para que no se pierdan en los PostBacks
+                    Session["ImagenTemporal"] = fileImagen.FileBytes;
+
+                    // Mostramos la imagen en el control de servidor convirtiendo los bytes a Base64
+                    imgPerfil.ImageUrl = "data:image/jpeg;base64," + Convert.ToBase64String(fileImagen.FileBytes);
+
+                    // Hacemos visible la foto y ocultamos el panel de la inicial
+                    imgPerfil.Visible = true;
+                    pnlInicial.Visible = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Session.Add("Error", ex.ToString());
+            }
+        }
 
         private void CargarUsuario()
         {
