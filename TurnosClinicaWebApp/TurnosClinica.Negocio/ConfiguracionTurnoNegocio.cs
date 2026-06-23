@@ -11,7 +11,7 @@ namespace TurnosClinica.Negocio
 
         public ConfiguracionTurnoNegocio()
         {
-            configuracionTurnoDatos = new ConfiguracionTurnoDatos();
+            configuracionTurnoDatos = new ConfiguracionTurnoDatos(new AccesoDatosBase());
         }
 
         public ConfiguracionTurno Obtener()
@@ -20,9 +20,9 @@ namespace TurnosClinica.Negocio
             {
                 return configuracionTurnoDatos.ObtenerConfiguracion();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -39,10 +39,10 @@ namespace TurnosClinica.Negocio
                     datos.Modificar(configuracionTurno);
                     transaccionDatos.Confirmar();
                 }
-                catch (Exception ex)
+                catch
                 {
                     transaccionDatos.Cancelar();
-                    throw ex;
+                    throw;
                 }
             }
         }

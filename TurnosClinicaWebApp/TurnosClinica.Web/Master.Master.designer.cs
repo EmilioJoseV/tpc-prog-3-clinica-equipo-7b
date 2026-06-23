@@ -41,6 +41,12 @@ namespace TurnosClinica.Web
         /// </remarks>
         protected global::System.Web.UI.ScriptManager ScripManager1;
 
+        protected global::System.Web.UI.WebControls.HyperLink LnkPanelPrincipal;
+
+        protected global::System.Web.UI.WebControls.HyperLink LnkIngresar;
+
+        protected global::System.Web.UI.WebControls.LinkButton LnkSalir;
+
         /// <summary>
         /// PnlMensajeError control.
         /// </summary>

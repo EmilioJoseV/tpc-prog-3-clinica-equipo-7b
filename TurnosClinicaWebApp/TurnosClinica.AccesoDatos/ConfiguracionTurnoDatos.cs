@@ -8,14 +8,9 @@ namespace TurnosClinica.AccesoDatos
     {
         private readonly AccesoDatosBase accesoDatos;
 
-        public ConfiguracionTurnoDatos()
+        public ConfiguracionTurnoDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatosBase();
-        }
-
-        public ConfiguracionTurnoDatos(AccesoDatosBase accesoDatosCompartido)
-        {
-            accesoDatos = accesoDatosCompartido;
+            this.accesoDatos = accesoDatos;
         }
 
         public ConfiguracionTurno ObtenerConfiguracion()

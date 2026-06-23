@@ -9,14 +9,9 @@ namespace TurnosClinica.AccesoDatos
     {
         private readonly AccesoDatosBase accesoDatos;
 
-        public EstadoTurnoDatos()
+        public EstadoTurnoDatos(AccesoDatosBase accesoDatos)
         {
-            accesoDatos = new AccesoDatosBase();
-        }
-
-        public EstadoTurnoDatos(AccesoDatosBase accesoDatosCompartido)
-        {
-            accesoDatos = accesoDatosCompartido;
+            this.accesoDatos = accesoDatos;
         }
 
         public List<EstadoTurno> Listar(bool? activo)
@@ -46,9 +41,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return estados;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -80,9 +75,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return estadoTurno;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
