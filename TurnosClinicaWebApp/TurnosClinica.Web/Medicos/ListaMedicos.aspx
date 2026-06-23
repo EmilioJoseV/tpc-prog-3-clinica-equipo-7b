@@ -4,101 +4,98 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <h1>Lista de Medicos</h1>
-    <div class="row">
-        <div class="col-6">
-            <div class="mb-3">
-                <asp:Label Text="Filtrar" runat="server" />
-                <asp:TextBox runat="server" ID="txtFiltro" CssClass="form-control" AutoPostBack="true" OnTextChanged="filtro_TextChanged" />
+    <div class="container mt-4">
+        <div class="row mb-3">
+            <div class="col">
+                <h1 class="h3 mb-3">Administracion de Medicos</h1>
+                <p class="text-secondary">Listado de medicos registrados</p>
+            </div>
+            <div class="col text-end">
+                <a href="FormularioMedico.aspx" class="btn btn-primary">+ Nuevo Medico</a>
             </div>
         </div>
-        <div class="col-6" style="display: flex; flex-direction: column; justify-content: flex-end;">
-            <div class="mb-3">
-                <asp:CheckBox Text="Filtro Avanzado"
-                    ID="chkAvanzado" runat="server"
-                    AutoPostBack="true"
-                    OnCheckedChanged="chkAvanzado_CheckedChanged" />
+
+        <div class="row mb-3">
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" Text="Filtrar" CssClass="form-label" />
+                <asp:TextBox runat="server" ID="txtFiltro" CssClass="form-control" AutoPostBack="true" OnTextChanged="filtro_TextChanged" />
+            </div>
+            <div class="col-12 col-md-6 d-flex align-items-end gap-2">
+                <asp:CheckBox Text="Filtro avanzado" ID="chkAvanzado" runat="server"
+                    AutoPostBack="true" OnCheckedChanged="chkAvanzado_CheckedChanged" />
+                <asp:Button Text="Limpiar" runat="server" CssClass="btn btn-outline-primary" ID="btnLimpiar" OnClick="btnLimpiar_Click" />
             </div>
         </div>
 
         <% if (chkAvanzado.Checked)
-            { %>
-        <div class="row">
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Label Text="Campo" ID="lblCampo" runat="server" />
-                    <asp:DropDownList runat="server" AutoPostBack="true" CssClass="form-control" ID="ddlCampo" OnSelectedIndexChanged="ddlCampo_SelectedIndexChanged">
-                        <asp:ListItem Text="Nombre" />
-                        <asp:ListItem Text="Matricula" />
-                        <asp:ListItem Text="DNI" />
-                    </asp:DropDownList>
-                </div>
+           { %>
+        <div class="row mb-3">
+            <div class="col-12 col-md-3">
+                <asp:Label Text="Campo" ID="lblCampo" runat="server" CssClass="form-label" />
+                <asp:DropDownList runat="server" AutoPostBack="true" CssClass="form-control" ID="ddlCampo" OnSelectedIndexChanged="ddlCampo_SelectedIndexChanged">
+                    <asp:ListItem Text="Nombre" />
+                    <asp:ListItem Text="Apellido" />
+                    <asp:ListItem Text="Matricula" />
+                    <asp:ListItem Text="DNI" />
+                    <asp:ListItem Text="Email" />
+                </asp:DropDownList>
             </div>
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Label Text="Criterio" runat="server" />
-                    <asp:DropDownList runat="server" ID="ddlCriterio" CssClass="form-control"></asp:DropDownList>
-                </div>
+            <div class="col-12 col-md-3">
+                <asp:Label Text="Criterio" runat="server" CssClass="form-label" />
+                <asp:DropDownList runat="server" ID="ddlCriterio" CssClass="form-control" />
             </div>
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Label Text="Filtro" runat="server" />
-                    <asp:TextBox runat="server" ID="txtFiltroAvanzado" CssClass="form-control" />
-                </div>
+            <div class="col-12 col-md-3">
+                <asp:Label Text="Filtro" runat="server" CssClass="form-label" />
+                <asp:TextBox runat="server" ID="txtFiltroAvanzado" CssClass="form-control" />
             </div>
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Label Text="Estado" runat="server" />
-                    <asp:DropDownList runat="server" ID="ddlEstado" CssClass="form-control">
-                        <asp:ListItem Text="Todos" />
-                        <asp:ListItem Text="Activo" />
-                        <asp:ListItem Text="Inactivo" />
-                    </asp:DropDownList>
-                </div>
+            <div class="col-12 col-md-3">
+                <asp:Label Text="Estado" runat="server" CssClass="form-label" />
+                <asp:DropDownList runat="server" ID="ddlEstado" CssClass="form-control">
+                    <asp:ListItem Text="Todos" />
+                    <asp:ListItem Text="Activo" />
+                    <asp:ListItem Text="Inactivo" />
+                </asp:DropDownList>
             </div>
         </div>
-        <div class="row">
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Button Text="Buscar" runat="server" CssClass="btn btn-primary" ID="btnBuscar" OnClick="btnBuscar_Click" />
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="mb-3">
-                    <asp:Button Text="Limpiar" runat="server" CssClass="btn btn-outline-primary" ID="btnLimpiar" OnClick="btnLimpiar_Click" />
-                </div>
+        <div class="row mb-3">
+            <div class="col-12">
+                <asp:Button Text="Buscar" runat="server" CssClass="btn btn-primary" ID="btnBuscar" OnClick="btnBuscar_Click" />
             </div>
         </div>
         <% } %>
+
+        <asp:GridView ID="dgvMedicos" runat="server" AutoGenerateColumns="false"
+            CssClass="table table-striped table-hover table-bordered align-middle"
+            GridLines="None" UseAccessibleHeader="true" HeaderStyle-CssClass="table-dark"
+            OnRowCommand="dgvMedicos_RowCommand">
+            <Columns>
+                <asp:BoundField HeaderText="Matricula" DataField="Matricula" />
+                <asp:TemplateField HeaderText="Nombre"><ItemTemplate><%#: Eval("Persona.Nombre") %></ItemTemplate></asp:TemplateField>
+                <asp:TemplateField HeaderText="Apellido"><ItemTemplate><%#: Eval("Persona.Apellido") %></ItemTemplate></asp:TemplateField>
+                <asp:TemplateField HeaderText="DNI"><ItemTemplate><%#: Eval("Persona.DNI") %></ItemTemplate></asp:TemplateField>
+                <asp:TemplateField HeaderText="Email"><ItemTemplate><%#: Eval("Persona.Email") %></ItemTemplate></asp:TemplateField>
+                <asp:TemplateField HeaderText="Estado">
+                    <ItemTemplate>
+                        <%# Convert.ToBoolean(Eval("Activo")) ? "<span class='badge bg-success'>Activo</span>" : "<span class='badge bg-danger'>Inactivo</span>" %>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="Ver">
+                    <ItemTemplate>
+                        <asp:LinkButton ID="BtnVer" runat="server" CommandName="Ver"
+                            CommandArgument='<%# Eval("IdMedico") + "|" + Eval("Activo") %>'
+                            CssClass="btn btn-warning btn-sm">Ver</asp:LinkButton>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="Cambiar estado">
+                    <ItemTemplate>
+                        <asp:LinkButton ID="BtnToggle" runat="server" CommandName="Toggle"
+                            CommandArgument='<%# Eval("IdMedico") + "|" + Eval("Activo") %>'
+                            CssClass='<%# Convert.ToBoolean(Eval("Activo")) ? "btn btn-sm btn-outline-danger" : "btn btn-sm btn-outline-success" %>'>
+                            <%# Convert.ToBoolean(Eval("Activo")) ? "Desactivar" : "Activar" %>
+                        </asp:LinkButton>
+                    </ItemTemplate>
+                </asp:TemplateField>
+            </Columns>
+        </asp:GridView>
     </div>
-    <asp:GridView ID="dgvMedicos" runat="server" DataKeyNames="IdMedico"
-        CssClass="table" AutoGenerateColumns="false"
-        OnRowCommand="dgvMedicos_RowCommand">
-        <Columns>
-            <asp:BoundField HeaderText="Matricula" DataField="Matricula" />
-            <asp:BoundField HeaderText="Nombre" DataField="Nombre" />
-            <asp:BoundField HeaderText="Apellido" DataField="Apellido" />
-            <asp:BoundField HeaderText="DNI" DataField="DNI" />
-            <asp:BoundField HeaderText="Email" DataField="Email" />
-            <asp:TemplateField HeaderText="Activo">
-                <ItemTemplate>
-                    <%# Convert.ToBoolean(Eval("Activo")) ? "Activo" : "Inactivo" %>
-                </ItemTemplate>
-            </asp:TemplateField>
-            <asp:TemplateField HeaderText="Accion">
-                <ItemTemplate>
-                    <asp:LinkButton ID="BtnModificar" runat="server" CommandName="Editar" CommandArgument='<%# Eval("IdMedico") %>'>Modificar</asp:LinkButton>
-                </ItemTemplate>
-            </asp:TemplateField>
-            <asp:TemplateField HeaderText="Baja">
-                <ItemTemplate>
-                    <asp:LinkButton ID="BtnBaja" runat="server" CommandName="Desactivar" CommandArgument='<%# Eval("IdMedico") %>'>Baja</asp:LinkButton>
-                </ItemTemplate>
-            </asp:TemplateField>
-        </Columns>
-    </asp:GridView>
-    <div class="mt-3">
-        <asp:Button Text="Limpiar" runat="server" CssClass="btn btn-outline-primary" ID="btnLimpiarRapido" OnClick="btnLimpiar_Click" />
-    </div>
-    <a href="FormularioMedico.aspx" class="btn btn-primary">Agregar</a>
 </asp:Content>

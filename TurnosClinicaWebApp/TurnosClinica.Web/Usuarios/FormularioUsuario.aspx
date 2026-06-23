@@ -2,88 +2,79 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-4">
-        <%-- Título dinámico compatible con id e Id --%>
-        <h2><%= Request.QueryString["id"] != null || Request.QueryString["Id"] != null ? "Modificar Usuario" : "Nuevo Usuario" %></h2>
-        <p class="text-secondary">Ingresa los datos correspondientes para el usuario.</p>
-        <hr />
-
-        <div class="row">
-            <div class="col-md-4">
-                <h5 class="text-primary mb-3">Datos Personales</h5>
-
-                <div class="mb-3">
-                    <label for="txtNombre" class="form-label">Nombre</label>
-                    <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="txtApellido" class="form-label">Apellido</label>
-                    <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Subir nueva foto</label>
-                    <div class="input-group">
-                        <%-- Eliminamos el onchange de JavaScript --%>
-                        <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
-                        <%-- Este botón procesa y actualiza la previsualización desde el servidor --%>
-                        <asp:Button ID="btnPrevisualizar" runat="server" Text="Cargar" CssClass="btn btn-outline-secondary" OnClick="btnPrevisualizar_Click" />
-                    </div>
-                    <small class="text-muted">Formatos aceptados: .jpg, .png</small>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <h5 class="text-primary mb-3">Acceso y Seguridad</h5>
-
-                <div class="mb-3">
-                    <label for="txtNombreUsuario" class="form-label">Nombre de Usuario</label>
-                    <asp:TextBox ID="txtNombreUsuario" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="txtEmail" class="form-label">Correo Electronico</label>
-                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="txtPassword" class="form-label">Contraseña (Dejar vacío para no cambiar)</label>
-                    <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="ddlRol" class="form-label">Rol Asignado</label>
-                    <asp:DropDownList ID="ddlRol" runat="server" CssClass="form-select"></asp:DropDownList>
-                </div>
-
-                <div class="mb-3">
-                    <label for="ddlMedico" class="form-label">Medico Asociado (Opcional)</label>
-                    <asp:DropDownList ID="ddlMedico" runat="server" CssClass="form-select"></asp:DropDownList>
-                </div>
-            </div>
-
-            <div class="col-md-4 text-center d-flex flex-column align-items-center pt-4">
-                <h5 class="text-primary mb-3">Foto de Perfil Actual</h5>
-
-                <%-- Control de imagen estándar: si tiene foto se muestra acá --%>
-                <asp:Image ID="imgPerfil" runat="server" CssClass="img-thumbnail rounded-circle" Style="width: 180px; height: 180px; object-fit: cover;" Visible="false" />
-
-                <%-- Control de panel estándar: si no tiene foto se usa para la inicial o el texto por defecto --%>
-                <asp:Panel ID="pnlInicial" runat="server" CssClass="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" Style="width: 180px; height: 180px; font-size: 48px;" Visible="false">
-                    <asp:Literal ID="litInicial" runat="server"></asp:Literal>
-                </asp:Panel>
+        <div class="row mb-3">
+            <div class="col">
+                <h1 class="h3 mb-3">
+                    <asp:Label ID="lblTitulo" runat="server" Text="Nuevo Usuario" />
+                </h1>
+                <p class="text-secondary">Usuarios Administrador y Recepcionista</p>
             </div>
         </div>
 
-        <div class="row mt-3">
-            <div class="col-12">
-                <div class="mb-3 d-flex gap-2">
-                    <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" OnClick="btnAceptar_Click" />
-                    <asp:Button ID="btnInactivar" runat="server" Text="Inactivar" CssClass="btn btn-warning" OnClick="btnInactivar_Click" />
-                    <asp:Button ID="btnEliminar" runat="server" Text="Eliminar" CssClass="btn btn-danger" OnClick="btnEliminar_Click" OnClientClick="return confirm('¿Estas seguro de que deseas eliminar permanentemente a este usuario?');" />
-                    <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
+        <asp:HiddenField ID="hfIdUsuario" runat="server" />
+        <asp:HiddenField ID="hfIdPersona" runat="server" />
+
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtDni" Text="DNI" CssClass="form-label" />
+                <asp:TextBox ID="txtDni" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtNombre" Text="Nombre" CssClass="form-label" />
+                <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtApellido" Text="Apellido" CssClass="form-label" />
+                <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtTelefono" Text="Telefono" CssClass="form-label" />
+                <asp:TextBox ID="txtTelefono" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtEmail" Text="Email" CssClass="form-label" />
+                <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="ddlRol" Text="Rol" CssClass="form-label" />
+                <asp:DropDownList ID="ddlRol" runat="server" CssClass="form-select">
+                    <asp:ListItem Text="Administrador" />
+                    <asp:ListItem Text="Recepcionista" />
+                </asp:DropDownList>
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="fileImagen" Text="Imagen" CssClass="form-label" />
+                <div class="input-group">
+                    <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
+                    <asp:Button ID="btnPrevisualizar" runat="server" Text="Previsualizar"
+                        CssClass="btn btn-outline-secondary" OnClick="btnPrevisualizar_Click" />
                 </div>
             </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" Text="Estado" CssClass="form-label d-block" />
+                <asp:Label ID="lblEstado" runat="server" Text="Pendiente" CssClass="badge bg-warning text-dark" />
+            </div>
+            <div class="col-12">
+                <asp:Label runat="server" Text="Vista previa" CssClass="form-label d-block" />
+                <asp:Image ID="imgPerfil" runat="server" Visible="false"
+                    CssClass="img-thumbnail rounded-circle"
+                    Style="width: 100px; height: 100px; object-fit: cover;" />
+                <asp:Panel ID="pnlInicial" runat="server"
+                    CssClass="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    Style="width: 140px; height: 140px; font-size: 40px;">
+                    <asp:Literal ID="litInicial" runat="server" Text="U" />
+                </asp:Panel>
+            </div>
+            <div class="col-12">
+                <asp:CheckBox ID="chkActivo" runat="server" Text="Activo" Checked="true" />
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <asp:Button ID="btnGuardar" runat="server" Text="Guardar"
+                CssClass="btn btn-primary" OnClick="btnGuardar_Click" />
+            <asp:Button ID="btnCancelar" runat="server" Text="Cancelar"
+                CssClass="btn btn-outline-primary" OnClick="btnCancelar_Click" CausesValidation="false" />
         </div>
     </div>
 </asp:Content>

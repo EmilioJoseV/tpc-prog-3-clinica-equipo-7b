@@ -9,13 +9,9 @@ namespace TurnosClinica.Web
 {
     public partial class ListaMedicos : Page
     {
-        public bool FiltroAvanzado { get; set; }
-
         protected void Page_Load(object sender, EventArgs e)
         {
-            FiltroAvanzado = chkAvanzado.Checked;
-
-            if (FiltroAvanzado && ddlCriterio.Items.Count == 0)
+            if (chkAvanzado.Checked && ddlCriterio.Items.Count == 0)
             {
                 CargarCriterios();
             }
@@ -36,9 +32,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("../Error.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                ((MasterLayout)Master).MostrarError(ex.Message);
             }
         }
 
@@ -52,18 +46,15 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("../Error.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                ((MasterLayout)Master).MostrarError(ex.Message);
             }
         }
 
         protected void chkAvanzado_CheckedChanged(object sender, EventArgs e)
         {
-            FiltroAvanzado = chkAvanzado.Checked;
-            txtFiltro.Enabled = !FiltroAvanzado;
+            txtFiltro.Enabled = !chkAvanzado.Checked;
 
-            if (FiltroAvanzado)
+            if (chkAvanzado.Checked)
             {
                 CargarCriterios();
             }
@@ -90,7 +81,7 @@ namespace TurnosClinica.Web
                 }
 
                 MedicoNegocio negocio = new MedicoNegocio();
-                dgvMedicos.DataSource = negocio.ListarConFiltros(
+                dgvMedicos.DataSource = negocio.ListarFiltroAvanzado(
                     ddlCampo.SelectedItem.ToString(),
                     ddlCriterio.SelectedItem.ToString(),
                     txtFiltroAvanzado.Text,
@@ -99,9 +90,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("../Error.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                ((MasterLayout)Master).MostrarError(ex.Message);
             }
         }
 
@@ -109,24 +98,10 @@ namespace TurnosClinica.Web
         {
             ddlCriterio.Items.Clear();
 
-            if (ddlCampo.SelectedItem != null && ddlCampo.SelectedItem.ToString() == "DNI")
-            {
-                ddlCriterio.Items.Add("Igual a");
-                ddlCriterio.Items.Add("Mayor a");
-                ddlCriterio.Items.Add("Menor a");
-            }
-            else
-            {
-                ddlCriterio.Items.Add("Contiene");
-                ddlCriterio.Items.Add("Comienza con");
-                ddlCriterio.Items.Add("Termina con");
-            }
-        }
-
-        protected void BtnNuevoMedico_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("FormularioMedico.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
+            ddlCriterio.Items.Add("Contiene");
+            ddlCriterio.Items.Add("Igual a");
+            ddlCriterio.Items.Add("Comienza con");
+            ddlCriterio.Items.Add("Termina con");
         }
 
         protected void btnLimpiar_Click(object sender, EventArgs e)
@@ -134,7 +109,6 @@ namespace TurnosClinica.Web
             txtFiltro.Text = string.Empty;
             txtFiltroAvanzado.Text = string.Empty;
             chkAvanzado.Checked = false;
-            FiltroAvanzado = false;
             txtFiltro.Enabled = true;
             ddlCriterio.Items.Clear();
             CargarLista();
@@ -142,16 +116,18 @@ namespace TurnosClinica.Web
 
         protected void dgvMedicos_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (e.CommandName != "Editar" && e.CommandName != "Desactivar")
+            if (e.CommandName != "Ver" && e.CommandName != "Toggle")
             {
                 return;
             }
 
             try
             {
-                int idMedico = Convert.ToInt32(e.CommandArgument);
+                string[] argumentos = e.CommandArgument.ToString().Split('|');
+                int idMedico = Convert.ToInt32(argumentos[0]);
+                bool activo = Convert.ToBoolean(argumentos[1]);
 
-                if (e.CommandName == "Editar")
+                if (e.CommandName == "Ver")
                 {
                     Response.Redirect("FormularioMedico.aspx?id=" + idMedico, false);
                     Context.ApplicationInstance.CompleteRequest();
@@ -159,14 +135,20 @@ namespace TurnosClinica.Web
                 }
 
                 MedicoNegocio negocio = new MedicoNegocio();
-                negocio.Desactivar(idMedico);
+                if (activo)
+                {
+                    negocio.Desactivar(idMedico);
+                }
+                else
+                {
+                    negocio.Activar(idMedico);
+                }
+
                 CargarLista();
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("../Error.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
+                ((MasterLayout)Master).MostrarError(ex.Message);
             }
         }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.Negocio.DTO
@@ -13,7 +9,6 @@ namespace TurnosClinica.Negocio.DTO
         public TimeSpan HoraInicio { get; set; }
         public TimeSpan HoraFin { get; set; }
         public DateTime FechaAlta { get; set; }
-        private int IdMedico { get; set; }
-        private int IdEspecialidad { get; set; }
+        public Medico Medico { get; set; }
     }
 }

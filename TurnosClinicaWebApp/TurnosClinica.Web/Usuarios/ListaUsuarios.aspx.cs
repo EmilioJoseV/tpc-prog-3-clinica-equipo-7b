@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Web.UI;
-using TurnosClinica.Dominio.Entidades;
+using System.Web.UI.WebControls;
+using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web

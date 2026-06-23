@@ -1,5 +1,6 @@
 using System;
 using System.Web.UI;
+using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.Web
 {
@@ -7,6 +8,11 @@ namespace TurnosClinica.Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!(Session["UsuarioActual"] is Usuario usuario) || usuario.IdUsuario <= 0)
+            {
+                Response.Redirect("Ingresar.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+            }
         }
 
         protected void LnkAltaPaciente_Click(object sender, EventArgs e)

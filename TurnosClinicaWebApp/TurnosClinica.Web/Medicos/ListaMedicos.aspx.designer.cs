@@ -33,6 +33,15 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.CheckBox chkAvanzado;
 
         /// <summary>
+        /// btnLimpiar control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnLimpiar;
+
+        /// <summary>
         /// lblCampo control.
         /// </summary>
         /// <remarks>
@@ -87,15 +96,6 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.Button btnBuscar;
 
         /// <summary>
-        /// btnLimpiar control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnLimpiar;
-
-        /// <summary>
         /// dgvMedicos control.
         /// </summary>
         /// <remarks>
@@ -103,14 +103,5 @@ namespace TurnosClinica.Web
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView dgvMedicos;
-
-        /// <summary>
-        /// btnLimpiarRapido control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnLimpiarRapido;
     }
 }

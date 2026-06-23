@@ -1,5 +1,7 @@
 using System;
 using System.Web.UI;
+using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
 {
@@ -11,8 +13,27 @@ namespace TurnosClinica.Web
 
         protected void BtnIngresar_Click(object sender, EventArgs e)
         {
-            Response.Redirect("PanelPrincipal.aspx", false);
-            Context.ApplicationInstance.CompleteRequest();
+            try
+            {
+                Session.Clear();
+
+                Usuario usuario = new UsuarioNegocio().ValidarCredenciales(
+                    TxtUsuario.Text,
+                    TxtContrasena.Text);
+
+                if (usuario == null)
+                {
+                    throw new Exception("Los datos ingresados no son validos.");
+                }
+
+                Session["UsuarioActual"] = usuario;
+                Response.Redirect("PanelPrincipal.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+            }
+            catch (Exception ex)
+            {
+                ((MasterLayout)Master).MostrarError(ex.Message);
+            }
         }
     }
 }

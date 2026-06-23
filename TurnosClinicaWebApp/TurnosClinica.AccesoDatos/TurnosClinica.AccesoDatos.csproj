@@ -42,7 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccesoDatos.cs" />
+    <Compile Include="AccesoDatosBase.cs" />
+    <Compile Include="IEntidadGestionable.cs" />
     <Compile Include="TransaccionDatos.cs" />
     <Compile Include="IMapeable.cs" />
     <Compile Include="IFiltrable.cs" />
@@ -51,8 +52,10 @@
     <Compile Include="MedicoEspecialidadesDatos.cs" />
     <Compile Include="MedicoDatos.cs" />
     <Compile Include="RolDatos.cs" />
+    <Compile Include="EstadoUsuarioDatos.cs" />
     <Compile Include="EstadoTurnoDatos.cs" />
     <Compile Include="HorarioDisponibilidadMedicoDatos.cs" />
+    <Compile Include="PersonaDatos.cs" />
     <Compile Include="PacienteDatos.cs" />
     <Compile Include="TurnoDatos.cs" />
     <Compile Include="UsuarioDatos.cs" />

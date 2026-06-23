@@ -10,6 +10,5 @@ namespace TurnosClinica.Dominio.Entidades
         public DiaSemanaEnum DiaSemana { get; set; }
         public TimeSpan HoraDesde { get; set; }
         public TimeSpan HoraHasta { get; set; }
-        public bool Activo { get; set; } = true;
     }
 }

@@ -5,108 +5,160 @@ using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.Negocio
 {
-    public class EspecialidadNegocio
+    public class EspecialidadNegocio : IEntidadGestionableNegocio<Especialidad>
     {
         private readonly EspecialidadDatos especialidadDatos;
 
         public EspecialidadNegocio()
         {
-            especialidadDatos = new EspecialidadDatos();
+            especialidadDatos = new EspecialidadDatos(new AccesoDatosBase());
         }
 
-        public List<Especialidad> Listar(bool activo)
+        public List<Especialidad> Listar(bool? activo = null)
         {
-            try
-            {
-                return especialidadDatos.Listar(activo);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return especialidadDatos.Listar(activo);
         }
 
-        public Especialidad ObtenerPorId(int idEspecialidad)
+        public List<Especialidad> ListarFiltroRapido(string palabra, bool? activo = null)
         {
-            try
+            return especialidadDatos.ListarFiltroRapido(palabra, activo);
+        }
+
+        public List<Especialidad> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
+        {
+            return especialidadDatos.ListarFiltroAvanzado(campo, criterio, filtro, activo);
+        }
+
+        public Especialidad ObtenerPorId(int id)
+        {
+            if (id <= 0)
             {
-                return especialidadDatos.ObtenerPorId(idEspecialidad);
+                throw new Exception("El id de la especialidad no es valido.");
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+
+            return especialidadDatos.ObtenerPorId(id);
         }
 
         public void Agregar(Especialidad especialidad)
         {
-            try
-            {
-
-                if (string.IsNullOrWhiteSpace(especialidad.Nombre))
-                {
-                    throw new Exception("El nombre de la especialidad es obligatorio.");
-                }
-
-                ValidarNombreDuplicado(especialidad);
-
-                especialidadDatos.Agregar(especialidad);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            ValidarAlta(especialidad);
+            PrepararEspecialidad(especialidad);
+            especialidadDatos.Agregar(especialidad);
         }
+
         public void Modificar(Especialidad especialidad)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(especialidad.Nombre))
-                {
-                    throw new Exception("El nombre es obligatorio.");
-
-                }
-
-                ValidarNombreDuplicado(especialidad);
-
-                especialidadDatos.Modificar(especialidad);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            ValidarModificacion(especialidad);
+            PrepararEspecialidad(especialidad);
+            especialidadDatos.Modificar(especialidad);
         }
 
-        private void ValidarNombreDuplicado(Especialidad especialidad)
+        public void Desactivar(int id)
         {
-            if (especialidadDatos.ExisteNombre(especialidad.Nombre, especialidad.IdEspecialidad))
-            {
-                throw new Exception("ya existe una especialidad registrada con ese nombre");
-            }
+            Especialidad especialidad = ObtenerPorId(id);
+            ValidarDesactivacion(especialidad);
+            especialidadDatos.Desactivar(id);
         }
 
-
-        public void Eliminar(int id)
+        public void Activar(int id)
         {
-            try
-            {
-                // verifico si tiene un id
-                if (especialidadDatos.EstaAsociadaAMedico(id))
-                {
-                    // y le envio mensaje
-                    throw new Exception(" Accion incorrecta !! No se puede eliminar la especialidad porque esta asignada a uno o más médicos.");
-                }
+            Especialidad especialidad = ObtenerPorId(id);
+            ValidarActivacion(especialidad);
+            especialidadDatos.Activar(id);
+        }
 
-                especialidadDatos.Eliminar(id);
-            }
-            catch (Exception ex)
+        private void ValidarAlta(Especialidad especialidad)
+        {
+            ValidarEspecialidad(especialidad);
+
+            if (especialidadDatos.ExisteNombre(especialidad.Nombre.Trim()))
             {
-                throw ex;
+                throw new Exception("Ya existe una especialidad registrada con ese nombre.");
             }
         }
 
+        private void ValidarModificacion(Especialidad especialidad)
+        {
+            ValidarEspecialidad(especialidad);
 
+            if (especialidad.IdEspecialidad <= 0)
+            {
+                throw new Exception("El id de la especialidad no es valido.");
+            }
 
+            Especialidad especialidadActual = ObtenerPorId(especialidad.IdEspecialidad);
+            if (especialidadActual == null)
+            {
+                throw new Exception("La especialidad no existe.");
+            }
 
+            if (especialidadActual.Activo && !especialidad.Activo)
+            {
+                ValidarDesactivacion(especialidadActual);
+            }
+
+            if (!especialidadActual.Activo && especialidad.Activo)
+            {
+                ValidarActivacion(especialidadActual);
+            }
+
+            if (especialidadDatos.ExisteNombre(especialidad.Nombre.Trim(), especialidad.IdEspecialidad))
+            {
+                throw new Exception("Ya existe una especialidad registrada con ese nombre.");
+            }
+        }
+
+        private void ValidarDesactivacion(Especialidad especialidad)
+        {
+            if (especialidad == null)
+            {
+                throw new Exception("La especialidad no existe.");
+            }
+
+            if (!especialidad.Activo)
+            {
+                throw new Exception("La especialidad ya esta inactiva.");
+            }
+
+            if (especialidadDatos.EstaAsociadaAMedico(especialidad.IdEspecialidad))
+            {
+                throw new Exception("No se puede desactivar la especialidad porque esta asignada a uno o mas medicos.");
+            }
+        }
+
+        private void ValidarActivacion(Especialidad especialidad)
+        {
+            if (especialidad == null)
+            {
+                throw new Exception("La especialidad no existe.");
+            }
+
+            if (especialidad.Activo)
+            {
+                throw new Exception("La especialidad ya esta activa.");
+            }
+        }
+
+        private void ValidarEspecialidad(Especialidad especialidad)
+        {
+            if (especialidad == null)
+            {
+                throw new Exception("La especialidad es obligatoria.");
+            }
+
+            if (string.IsNullOrWhiteSpace(especialidad.Nombre))
+            {
+                throw new Exception("El nombre de la especialidad es obligatorio.");
+            }
+        }
+
+        //Le sacamos los espacios demas al nombre y a la descripcion
+        private void PrepararEspecialidad(Especialidad especialidad)
+        {
+            especialidad.Nombre = especialidad.Nombre.Trim();
+            especialidad.Descripcion = string.IsNullOrWhiteSpace(especialidad.Descripcion)
+                ? null
+                : especialidad.Descripcion.Trim();
+        }
     }
 }

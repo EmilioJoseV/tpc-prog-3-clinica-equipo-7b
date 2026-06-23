@@ -6,18 +6,16 @@ namespace TurnosClinica.Dominio.Entidades
     {
         public Medico()
         {
+            Activo = true;
+            Persona = new Persona();
             Especialidades = new List<Especialidad>();
             HorariosDisponibilidad = new List<HorarioDisponibilidadMedico>();
         }
 
         public int IdMedico { get; set; }
+        public Persona Persona { get; set; }
         public string Matricula { get; set; }
-        public string DNI { get; set; }
-        public string Nombre { get; set; }
-        public string Apellido { get; set; }
-        public string Telefono { get; set; }
-        public string Email { get; set; }
-        public bool Activo { get; set; } = true;
+        public bool Activo { get; set; }
         public List<Especialidad> Especialidades { get; set; }
         public List<HorarioDisponibilidadMedico> HorariosDisponibilidad { get; set; }
     }

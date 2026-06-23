@@ -9,7 +9,8 @@ namespace TurnosClinica.Dominio.Enums
     public enum RolEnum
     {
         Administrador,
+        Recepcionista,
         Medico,
-        Recepcionista
+        Paciente
     }
 }

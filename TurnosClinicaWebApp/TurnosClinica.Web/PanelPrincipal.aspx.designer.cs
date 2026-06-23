@@ -19,6 +19,7 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.LinkButton LnkListaEspecialidades;
         protected global::System.Web.UI.WebControls.Button BtnUsuarios;
         protected global::System.Web.UI.WebControls.LinkButton LnkAltaUsuario;
+        protected global::System.Web.UI.WebControls.LinkButton LnkAsociarUsuario;
         protected global::System.Web.UI.WebControls.LinkButton LnkListaUsuarios;
         protected global::System.Web.UI.WebControls.Button BtnTurnos;
         protected global::System.Web.UI.WebControls.LinkButton LnkConfiguracionTurnos;

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace TurnosClinica.Negocio
 {
-    public class PerfilNegocio
+    public class AccesoService
     {
+        //Manejemos aca todo lo correspondiente a Registro, Login, recupero de contrasena, etc. para no mezclarlo con el UsuarioNegocio
     }
 }

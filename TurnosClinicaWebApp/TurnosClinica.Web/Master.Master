@@ -29,14 +29,20 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="btn btn-warning text-dark" href="/PanelPrincipal.aspx">Panel principal</a>
+                            <asp:HyperLink ID="LnkPanelPrincipal" runat="server"
+                                CssClass="btn btn-warning text-dark"
+                                NavigateUrl="~/PanelPrincipal.aspx">Panel principal</asp:HyperLink>
                         </li>
                     </ul>
 
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link" href="/Perfil/MiPerfil.aspx">Mi Perfil</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Ingresar.aspx">Ingresar</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Inicio.aspx">Salir</a></li>
+                        <li class="nav-item">
+                            <asp:HyperLink ID="LnkIngresar" runat="server" CssClass="nav-link" NavigateUrl="~/Ingresar.aspx">Ingresar</asp:HyperLink>
+                        </li>
+                        <li class="nav-item">
+                            <asp:LinkButton ID="LnkSalir" runat="server" CssClass="nav-link" Text="Salir" OnClick="LnkSalir_Click" />
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -44,6 +50,12 @@
 
         <div class="container">
             <hr />
+            <asp:Panel ID="PnlMensajeError" runat="server" Visible="false" EnableViewState="false"
+                CssClass="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>No se pudo completar la operacion</strong>
+                <asp:Label ID="LblMensajeError" runat="server" CssClass="d-block mt-1" />
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </asp:Panel>
             <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
             </asp:ContentPlaceHolder>
         </div>

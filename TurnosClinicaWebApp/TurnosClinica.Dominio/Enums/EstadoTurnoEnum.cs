@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TurnosClinica.Dominio.Enums
 {
-    enum EstadoTurnoEnum
+    public enum EstadoTurnoEnum
     {
         Nuevo,
         Reprogramado,

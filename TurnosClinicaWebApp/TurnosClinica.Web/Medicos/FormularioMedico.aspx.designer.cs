@@ -24,6 +24,15 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.HiddenField HfIdMedico;
 
         /// <summary>
+        /// HfIdPersona control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField HfIdPersona;
+
+        /// <summary>
         /// LblMatricula control.
         /// </summary>
         /// <remarks>
@@ -202,15 +211,6 @@ namespace TurnosClinica.Web
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox TxtHoraHasta;
-
-        /// <summary>
-        /// ChkHorarioActivo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox ChkHorarioActivo;
 
         /// <summary>
         /// BtnAgregarHorario control.

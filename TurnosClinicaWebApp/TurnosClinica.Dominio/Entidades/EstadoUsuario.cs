@@ -1,15 +1,13 @@
-using System.Collections.Generic;
-
 namespace TurnosClinica.Dominio.Entidades
 {
-    public class Especialidad
+    public class EstadoUsuario
     {
-        public Especialidad()
+        public EstadoUsuario()
         {
             Activo = true;
         }
 
-        public int IdEspecialidad { get; set; }
+        public int IdEstadoUsuario { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public bool Activo { get; set; }
