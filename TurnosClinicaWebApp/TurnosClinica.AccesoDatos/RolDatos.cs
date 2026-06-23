@@ -9,11 +9,6 @@ namespace TurnosClinica.AccesoDatos
     {
         private readonly AccesoDatosBase accesoDatos;
 
-        public RolDatos()
-        {
-            accesoDatos = new AccesoDatosBase();
-        }
-
         public RolDatos(AccesoDatosBase accesoDatosCompartido)
         {
             accesoDatos = accesoDatosCompartido;
@@ -46,9 +41,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return roles;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -80,9 +75,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return rol;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {

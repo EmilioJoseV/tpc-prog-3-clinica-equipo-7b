@@ -5,81 +5,64 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-4">
-        <h2 id="lblTitulo" runat="server">Nuevo Usuario</h2>
-        <p class="text-secondary">Este formulario crea cuentas de Administrador y Recepcionista</p>
-        <div class="alert alert-info py-2">
-            Los usuarios de medicos y pacientes se generan automaticamente desde sus formularios. ademas al crearse el usuario va a quedar con nombre y contrasena en estado pendiente.
-        </div>
-        <hr />
-        <asp:HiddenField ID="HfIdPersona" runat="server" />
-
-        <div class="row">
-            <div class="col-md-6">
-                <h5 class="text-primary mb-3">Datos Personales</h5>
-
-                <div class="mb-3">
-                    <label for="txtDni" class="form-label">DNI</label>
-                    <asp:TextBox ID="txtDni" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="txtNombre" class="form-label">Nombre</label>
-                    <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="txtApellido" class="form-label">Apellido</label>
-                    <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="txtTelefono" class="form-label">Telefono</label>
-                    <asp:TextBox ID="txtTelefono" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="fileImagen" class="form-label">Foto de Perfil</label>
-                    <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
-                    <small class="text-muted">Formatos aceptados: .jpg, .png</small>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <h5 class="text-primary mb-3">Acceso y Seguridad</h5>
-
-                <div class="mb-3">
-                    <label for="txtEmail" class="form-label">Correo Electronico</label>
-                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="txtNombreUsuario" class="form-label">Nombre de Usuario</label>
-                    <asp:TextBox ID="txtNombreUsuario" runat="server" CssClass="form-control"></asp:TextBox>
-                </div>
-
-                <div class="mb-3">
-                    <label for="txtPassword" class="form-label">Contraseña</label>
-                    <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password"></asp:TextBox>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="ddlRol" class="form-label">Rol Asignado</label>
-                        <asp:DropDownList ID="ddlRol" runat="server" CssClass="form-select"></asp:DropDownList>
-                    </div>
-                </div>
+        <div class="row mb-3">
+            <div class="col">
+                <h1 class="h3 mb-3">
+                    <asp:Label ID="lblTitulo" runat="server" Text="Nuevo Usuario" />
+                </h1>
+                <p class="text-secondary">Usuarios Administrador y Recepcionista</p>
             </div>
         </div>
-        <div class="row mt-3">
+
+        <asp:HiddenField ID="hfIdUsuario" runat="server" />
+        <asp:HiddenField ID="hfIdPersona" runat="server" />
+
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtDni" Text="DNI" CssClass="form-label" />
+                <asp:TextBox ID="txtDni" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtNombre" Text="Nombre" CssClass="form-label" />
+                <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtApellido" Text="Apellido" CssClass="form-label" />
+                <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtTelefono" Text="Telefono" CssClass="form-label" />
+                <asp:TextBox ID="txtTelefono" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="txtEmail" Text="Email" CssClass="form-label" />
+                <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="ddlRol" Text="Rol" CssClass="form-label" />
+                <asp:DropDownList ID="ddlRol" runat="server" CssClass="form-select">
+                    <asp:ListItem Text="Administrador" />
+                    <asp:ListItem Text="Recepcionista" />
+                </asp:DropDownList>
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" AssociatedControlID="fileImagen" Text="Imagen" CssClass="form-label" />
+                <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
+            </div>
+            <div class="col-12 col-md-6">
+                <asp:Label runat="server" Text="Estado" CssClass="form-label d-block" />
+                <asp:Label ID="lblEstado" runat="server" Text="Pendiente" CssClass="badge bg-warning text-dark" />
+            </div>
             <div class="col-12">
-                <div class="mb-3 d-flex gap-2">
-                    <asp:Button ID="btnAceptar" runat="server" Text="Aceptar" CssClass="btn btn-primary" OnClick="btnAceptar_Click" />
-
-                    <asp:Button ID="btnDesactivar" runat="server" Text="Desactivar" CssClass="btn btn-warning" OnClick="btnDesactivar_Click" />
-
-                    <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
-                </div>
+                <asp:CheckBox ID="chkActivo" runat="server" Text="Activo" Checked="true" />
             </div>
+        </div>
+
+        <div class="mt-4">
+            <asp:Button ID="btnGuardar" runat="server" Text="Guardar"
+                CssClass="btn btn-primary" OnClick="btnGuardar_Click" />
+            <asp:Button ID="btnCancelar" runat="server" Text="Cancelar"
+                CssClass="btn btn-outline-primary" OnClick="btnCancelar_Click" CausesValidation="false" />
         </div>
     </div>
 </asp:Content>

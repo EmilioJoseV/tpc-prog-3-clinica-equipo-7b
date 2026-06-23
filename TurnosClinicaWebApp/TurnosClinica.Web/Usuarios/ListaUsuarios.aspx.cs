@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Web.UI;
-using TurnosClinica.Dominio.Entidades;
+using System.Web.UI.WebControls;
 using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 
@@ -9,88 +8,189 @@ namespace TurnosClinica.Web
 {
     public partial class ListaUsuarios : Page
     {
-        public List<Usuario> ListaUsuariosProp { get; set; } = new List<Usuario>();
+        private readonly UsuarioNegocio usuarioNegocio = new UsuarioNegocio();
 
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                UsuarioNegocio negocio = new UsuarioNegocio();
-
-                ListaUsuariosProp = negocio.Listar() ?? new List<Usuario>();
+                if (!IsPostBack)
+                {
+                    CargarLista();
+                }
             }
             catch (Exception ex)
             {
-                ListaUsuariosProp = new List<Usuario>();
-                Session.Add("Error", ex.ToString());
+                MostrarError(ex);
             }
         }
 
-        protected string ObtenerEstadoUsuarioTexto(object value)
+        protected void txtFiltro_TextChanged(object sender, EventArgs e)
         {
-            EstadoUsuario estadoUsuario = value as EstadoUsuario;
-            if (estadoUsuario != null && !string.IsNullOrWhiteSpace(estadoUsuario.Nombre))
+            try
             {
-                return estadoUsuario.Nombre;
-            }
+                if (chkAvanzado.Checked)
+                {
+                    BuscarAvanzado();
+                    return;
+                }
 
-            if (value == null || value == DBNull.Value)
+                CargarLista(txtFiltro.Text);
+            }
+            catch (Exception ex)
             {
-                return "Sin estado";
+                MostrarError(ex);
             }
-
-            return value.ToString();
         }
 
-        protected string ObtenerEstadoUsuarioBadgeClass(object value)
+        protected void chkAvanzado_CheckedChanged(object sender, EventArgs e)
         {
-            EstadoUsuario estadoUsuario = value as EstadoUsuario;
-            if (estadoUsuario != null && !string.IsNullOrWhiteSpace(estadoUsuario.Nombre))
-            {
-                return ObtenerEstadoUsuarioBadgeClassPorNombre(estadoUsuario.Nombre);
-            }
-
-            if (value == null || value == DBNull.Value)
-            {
-                return "bg-secondary";
-            }
-
-            return ObtenerEstadoUsuarioBadgeClassPorNombre(value.ToString());
+            txtFiltro.Text = string.Empty;
+            txtFiltroAvanzado.Text = string.Empty;
+            ddlActivo.SelectedIndex = 0;
+            CargarLista();
         }
 
-        private string ObtenerEstadoUsuarioBadgeClassPorNombre(string nombreEstado)
+        protected void btnLimpiar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(nombreEstado))
+            txtFiltro.Text = string.Empty;
+            txtFiltroAvanzado.Text = string.Empty;
+            chkAvanzado.Checked = false;
+            ddlCampo.SelectedIndex = 0;
+            ddlCriterio.SelectedIndex = 0;
+            ddlActivo.SelectedIndex = 0;
+            CargarLista();
+        }
+
+        protected void btnBuscar_Click(object sender, EventArgs e)
+        {
+            try
             {
-                return "bg-secondary";
+                BuscarAvanzado();
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex);
+            }
+        }
+
+        protected void dgvUsuarios_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if (e.CommandName != "Ver" && e.CommandName != "Toggle")
+            {
+                return;
             }
 
-            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
+            try
             {
-                return "bg-success";
+                string[] argumentos = e.CommandArgument.ToString().Split('|');
+                int idUsuario = Convert.ToInt32(argumentos[0]);
+                bool activo = argumentos.Length > 1 && Convert.ToBoolean(argumentos[1]);
+
+                if (e.CommandName == "Ver")
+                {
+                    Response.Redirect("FormularioUsuario.aspx?id=" + idUsuario, false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
+                }
+
+                if (activo)
+                {
+                    usuarioNegocio.Desactivar(idUsuario);
+                }
+                else
+                {
+                    usuarioNegocio.Activar(idUsuario);
+                }
+
+                if (chkAvanzado.Checked)
+                {
+                    BuscarAvanzado();
+                }
+                else
+                {
+                    CargarLista(txtFiltro.Text);
+                }
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex);
+            }
+        }
+
+        protected bool EstaActivo(object estado)
+        {
+            return !string.Equals(
+                Convert.ToString(estado),
+                EstadoUsuarioEnum.Inactivo.ToString(),
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        protected string ObtenerClaseEstado(object estado)
+        {
+            string nombre = Convert.ToString(estado);
+
+            if (string.Equals(nombre, EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-success";
             }
 
-            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Pendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nombre, EstadoUsuarioEnum.Pendiente.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                return "bg-warning text-dark";
+                return "badge bg-warning text-dark";
             }
 
-            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Bloqueado.ToString(), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nombre, EstadoUsuarioEnum.Bloqueado.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                return "bg-danger";
+                return "badge bg-danger";
             }
 
-            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Inactivo.ToString(), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nombre, EstadoUsuarioEnum.CambioClavePendiente.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                return "bg-secondary";
+                return "badge bg-info text-dark";
             }
 
-            if (string.Equals(nombreEstado, EstadoUsuarioEnum.CambioClavePendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            return "badge bg-secondary";
+        }
+
+        private void CargarLista(string palabra = null)
+        {
+            dgvUsuarios.DataSource = string.IsNullOrWhiteSpace(palabra)
+                ? usuarioNegocio.Listar()
+                : usuarioNegocio.ListarFiltroRapido(palabra);
+            dgvUsuarios.DataBind();
+        }
+
+        private void BuscarAvanzado()
+        {
+            dgvUsuarios.DataSource = usuarioNegocio.ListarFiltroAvanzado(
+                ddlCampo.SelectedValue,
+                ddlCriterio.SelectedValue,
+                txtFiltroAvanzado.Text,
+                ObtenerActivoSeleccionado());
+            dgvUsuarios.DataBind();
+        }
+
+        private bool? ObtenerActivoSeleccionado()
+        {
+            if (ddlActivo.SelectedValue == "Activo")
             {
-                return "bg-info text-dark";
+                return true;
             }
 
-            return "bg-secondary";
+            if (ddlActivo.SelectedValue == "Inactivo")
+            {
+                return false;
+            }
+
+            return null;
+        }
+
+        private void MostrarError(Exception ex)
+        {
+            Session.Add("error", ex.ToString());
+            Response.Redirect("../Error.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
     }
 }

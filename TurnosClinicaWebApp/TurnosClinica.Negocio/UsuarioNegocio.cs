@@ -6,7 +6,7 @@ using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Negocio
 {
-    public class UsuarioNegocio
+    public class UsuarioNegocio : IEntidadGestionableNegocio<Usuario>
     {
         private readonly UsuarioDatos usuarioDatos;
 
@@ -20,19 +20,29 @@ namespace TurnosClinica.Negocio
             usuarioDatos = new UsuarioDatos(accesoDatos);
         }
 
-        public List<Usuario> Listar()
+        public List<Usuario> Listar(bool? activo = null)
         {
-            return usuarioDatos.Listar(null, null);
+            return usuarioDatos.Listar(activo);
         }
 
-        public Usuario ObtenerPorId(int idUsuario)
+        public List<Usuario> ListarFiltroRapido(string palabra, bool? activo = null)
         {
-            if (idUsuario <= 0)
+            return usuarioDatos.ListarFiltroRapido(palabra, activo);
+        }
+
+        public List<Usuario> ListarFiltroAvanzado(string campo, string criterio, string filtro, bool? activo = null)
+        {
+            return usuarioDatos.ListarFiltroAvanzado(campo, criterio, filtro, activo);
+        }
+
+        public Usuario ObtenerPorId(int id)
+        {
+            if (id <= 0)
             {
-                throw new ArgumentException("El id de usuario no es valido.");
+                throw new Exception("El id de usuario no es valido.");
             }
 
-            return usuarioDatos.ObtenerPorId(idUsuario);
+            return usuarioDatos.ObtenerPorId(id);
         }
 
         public Usuario ObtenerPorIdPersona(int idPersona)
@@ -45,6 +55,16 @@ namespace TurnosClinica.Negocio
             return usuarioDatos.ObtenerPorIdPersona(idPersona);
         }
 
+        public Usuario ValidarCredenciales(string nombreUsuario, string password)
+        {
+            if (string.IsNullOrWhiteSpace(nombreUsuario) || string.IsNullOrWhiteSpace(password))
+            {
+                return null;
+            }
+
+            return usuarioDatos.ValidarCredenciales(nombreUsuario.Trim(), password);
+        }
+
         public void Agregar(Usuario usuario)
         {
             PrepararEstadoInicial(usuario);
@@ -54,6 +74,7 @@ namespace TurnosClinica.Negocio
 
         public void AgregarConPersona(Usuario usuario)
         {
+            ValidarRolAdministrativo(usuario);
             PrepararEstadoInicial(usuario);
 
             using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
@@ -86,6 +107,16 @@ namespace TurnosClinica.Negocio
 
         public void ModificarConPersona(Usuario usuario)
         {
+            ValidarRolAdministrativo(usuario);
+            Usuario usuarioActual = ObtenerPorId(usuario.IdUsuario);
+            ValidarUsuarioAdministrativoExistente(usuarioActual);
+
+            if (usuario.Persona == null
+                || usuarioActual.Persona.IdPersona != usuario.Persona.IdPersona)
+            {
+                throw new Exception("La persona asociada al usuario no se puede cambiar.");
+            }
+
             using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
                 try
@@ -108,37 +139,18 @@ namespace TurnosClinica.Negocio
             }
         }
 
-        public void Desactivar(int idUsuario)
+        public void Desactivar(int id)
         {
-            if (idUsuario <= 0)
-            {
-                throw new ArgumentException("El id de usuario no es valido para desactivacion.");
-            }
-
-            usuarioDatos.Desactivar(idUsuario);
+            Usuario usuario = ObtenerPorId(id);
+            ValidarDesactivacion(usuario);
+            usuarioDatos.Desactivar(id);
         }
 
-        public void Activar(int idUsuario)
+        public void Activar(int id)
         {
-            if (idUsuario <= 0)
-            {
-                throw new ArgumentException("El id de usuario no es valido para activacion.");
-            }
-
-            usuarioDatos.AltaLogica(idUsuario);
-        }
-
-        private void PrepararEstadoInicial(Usuario usuario)
-        {
-            if (usuario == null)
-            {
-                throw new Exception("El usuario es obligatorio.");
-            }
-
-            usuario.EstadoUsuario = new EstadoUsuario
-            {
-                Nombre = EstadoUsuarioEnum.Pendiente.ToString()
-            };
+            Usuario usuario = ObtenerPorId(id);
+            ValidarActivacion(usuario);
+            usuarioDatos.Activar(id);
         }
 
         private void ValidarAlta(Usuario usuario)
@@ -164,6 +176,54 @@ namespace TurnosClinica.Negocio
             {
                 throw new Exception("La persona del usuario debe existir.");
             }
+
+            Usuario usuarioActual = ObtenerPorId(usuario.IdUsuario);
+            if (usuarioActual == null)
+            {
+                throw new Exception("El usuario no existe.");
+            }
+
+            if (!EsEstado(usuarioActual, EstadoUsuarioEnum.Inactivo)
+                && EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                ValidarDesactivacion(usuarioActual);
+            }
+
+            if (EsEstado(usuarioActual, EstadoUsuarioEnum.Inactivo)
+                && !EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                ValidarActivacion(usuarioActual);
+            }
+        }
+
+        private void ValidarDesactivacion(Usuario usuario)
+        {
+            ValidarUsuarioAdministrativoExistente(usuario);
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                throw new Exception("El usuario ya esta inactivo.");
+            }
+        }
+
+        private void ValidarActivacion(Usuario usuario)
+        {
+            ValidarUsuarioAdministrativoExistente(usuario);
+
+            if (!EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                throw new Exception("El usuario ya esta activo.");
+            }
+
+            if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
+            {
+                throw new Exception("El usuario debe tener un nombre de usuario para poder activarse.");
+            }
+
+            if (string.IsNullOrWhiteSpace(usuario.PasswordHash))
+            {
+                throw new Exception("El usuario debe tener una contrasena para poder activarse.");
+            }
         }
 
         private void ValidarUsuario(Usuario usuario)
@@ -178,30 +238,88 @@ namespace TurnosClinica.Negocio
                 throw new Exception("La persona del usuario es obligatoria.");
             }
 
-            if (usuario.Rol == null || string.IsNullOrWhiteSpace(usuario.Rol.Nombre) || !Enum.TryParse(usuario.Rol.Nombre, true, out RolEnum _))
+            if (usuario.Rol == null
+                || string.IsNullOrWhiteSpace(usuario.Rol.Nombre)
+                || !Enum.TryParse(usuario.Rol.Nombre, true, out RolEnum _))
             {
                 throw new Exception("Debe asignar un rol valido al usuario.");
             }
 
-            if (usuario.EstadoUsuario == null || string.IsNullOrWhiteSpace(usuario.EstadoUsuario.Nombre))
+            if (usuario.EstadoUsuario == null
+                || string.IsNullOrWhiteSpace(usuario.EstadoUsuario.Nombre)
+                || !Enum.TryParse(usuario.EstadoUsuario.Nombre, true, out EstadoUsuarioEnum _))
             {
                 throw new Exception("Debe asignar un estado valido al usuario.");
             }
 
-            usuario.NombreUsuario = string.IsNullOrWhiteSpace(usuario.NombreUsuario) ? null : usuario.NombreUsuario.Trim();
-            usuario.PasswordHash = string.IsNullOrWhiteSpace(usuario.PasswordHash) ? null : usuario.PasswordHash.Trim();
+            usuario.NombreUsuario = string.IsNullOrWhiteSpace(usuario.NombreUsuario)
+                ? null
+                : usuario.NombreUsuario.Trim();
+            usuario.PasswordHash = string.IsNullOrWhiteSpace(usuario.PasswordHash)
+                ? null
+                : usuario.PasswordHash.Trim();
 
-            if (!string.IsNullOrWhiteSpace(usuario.NombreUsuario))
+            if (!string.IsNullOrWhiteSpace(usuario.NombreUsuario)
+                && usuarioDatos.ExisteNombreUsuario(usuario.NombreUsuario, usuario.IdUsuario))
             {
-                Usuario usuarioActual = usuario.IdUsuario > 0 ? usuarioDatos.ObtenerPorId(usuario.IdUsuario) : null;
-                bool nombreUsuarioCambio = usuarioActual == null
-                    || !string.Equals(usuarioActual.NombreUsuario, usuario.NombreUsuario, StringComparison.OrdinalIgnoreCase);
-
-                if (nombreUsuarioCambio && usuarioDatos.ExisteNombreUsuario(usuario.NombreUsuario))
-                {
-                    throw new Exception("Ya existe un nombre de usuario registrado con ese valor.");
-                }
+                throw new Exception("Ya existe un nombre de usuario registrado con ese valor.");
             }
+        }
+
+        private void ValidarRolAdministrativo(Usuario usuario)
+        {
+            if (usuario == null || usuario.Rol == null)
+            {
+                throw new Exception("Debe asignar un rol valido al usuario.");
+            }
+
+            bool esAdministrador = string.Equals(
+                usuario.Rol.Nombre,
+                RolEnum.Administrador.ToString(),
+                StringComparison.OrdinalIgnoreCase);
+            bool esRecepcionista = string.Equals(
+                usuario.Rol.Nombre,
+                RolEnum.Recepcionista.ToString(),
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!esAdministrador && !esRecepcionista)
+            {
+                throw new Exception("Solo se pueden administrar usuarios Administrador o Recepcionista.");
+            }
+        }
+
+        private void ValidarUsuarioAdministrativoExistente(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                throw new Exception("El usuario no existe.");
+            }
+
+            ValidarRolAdministrativo(usuario);
+        }
+
+        private void PrepararEstadoInicial(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                throw new Exception("El usuario es obligatorio.");
+            }
+
+            usuario.NombreUsuario = null;
+            usuario.PasswordHash = null;
+            usuario.EstadoUsuario = new EstadoUsuario
+            {
+                Nombre = EstadoUsuarioEnum.Pendiente.ToString()
+            };
+        }
+
+        private bool EsEstado(Usuario usuario, EstadoUsuarioEnum estado)
+        {
+            return usuario.EstadoUsuario != null
+                && string.Equals(
+                    usuario.EstadoUsuario.Nombre,
+                    estado.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
         }
     }
 }

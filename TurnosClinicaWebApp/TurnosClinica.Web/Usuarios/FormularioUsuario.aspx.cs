@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
@@ -9,228 +8,202 @@ namespace TurnosClinica.Web
 {
     public partial class FormularioUsuario : Page
     {
+        private readonly UsuarioNegocio usuarioNegocio = new UsuarioNegocio();
+
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                // 1. Preguntamos si viene un ID por la URL (Modificación)
-                if (Request.QueryString["id"] != null)
+                if (!IsPostBack)
                 {
-                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
-                    UsuarioNegocio negocio = new UsuarioNegocio();
-                    Usuario usuario = negocio.ObtenerPorId(idUsuario);
-
-                    if (usuario != null)
-                    {
-                        // SOLO cargamos los datos en los controles la PRIMERA VEZ
-                        if (!IsPostBack)
-                        {
-                            lblTitulo.InnerText = "Modificar Usuario";
-                            if (usuario.Rol != null && string.Equals(usuario.Rol.Nombre, RolEnum.Medico.ToString(), StringComparison.OrdinalIgnoreCase))
-                            {
-                                // Medico queda fuera de este formulario.
-                                Response.Redirect("ListaUsuarios.aspx", false);
-                                Context.ApplicationInstance.CompleteRequest();
-                                return;
-                            }
-
-                            CargarDesplegables();
-                            HfIdPersona.Value = usuario.Persona.IdPersona.ToString();
-                            txtDni.Text = usuario.Persona.DNI;
-                            txtNombre.Text = usuario.Persona.Nombre;
-                            txtApellido.Text = usuario.Persona.Apellido;
-                            txtTelefono.Text = usuario.Persona.Telefono;
-                            txtNombreUsuario.Text = usuario.NombreUsuario;
-                            txtEmail.Text = usuario.Persona.Email;
-                            txtPassword.Text = string.Empty;
-
-                            if (usuario.Rol != null)
-                            {
-                                ddlRol.SelectedValue = usuario.Rol.Nombre;
-                            }
-
-                        }
-
-                        // ESTO SE EJECUTA SIEMPRE (En la primera carga y en cada PostBack)
-                        btnDesactivar.Visible = true;
-
-                        if (usuario.EstadoUsuario != null && string.Equals(usuario.EstadoUsuario.Nombre, EstadoUsuarioEnum.Inactivo.ToString(), StringComparison.OrdinalIgnoreCase))
-                        {
-                            btnDesactivar.Text = "Desactivar";
-                            btnDesactivar.CssClass = "btn btn-warning";
-                        }
-                        else
-                        {
-                            btnDesactivar.Text = "Desactivar";
-                            btnDesactivar.CssClass = "btn btn-warning";
-                        }
-                    }
-                }
-                else
-                {
-                    // 2. SI ES UN ALTA NUEVA (No hay ID en la URL)
-                    if (!IsPostBack)
-                    {
-                        lblTitulo.InnerText = "Nuevo Usuario";
-                        CargarDesplegables();
-                    }
-
-                    // ESTO SE EJECUTA SIEMPRE PARA EL ALTA
-                    btnDesactivar.Visible = false;
+                    CargarUsuario();
                 }
             }
             catch (Exception ex)
             {
-                Session.Add("Error", ex.ToString());
+                MostrarError(ex);
             }
         }
 
-        protected void btnAceptar_Click(object sender, EventArgs e)
+        protected void btnGuardar_Click(object sender, EventArgs e)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(ddlRol.SelectedValue))
+                int idUsuario = ObtenerId(hfIdUsuario.Value);
+                Usuario usuarioActual = idUsuario > 0 ? usuarioNegocio.ObtenerPorId(idUsuario) : null;
+
+                Usuario usuario = new Usuario
                 {
-                    throw new Exception("Debe seleccionar un rol.");
-                }
-
-                if (Request.QueryString["id"] == null && string.Equals(ddlRol.SelectedValue, RolEnum.Medico.ToString(), StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new Exception("Este formulario no crea usuarios con rol Medico. Las cuentas de medico se generan automaticamente desde el formulario de medicos.");
-                }
-
-                if (Request.QueryString["id"] == null && string.Equals(ddlRol.SelectedValue, RolEnum.Paciente.ToString(), StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new Exception("Este formulario no crea usuarios con rol Paciente. Las cuentas de paciente se generan automaticamente desde el formulario de pacientes.");
-                }
-
-                UsuarioNegocio negocio = new UsuarioNegocio();
-                Usuario usuario = new Usuario();
-
-                if (Request.QueryString["id"] != null)
-                {
-                    usuario.IdUsuario = Convert.ToInt32(Request.QueryString["id"]);
-
-                    // Si modificamos, mantenemos el estado que ya tenía en la DB
-                    Usuario usuarioExistente = negocio.ObtenerPorId(usuario.IdUsuario);
-                    if (usuarioExistente != null)
+                    IdUsuario = idUsuario,
+                    Persona = new Persona
                     {
-                        usuario.EstadoUsuario = usuarioExistente.EstadoUsuario;
-                    }
-                }
-                else
-                {
-                    // Si es un usuario nuevo, nace pendiente.
-                        usuario.EstadoUsuario = new EstadoUsuario
-                        {
-                            Nombre = EstadoUsuarioEnum.Pendiente.ToString()
-                        };
-                    }
-
-                usuario.Persona = new Persona
-                {
-                    IdPersona = string.IsNullOrWhiteSpace(HfIdPersona.Value) ? 0 : Convert.ToInt32(HfIdPersona.Value),
-                    DNI = txtDni.Text.Trim(),
-                    Nombre = txtNombre.Text.Trim(),
-                    Apellido = txtApellido.Text.Trim(),
-                    Telefono = txtTelefono.Text.Trim(),
-                    Email = txtEmail.Text.Trim()
+                        IdPersona = ObtenerId(hfIdPersona.Value),
+                        DNI = txtDni.Text,
+                        Nombre = txtNombre.Text,
+                        Apellido = txtApellido.Text,
+                        Telefono = txtTelefono.Text,
+                        Email = txtEmail.Text
+                    },
+                    Rol = new Rol
+                    {
+                        Nombre = ddlRol.SelectedValue
+                    },
+                    NombreUsuario = usuarioActual != null ? usuarioActual.NombreUsuario : null,
+                    PasswordHash = usuarioActual != null ? usuarioActual.PasswordHash : null,
+                    Imagen = fileImagen.HasFile
+                        ? fileImagen.FileBytes
+                        : usuarioActual != null ? usuarioActual.Imagen : null,
+                    EstadoUsuario = ObtenerEstadoParaGuardar(usuarioActual)
                 };
-                if (Request.QueryString["id"] != null)
-                {
-                    usuario.NombreUsuario = string.IsNullOrWhiteSpace(txtNombreUsuario.Text)
-                        ? negocio.ObtenerPorId(usuario.IdUsuario)?.NombreUsuario
-                        : txtNombreUsuario.Text.Trim();
-                }
-                else
-                {
-                    usuario.NombreUsuario = null;
-                }
-                if (Request.QueryString["id"] != null && string.IsNullOrWhiteSpace(txtPassword.Text))
-                {
-                    Usuario usuarioExistente = negocio.ObtenerPorId(usuario.IdUsuario);
-                    usuario.PasswordHash = usuarioExistente != null ? usuarioExistente.PasswordHash : null;
-                }
-                else
-                {
-                    usuario.PasswordHash = Request.QueryString["id"] != null ? txtPassword.Text : null;
-                }
-
-                if (fileImagen.HasFile)
-                {
-                    usuario.Imagen = fileImagen.FileBytes;
-                }
-                else if (usuario.IdUsuario > 0)
-                {
-                    Usuario usuarioActual = negocio.ObtenerPorId(usuario.IdUsuario);
-                    usuario.Imagen = usuarioActual?.Imagen;
-                }
-                else
-                {
-                    usuario.Imagen = null;
-                }
-
-                usuario.Rol = new Rol();
-                usuario.Rol.Nombre = ddlRol.SelectedValue;
 
                 if (usuario.IdUsuario > 0)
                 {
-                    negocio.ModificarConPersona(usuario);
+                    usuarioNegocio.ModificarConPersona(usuario);
                 }
                 else
                 {
-                    negocio.AgregarConPersona(usuario);
+                    usuarioNegocio.AgregarConPersona(usuario);
                 }
 
-                Response.Redirect("ListaUsuarios.aspx");
+                Response.Redirect("ListaUsuarios.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
-                Session.Add("Error", ex.ToString());
+                MostrarError(ex);
             }
         }
 
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
-            Response.Redirect("ListaUsuarios.aspx");
+            Response.Redirect("ListaUsuarios.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
 
-        private void CargarDesplegables()
+        private void CargarUsuario()
         {
-            var roles = Enum.GetValues(typeof(TurnosClinica.Dominio.Enums.RolEnum))
-                            .Cast<TurnosClinica.Dominio.Enums.RolEnum>()
-                            .Where(r => r != RolEnum.Medico && r != RolEnum.Paciente)
-                            .Select(r => new
-                            {
-                                Id = r.ToString(),
-                                Nombre = r.ToString()
-                            }).ToList();
-
-            ddlRol.DataSource = roles;
-            ddlRol.DataValueField = "Id";
-            ddlRol.DataTextField = "Nombre";
-            ddlRol.DataBind();
-            ddlRol.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione un Rol", string.Empty));
-
-        }
-        protected void btnDesactivar_Click(object sender, EventArgs e)
-        {
-            try
+            int idUsuario;
+            if (!int.TryParse(Request.QueryString["id"], out idUsuario))
             {
-                if (Request.QueryString["id"] != null)
+                chkActivo.Checked = true;
+                return;
+            }
+
+            Usuario usuario = usuarioNegocio.ObtenerPorId(idUsuario);
+            if (usuario == null)
+            {
+                throw new Exception("El usuario no existe.");
+            }
+
+            ValidarRolAdministrativo(usuario);
+
+            hfIdUsuario.Value = usuario.IdUsuario.ToString();
+            hfIdPersona.Value = usuario.Persona.IdPersona.ToString();
+            lblTitulo.Text = "Detalle de Usuario";
+            txtDni.Text = usuario.Persona.DNI;
+            txtNombre.Text = usuario.Persona.Nombre;
+            txtApellido.Text = usuario.Persona.Apellido;
+            txtTelefono.Text = usuario.Persona.Telefono;
+            txtEmail.Text = usuario.Persona.Email;
+            ddlRol.SelectedValue = usuario.Rol.Nombre;
+            lblEstado.Text = usuario.EstadoUsuario.Nombre;
+            lblEstado.CssClass = ObtenerClaseEstado(usuario.EstadoUsuario.Nombre);
+            chkActivo.Checked = !EsEstado(usuario, EstadoUsuarioEnum.Inactivo);
+        }
+
+        private EstadoUsuario ObtenerEstadoParaGuardar(Usuario usuarioActual)
+        {
+            if (usuarioActual == null)
+            {
+                return new EstadoUsuario
                 {
-                    int idUsuario = Convert.ToInt32(Request.QueryString["id"]);
-                    UsuarioNegocio negocio = new UsuarioNegocio();
-
-                    negocio.Desactivar(idUsuario);
-
-                    Response.Redirect("ListaUsuarios.aspx");
-                }
+                    Nombre = EstadoUsuarioEnum.Pendiente.ToString()
+                };
             }
-            catch (Exception ex)
+
+            if (!chkActivo.Checked)
             {
-                Session.Add("Error", ex.ToString());
+                return new EstadoUsuario
+                {
+                    Nombre = EstadoUsuarioEnum.Inactivo.ToString()
+                };
             }
+
+            if (EsEstado(usuarioActual, EstadoUsuarioEnum.Inactivo))
+            {
+                return new EstadoUsuario
+                {
+                    Nombre = EstadoUsuarioEnum.Activo.ToString()
+                };
+            }
+
+            return usuarioActual.EstadoUsuario;
+        }
+
+        private void ValidarRolAdministrativo(Usuario usuario)
+        {
+            bool esAdministrador = usuario.Rol != null
+                && string.Equals(
+                    usuario.Rol.Nombre,
+                    RolEnum.Administrador.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
+            bool esRecepcionista = usuario.Rol != null
+                && string.Equals(
+                    usuario.Rol.Nombre,
+                    RolEnum.Recepcionista.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
+
+            if (!esAdministrador && !esRecepcionista)
+            {
+                throw new Exception("El usuario no pertenece a esta funcionalidad.");
+            }
+        }
+
+        private bool EsEstado(Usuario usuario, EstadoUsuarioEnum estado)
+        {
+            return usuario.EstadoUsuario != null
+                && string.Equals(
+                    usuario.EstadoUsuario.Nombre,
+                    estado.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        private string ObtenerClaseEstado(string estado)
+        {
+            if (string.Equals(estado, EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-success";
+            }
+
+            if (string.Equals(estado, EstadoUsuarioEnum.Pendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-warning text-dark";
+            }
+
+            if (string.Equals(estado, EstadoUsuarioEnum.Bloqueado.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-danger";
+            }
+
+            if (string.Equals(estado, EstadoUsuarioEnum.CambioClavePendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-info text-dark";
+            }
+
+            return "badge bg-secondary";
+        }
+
+        private int ObtenerId(string valor)
+        {
+            int id;
+            return int.TryParse(valor, out id) ? id : 0;
+        }
+
+        private void MostrarError(Exception ex)
+        {
+            Session.Add("error", ex.ToString());
+            Response.Redirect("../Error.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
     }
 }
