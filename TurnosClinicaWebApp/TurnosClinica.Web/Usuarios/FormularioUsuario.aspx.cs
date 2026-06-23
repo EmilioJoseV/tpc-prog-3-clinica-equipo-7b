@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
@@ -9,6 +10,8 @@ namespace TurnosClinica.Web
     public partial class FormularioUsuario : Page
     {
         private readonly UsuarioNegocio usuarioNegocio = new UsuarioNegocio();
+        private const string ImagenTemporalSessionKey = "ImagenTemporalUsuario";
+        private const string ImagenTemporalTipoSessionKey = "ImagenTemporalUsuarioTipo";
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -16,7 +19,14 @@ namespace TurnosClinica.Web
             {
                 if (!IsPostBack)
                 {
+                    LimpiarImagenTemporal();
                     CargarUsuario();
+                }
+                else if (Session[ImagenTemporalSessionKey] is byte[] imagenTemporal)
+                {
+                    MostrarImagen(
+                        imagenTemporal,
+                        Convert.ToString(Session[ImagenTemporalTipoSessionKey]));
                 }
             }
             catch (Exception ex)
@@ -50,9 +60,7 @@ namespace TurnosClinica.Web
                     },
                     NombreUsuario = usuarioActual != null ? usuarioActual.NombreUsuario : null,
                     PasswordHash = usuarioActual != null ? usuarioActual.PasswordHash : null,
-                    Imagen = fileImagen.HasFile
-                        ? fileImagen.FileBytes
-                        : usuarioActual != null ? usuarioActual.Imagen : null,
+                    Imagen = ObtenerImagenParaGuardar(usuarioActual),
                     EstadoUsuario = ObtenerEstadoParaGuardar(usuarioActual)
                 };
 
@@ -65,6 +73,7 @@ namespace TurnosClinica.Web
                     usuarioNegocio.AgregarConPersona(usuario);
                 }
 
+                LimpiarImagenTemporal();
                 Response.Redirect("ListaUsuarios.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
             }
@@ -76,6 +85,7 @@ namespace TurnosClinica.Web
 
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
+            LimpiarImagenTemporal();
             Response.Redirect("ListaUsuarios.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
@@ -83,22 +93,26 @@ namespace TurnosClinica.Web
         {
             try
             {
-                if (fileImagen.HasFile)
+                if (!fileImagen.HasFile)
                 {
-                    // Guardamos los bytes en la Session para que no se pierdan en los PostBacks
-                    Session["ImagenTemporal"] = fileImagen.FileBytes;
-
-                    // Mostramos la imagen en el control de servidor convirtiendo los bytes a Base64
-                    imgPerfil.ImageUrl = "data:image/jpeg;base64," + Convert.ToBase64String(fileImagen.FileBytes);
-
-                    // Hacemos visible la foto y ocultamos el panel de la inicial
-                    imgPerfil.Visible = true;
-                    pnlInicial.Visible = false;
+                    throw new Exception("Debe seleccionar una imagen para previsualizar.");
                 }
+
+                string extension = Path.GetExtension(fileImagen.FileName);
+                if (!string.Equals(extension, ".jpg", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".jpeg", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new Exception("La imagen debe tener formato JPG, JPEG o PNG.");
+                }
+
+                Session[ImagenTemporalSessionKey] = fileImagen.FileBytes;
+                Session[ImagenTemporalTipoSessionKey] = ObtenerTipoImagen(extension);
+                MostrarImagen(fileImagen.FileBytes, ObtenerTipoImagen(extension));
             }
             catch (Exception ex)
             {
-                Session.Add("Error", ex.ToString());
+                MostrarError(ex);
             }
         }
 
@@ -108,6 +122,7 @@ namespace TurnosClinica.Web
             if (!int.TryParse(Request.QueryString["id"], out idUsuario))
             {
                 chkActivo.Checked = true;
+                MostrarInicial(null, null);
                 return;
             }
 
@@ -131,6 +146,66 @@ namespace TurnosClinica.Web
             lblEstado.Text = usuario.EstadoUsuario.Nombre;
             lblEstado.CssClass = ObtenerClaseEstado(usuario.EstadoUsuario.Nombre);
             chkActivo.Checked = !EsEstado(usuario, EstadoUsuarioEnum.Inactivo);
+            MostrarImagenActual(usuario);
+        }
+
+        private byte[] ObtenerImagenParaGuardar(Usuario usuarioActual)
+        {
+            if (Session[ImagenTemporalSessionKey] is byte[] imagenTemporal)
+            {
+                return imagenTemporal;
+            }
+
+            if (fileImagen.HasFile)
+            {
+                return fileImagen.FileBytes;
+            }
+
+            return usuarioActual != null ? usuarioActual.Imagen : null;
+        }
+
+        private void MostrarImagenActual(Usuario usuario)
+        {
+            if (usuario.Imagen != null && usuario.Imagen.Length > 0)
+            {
+                MostrarImagen(usuario.Imagen, "image/jpeg");
+                return;
+            }
+
+            MostrarInicial(usuario.Persona.Nombre, usuario.Persona.Apellido);
+        }
+
+        private void MostrarImagen(byte[] imagen, string tipo)
+        {
+            imgPerfil.ImageUrl = "data:" + tipo + ";base64," + Convert.ToBase64String(imagen);
+            imgPerfil.Visible = true;
+            pnlInicial.Visible = false;
+        }
+
+        private void MostrarInicial(string nombre, string apellido)
+        {
+            string inicial = !string.IsNullOrWhiteSpace(nombre)
+                ? nombre.Trim().Substring(0, 1)
+                : !string.IsNullOrWhiteSpace(apellido)
+                    ? apellido.Trim().Substring(0, 1)
+                    : "U";
+
+            litInicial.Text = inicial.ToUpper();
+            imgPerfil.Visible = false;
+            pnlInicial.Visible = true;
+        }
+
+        private string ObtenerTipoImagen(string extension)
+        {
+            return string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase)
+                ? "image/png"
+                : "image/jpeg";
+        }
+
+        private void LimpiarImagenTemporal()
+        {
+            Session.Remove(ImagenTemporalSessionKey);
+            Session.Remove(ImagenTemporalTipoSessionKey);
         }
 
         private EstadoUsuario ObtenerEstadoParaGuardar(Usuario usuarioActual)

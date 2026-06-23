@@ -44,11 +44,26 @@
             </div>
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="fileImagen" Text="Imagen" CssClass="form-label" />
-                <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
+                <div class="input-group">
+                    <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
+                    <asp:Button ID="btnPrevisualizar" runat="server" Text="Previsualizar"
+                        CssClass="btn btn-outline-secondary" OnClick="btnPrevisualizar_Click" />
+                </div>
             </div>
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" Text="Estado" CssClass="form-label d-block" />
                 <asp:Label ID="lblEstado" runat="server" Text="Pendiente" CssClass="badge bg-warning text-dark" />
+            </div>
+            <div class="col-12">
+                <asp:Label runat="server" Text="Vista previa" CssClass="form-label d-block" />
+                <asp:Image ID="imgPerfil" runat="server" Visible="false"
+                    CssClass="img-thumbnail rounded-circle"
+                    Style="width: 100px; height: 100px; object-fit: cover;" />
+                <asp:Panel ID="pnlInicial" runat="server"
+                    CssClass="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    Style="width: 140px; height: 140px; font-size: 40px;">
+                    <asp:Literal ID="litInicial" runat="server" Text="U" />
+                </asp:Panel>
             </div>
             <div class="col-12">
                 <asp:CheckBox ID="chkActivo" runat="server" Text="Activo" Checked="true" />
