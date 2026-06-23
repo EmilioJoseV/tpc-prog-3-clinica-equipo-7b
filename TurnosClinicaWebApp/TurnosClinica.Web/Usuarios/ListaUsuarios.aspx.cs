@@ -8,24 +8,42 @@ namespace TurnosClinica.Web
 {
     public partial class ListaUsuarios : Page
     {
-        public List<Usuario> ListaUsuariosProp { get; set; }
+        // 1. Usamos una variable privada de respaldo para asegurar que jamás devuelva null
+        private List<Usuario> _listaUsuarios;
+
+        public List<Usuario> ListaUsuariosProp
+        {
+            get
+            {
+                if (_listaUsuarios == null)
+                    _listaUsuarios = new List<Usuario>();
+                return _listaUsuarios;
+            }
+            set { _listaUsuarios = value; }
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            try
+            if (!IsPostBack)
             {
-                UsuarioNegocio negocio = new UsuarioNegocio();
+                ListaUsuariosProp = new List<Usuario>();
 
-                ListaUsuariosProp = negocio.ListarTodos();
-
-                if (ListaUsuariosProp == null)
+                try
                 {
-                    ListaUsuariosProp = new List<Usuario>();
+                    UsuarioNegocio negocio = new UsuarioNegocio();
+                    List<Usuario> listaAux = negocio.ListarTodos();
+
+                    if (listaAux != null)
+                    {
+                        ListaUsuariosProp = listaAux;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Session.Add("Error", ex.ToString());
+                catch (Exception ex)
+                {
+                    Session.Add("Error", ex.Message);
+
+                    System.Diagnostics.Debug.WriteLine("ERROR EN BASE DE DATOS: " + ex.ToString());
+                }
             }
         }
     }
