@@ -35,7 +35,7 @@ namespace TurnosClinica.Negocio
                 throw new Exception("La especialidad no esta disponible.");
             }
 
-            List<Medico> medicos = medicoNegocio.ListarPorEspecialidad(idEspecialidad);
+            List<Medico> medicos = medicoNegocio.ListarPorEspecialidadActivos(idEspecialidad);
             if (medicos.Count == 0)
             {
                 return new List<TurnoDisponibleDTO>();
@@ -47,7 +47,7 @@ namespace TurnosClinica.Negocio
 
             foreach (Medico medico in medicos)
             {
-                if (medico == null || !medico.Activo)
+                if (medico == null)
                 {
                     continue;
                 }

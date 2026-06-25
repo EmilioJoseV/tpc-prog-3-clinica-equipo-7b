@@ -126,6 +126,12 @@ namespace TurnosClinica.Negocio
                     Turno turnoActual = datos.ObtenerPorId(turno.IdTurno);
                     ValidarTurnoEditable(turnoActual);
 
+                    Paciente paciente = new PacienteNegocio().ObtenerPorId(turnoActual.Paciente.IdPaciente);
+                    if (paciente == null || !paciente.Activo)
+                    {
+                        throw new Exception("El paciente del turno no esta disponible.");
+                    }
+
                     Especialidad especialidad = new EspecialidadNegocio().ObtenerPorId(turnoActual.Especialidad.IdEspecialidad);
                     if (especialidad == null || !especialidad.Activo)
                     {
@@ -144,7 +150,7 @@ namespace TurnosClinica.Negocio
                         throw new Exception("El medico no atiende la especialidad del turno.");
                     }
 
-                    turno.Paciente = turnoActual.Paciente;
+                    turno.Paciente = paciente;
                     turno.Especialidad = especialidad;
                     turno.UsuarioAlta = turnoActual.UsuarioAlta;
                     turno.EstadoTurno = estadoTurnoNegocio.ObtenerPorNombre(EstadoTurnoEnum.Reprogramado.ToString());

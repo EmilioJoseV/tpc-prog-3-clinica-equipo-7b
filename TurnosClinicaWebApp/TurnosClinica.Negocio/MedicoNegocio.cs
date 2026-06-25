@@ -48,6 +48,22 @@ namespace TurnosClinica.Negocio
             return medicoDatos.ListarPorEspecialidad(idEspecialidad);
         }
 
+        public List<Medico> ListarPorEspecialidadActivos(int idEspecialidad)
+        {
+            List<Medico> medicos = ListarPorEspecialidad(idEspecialidad);
+            List<Medico> medicosActivos = new List<Medico>();
+
+            foreach (Medico medico in medicos)
+            {
+                if (medico != null && medico.Activo)
+                {
+                    medicosActivos.Add(medico);
+                }
+            }
+
+            return medicosActivos;
+        }
+
         public Medico ObtenerPorId(int id)
         {
             if (id <= 0)
