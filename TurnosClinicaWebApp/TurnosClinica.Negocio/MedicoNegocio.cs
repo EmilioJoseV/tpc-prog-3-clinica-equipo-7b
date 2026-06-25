@@ -74,6 +74,27 @@ namespace TurnosClinica.Negocio
             return medicoDatos.ObtenerPorId(id);
         }
 
+        public Medico ObtenerPorIdPersona(int idPersona)
+        {
+            if (idPersona <= 0)
+            {
+                throw new Exception("El id de persona del medico no es valido.");
+            }
+
+            Medico medico = medicoDatos.ObtenerPorIdPersona(idPersona);
+            if (medico == null)
+            {
+                throw new Exception("El usuario autenticado no tiene un medico asociado.");
+            }
+
+            if (!medico.Activo)
+            {
+                throw new Exception("El medico asociado al usuario autenticado esta inactivo.");
+            }
+
+            return medico;
+        }
+
         public void Agregar(Medico medico)
         {
             ValidarAlta(medico);

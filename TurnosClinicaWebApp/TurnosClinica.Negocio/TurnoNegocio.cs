@@ -31,6 +31,16 @@ namespace TurnosClinica.Negocio
             return turnoDatos.ListarPorFiltros(palabra, idEstadoTurno, fechaTurno);
         }
 
+        public List<Turno> ListarPorMedicoConFiltros(int idMedico, string palabra, int? idEstadoTurno, DateTime? fechaTurno)
+        {
+            if (idMedico <= 0)
+            {
+                throw new Exception("El id del medico no es valido.");
+            }
+
+            return turnoDatos.ListarPorMedicoConFiltros(idMedico, palabra, idEstadoTurno, fechaTurno);
+        }
+
         public Turno ObtenerPorId(int idTurno)
         {
             if (idTurno <= 0)
@@ -197,6 +207,74 @@ namespace TurnosClinica.Negocio
             CambiarEstado(idTurno, idUsuarioModificacion, EstadoTurnoEnum.Cerrado);
         }
 
+        public Turno ObtenerPorIdParaMedico(int idTurno, int idMedicoAutenticado)
+        {
+            Turno turno = ObtenerPorId(idTurno);
+            ValidarPertenenciaMedico(turno, idMedicoAutenticado);
+            return turno;
+        }
+
+        public void ModificarDiagnosticoMedico(int idTurno, string diagnosticoMedico, int idMedicoAutenticado, int idUsuarioModificacion)
+        {
+            if (idTurno <= 0)
+            {
+                throw new Exception("El id del turno no es valido.");
+            }
+
+            if (idMedicoAutenticado <= 0)
+            {
+                throw new Exception("El medico autenticado no es valido.");
+            }
+
+            if (idUsuarioModificacion <= 0)
+            {
+                throw new Exception("El usuario autenticado no es valido.");
+            }
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
+            {
+                try
+                {
+                    manejador.Iniciar();
+
+                    TurnoDatos datos = new TurnoDatos(manejador.CrearAccesoDatos());
+                    Turno turnoActual = datos.ObtenerPorId(idTurno);
+                    ValidarPertenenciaMedico(turnoActual, idMedicoAutenticado);
+                    ValidarTurnoEditable(turnoActual);
+
+                    Usuario usuario = new UsuarioNegocio().ObtenerPorId(idUsuarioModificacion);
+                    if (usuario == null)
+                    {
+                        throw new Exception("El usuario que modifica el turno no existe.");
+                    }
+
+                    ValidarDiagnosticoMedico(diagnosticoMedico);
+                    datos.ModificarDiagnosticoMedico(idTurno, diagnosticoMedico, idUsuarioModificacion);
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
+            }
+        }
+
+        public void MarcarNoAsistioComoMedico(int idTurno, int idUsuarioModificacion, int idMedicoAutenticado)
+        {
+            CambiarEstadoComoMedico(idTurno, idUsuarioModificacion, idMedicoAutenticado, EstadoTurnoEnum.NoAsistio);
+        }
+
+        public void CerrarComoMedico(int idTurno, int idUsuarioModificacion, int idMedicoAutenticado, string diagnosticoMedico)
+        {
+            CambiarEstadoComoMedico(
+                idTurno,
+                idUsuarioModificacion,
+                idMedicoAutenticado,
+                EstadoTurnoEnum.Cerrado,
+                diagnosticoMedico);
+        }
+
         private void ValidarAlta(Turno turno)
         {
             if (turno == null)
@@ -328,6 +406,15 @@ namespace TurnosClinica.Negocio
             turno.UsuarioModificacion = usuario;
         }
 
+        private void ValidarDiagnosticoMedico(string diagnosticoMedico)
+        {
+            if (!string.IsNullOrWhiteSpace(diagnosticoMedico)
+                && diagnosticoMedico.Trim().Length > 500)
+            {
+                throw new Exception("El diagnostico no puede superar los 500 caracteres.");
+            }
+        }
+
         private void ValidarReprogramacion(Turno turno)
         {
             ValidarModificacion(turno);
@@ -402,6 +489,24 @@ namespace TurnosClinica.Negocio
             return false;
         }
 
+        private void ValidarPertenenciaMedico(Turno turno, int idMedicoAutenticado)
+        {
+            if (idMedicoAutenticado <= 0)
+            {
+                throw new Exception("El medico autenticado no es valido.");
+            }
+
+            if (turno == null)
+            {
+                throw new Exception("El turno no existe.");
+            }
+
+            if (turno.Medico == null || turno.Medico.IdMedico != idMedicoAutenticado)
+            {
+                throw new Exception("No tiene permisos para acceder a este turno.");
+            }
+        }
+
         private void CambiarEstado(int idTurno, int idUsuarioModificacion, EstadoTurnoEnum estadoDestino)
         {
             if (idTurno <= 0)
@@ -429,6 +534,65 @@ namespace TurnosClinica.Negocio
                     if (usuario == null)
                     {
                         throw new Exception("El usuario que modifica el turno no existe.");
+                    }
+
+                    EstadoTurno estadoTurno = estadoTurnoNegocio.ObtenerPorNombre(estadoDestino.ToString());
+                    if (estadoTurno == null)
+                    {
+                        throw new Exception("El estado del turno no existe.");
+                    }
+
+                    datos.CambiarEstado(idTurno, estadoTurno.IdEstadoTurno, idUsuarioModificacion);
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
+            }
+        }
+
+        private void CambiarEstadoComoMedico(
+            int idTurno,
+            int idUsuarioModificacion,
+            int idMedicoAutenticado,
+            EstadoTurnoEnum estadoDestino,
+            string diagnosticoMedico = null)
+        {
+            if (idTurno <= 0)
+            {
+                throw new Exception("El id del turno no es valido.");
+            }
+
+            if (idUsuarioModificacion <= 0)
+            {
+                throw new Exception("El id del usuario no es valido.");
+            }
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
+            {
+                try
+                {
+                    manejador.Iniciar();
+
+                    TurnoDatos datos = new TurnoDatos(manejador.CrearAccesoDatos());
+                    EstadoTurnoNegocio estadoTurnoNegocio = new EstadoTurnoNegocio(manejador.CrearAccesoDatos());
+                    Turno turnoActual = datos.ObtenerPorId(idTurno);
+                    ValidarPertenenciaMedico(turnoActual, idMedicoAutenticado);
+                    ValidarTurnoEditable(turnoActual);
+
+                    Usuario usuario = new UsuarioNegocio().ObtenerPorId(idUsuarioModificacion);
+                    if (usuario == null)
+                    {
+                        throw new Exception("El usuario que modifica el turno no existe.");
+                    }
+
+                    ValidarDiagnosticoMedico(diagnosticoMedico);
+
+                    if (estadoDestino == EstadoTurnoEnum.Cerrado)
+                    {
+                        datos.ModificarDiagnosticoMedico(idTurno, diagnosticoMedico, idUsuarioModificacion);
                     }
 
                     EstadoTurno estadoTurno = estadoTurnoNegocio.ObtenerPorNombre(estadoDestino.ToString());

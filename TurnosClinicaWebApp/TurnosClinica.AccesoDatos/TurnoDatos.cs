@@ -34,6 +34,75 @@ namespace TurnosClinica.AccesoDatos
             return ListarPorFiltros(palabra, null, null);
         }
 
+        public List<Turno> ListarPorMedicoConFiltros(int idMedico, string palabra, int? idEstadoTurno, DateTime? fechaTurno)
+        {
+            List<Turno> turnos = new List<Turno>();
+
+            try
+            {
+                string consulta = ObtenerConsultaBase() + " WHERE T.IdMedico = @idMedico";
+
+                if (!string.IsNullOrWhiteSpace(palabra))
+                {
+                    consulta += " AND ("
+                        + "CAST(T.IdTurno AS VARCHAR(20)) LIKE '%' + @palabra + '%'"
+                        + " OR PPA.DNI LIKE '%' + @palabra + '%'"
+                        + " OR PPA.Nombre LIKE '%' + @palabra + '%'"
+                        + " OR PPA.Apellido LIKE '%' + @palabra + '%'"
+                        + " OR E.Nombre LIKE '%' + @palabra + '%'"
+                        + " OR ET.Nombre LIKE '%' + @palabra + '%'"
+                        + ")";
+                }
+
+                if (idEstadoTurno.HasValue)
+                {
+                    consulta += " AND T.IdEstadoTurno = @idEstadoTurno";
+                }
+
+                if (fechaTurno.HasValue)
+                {
+                    consulta += " AND T.FechaTurno = @fechaTurno";
+                }
+
+                consulta += " ORDER BY T.FechaTurno ASC, T.HoraInicio ASC, PPA.Apellido, PPA.Nombre";
+
+                accesoDatos.setearConsulta(consulta);
+                accesoDatos.setearParametro("@idMedico", idMedico);
+
+                if (!string.IsNullOrWhiteSpace(palabra))
+                {
+                    accesoDatos.setearParametro("@palabra", palabra.Trim());
+                }
+
+                if (idEstadoTurno.HasValue)
+                {
+                    accesoDatos.setearParametro("@idEstadoTurno", idEstadoTurno.Value);
+                }
+
+                if (fechaTurno.HasValue)
+                {
+                    accesoDatos.setearParametro("@fechaTurno", fechaTurno.Value.Date);
+                }
+
+                accesoDatos.ejecutarLectura();
+
+                while (accesoDatos.Lector.Read())
+                {
+                    turnos.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
+
+                return turnos;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
         public List<Turno> ListarPorFiltros(string palabra, int? idEstadoTurno, DateTime? fechaTurno)
         {
             List<Turno> turnos = new List<Turno>();
@@ -195,6 +264,33 @@ namespace TurnosClinica.AccesoDatos
                     ? (object)DBNull.Value
                     : turno.DiagnosticoMedico.Trim());
                 accesoDatos.setearParametro("@idUsuarioModificacion", turno.UsuarioModificacion.IdUsuario);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public void ModificarDiagnosticoMedico(int idTurno, string diagnosticoMedico, int idUsuarioModificacion)
+        {
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "UPDATE Turnos"
+                    + " SET DiagnosticoMedico = @diagnosticoMedico,"
+                    + " FechaModificacion = GETDATE(),"
+                    + " IdUsuarioModificacion = @idUsuarioModificacion"
+                    + " WHERE IdTurno = @idTurno");
+                accesoDatos.setearParametro("@idTurno", idTurno);
+                accesoDatos.setearParametro("@diagnosticoMedico", string.IsNullOrWhiteSpace(diagnosticoMedico)
+                    ? (object)DBNull.Value
+                    : diagnosticoMedico.Trim());
+                accesoDatos.setearParametro("@idUsuarioModificacion", idUsuarioModificacion);
                 accesoDatos.ejecutarAccion();
             }
             catch

@@ -1,6 +1,7 @@
 using System;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
@@ -8,6 +9,7 @@ namespace TurnosClinica.Web
     public partial class DetalleTurno : Page
     {
         private readonly TurnoNegocio turnoNegocio = new TurnoNegocio();
+        private readonly MedicoNegocio medicoNegocio = new MedicoNegocio();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -35,8 +37,22 @@ namespace TurnosClinica.Web
         {
             try
             {
-                Turno turno = ConstruirTurnoModificado();
-                turnoNegocio.Modificar(turno);
+                Usuario usuario = ObtenerUsuarioActual();
+                Medico medico = ObtenerMedicoActualSiCorresponde(usuario);
+
+                if (EsModoMedico(medico))
+                {
+                    turnoNegocio.ModificarDiagnosticoMedico(
+                        ObtenerIdTurno(),
+                        txtDiagnosticoMedico.Text,
+                        medico.IdMedico,
+                        usuario.IdUsuario);
+                }
+                else
+                {
+                    Turno turno = ConstruirTurnoModificado();
+                    turnoNegocio.Modificar(turno);
+                }
 
                 Response.Redirect("DetalleTurno.aspx?id=" + ObtenerIdTurno(), false);
                 Context.ApplicationInstance.CompleteRequest();
@@ -58,7 +74,7 @@ namespace TurnosClinica.Web
             try
             {
                 turnoNegocio.Cancelar(ObtenerIdTurno(), ObtenerUsuarioActual().IdUsuario);
-                Response.Redirect("ListaTurnos.aspx", false);
+                Response.Redirect(ObtenerUrlVolver(), false);
                 Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
@@ -71,8 +87,19 @@ namespace TurnosClinica.Web
         {
             try
             {
-                turnoNegocio.MarcarNoAsistio(ObtenerIdTurno(), ObtenerUsuarioActual().IdUsuario);
-                Response.Redirect("ListaTurnos.aspx", false);
+                Usuario usuario = ObtenerUsuarioActual();
+                Medico medico = ObtenerMedicoActualSiCorresponde(usuario);
+
+                if (EsModoMedico(medico))
+                {
+                    turnoNegocio.MarcarNoAsistioComoMedico(ObtenerIdTurno(), usuario.IdUsuario, medico.IdMedico);
+                }
+                else
+                {
+                    turnoNegocio.MarcarNoAsistio(ObtenerIdTurno(), usuario.IdUsuario);
+                }
+
+                Response.Redirect(ObtenerUrlVolver(), false);
                 Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
@@ -85,8 +112,23 @@ namespace TurnosClinica.Web
         {
             try
             {
-                turnoNegocio.Cerrar(ObtenerIdTurno(), ObtenerUsuarioActual().IdUsuario);
-                Response.Redirect("ListaTurnos.aspx", false);
+                Usuario usuario = ObtenerUsuarioActual();
+                Medico medico = ObtenerMedicoActualSiCorresponde(usuario);
+
+                if (EsModoMedico(medico))
+                {
+                    turnoNegocio.CerrarComoMedico(
+                        ObtenerIdTurno(),
+                        usuario.IdUsuario,
+                        medico.IdMedico,
+                        txtDiagnosticoMedico.Text);
+                }
+                else
+                {
+                    turnoNegocio.Cerrar(ObtenerIdTurno(), usuario.IdUsuario);
+                }
+
+                Response.Redirect(ObtenerUrlVolver(), false);
                 Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
@@ -97,7 +139,7 @@ namespace TurnosClinica.Web
 
         protected void btnVolver_Click(object sender, EventArgs e)
         {
-            Response.Redirect("ListaTurnos.aspx", false);
+            Response.Redirect(ObtenerUrlVolver(), false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
@@ -119,7 +161,10 @@ namespace TurnosClinica.Web
 
         private void CargarTurno()
         {
-            Turno turno = ObtenerTurnoActual();
+            Usuario usuario = ObtenerUsuarioActual();
+            Medico medico = ObtenerMedicoActualSiCorresponde(usuario);
+            Turno turno = ObtenerTurnoActual(medico);
+            bool esModoMedico = EsModoMedico(turno, medico);
 
             txtNumeroTurno.Text = turno.NumeroTurno;
             txtEstado.Text = turno.EstadoTurno.Nombre;
@@ -131,27 +176,30 @@ namespace TurnosClinica.Web
             txtEmailPaciente.Text = turno.Paciente.Persona.Email;
             txtObservaciones.Text = turno.Observaciones;
             txtDiagnosticoMedico.Text = turno.DiagnosticoMedico;
-            ConfigurarSegunEstado(turno);
+            ConfigurarSegunEstado(turno, esModoMedico);
             pnlContenido.Visible = true;
         }
 
-        private void ConfigurarSegunEstado(Turno turno)
+        private void ConfigurarSegunEstado(Turno turno, bool esModoMedico)
         {
             bool esFinal = turno.EstadoTurno != null && turno.EstadoTurno.EsFinal;
 
-            txtObservaciones.ReadOnly = esFinal;
+            txtObservaciones.ReadOnly = esFinal || esModoMedico;
             txtDiagnosticoMedico.ReadOnly = esFinal;
             btnGuardar.Visible = !esFinal;
-            btnReprogramar.Visible = !esFinal;
-            btnCancelarTurno.Visible = !esFinal;
+            btnReprogramar.Visible = !esFinal && !esModoMedico;
+            btnCancelarTurno.Visible = !esFinal && !esModoMedico;
             btnNoAsistio.Visible = !esFinal;
             btnCerrarTurno.Visible = !esFinal;
+            btnVolver.Text = esModoMedico ? "Volver" : "Cancelar";
         }
 
-        private Turno ObtenerTurnoActual()
+        private Turno ObtenerTurnoActual(Medico medicoActual = null)
         {
             int idTurno = ObtenerIdTurno();
-            Turno turno = turnoNegocio.ObtenerPorId(idTurno);
+            Turno turno = medicoActual != null
+                ? turnoNegocio.ObtenerPorIdParaMedico(idTurno, medicoActual.IdMedico)
+                : turnoNegocio.ObtenerPorId(idTurno);
 
             if (turno == null)
             {
@@ -190,6 +238,68 @@ namespace TurnosClinica.Web
             }
 
             throw new Exception("Debe iniciar sesion para modificar el turno.");
+        }
+
+        private Medico ObtenerMedicoActual(Usuario usuario)
+        {
+            if (usuario == null || usuario.Persona == null || usuario.Persona.IdPersona <= 0)
+            {
+                throw new Exception("No se pudo identificar la persona asociada al usuario autenticado.");
+            }
+
+            return medicoNegocio.ObtenerPorIdPersona(usuario.Persona.IdPersona);
+        }
+
+        private Medico ObtenerMedicoActualSiCorresponde(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return ObtenerMedicoActual(usuario);
+            }
+            catch
+            {
+                if (usuario.Rol != null
+                    && string.Equals(
+                        usuario.Rol.Nombre,
+                        RolEnum.Medico.ToString(),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    throw;
+                }
+
+                return null;
+            }
+        }
+
+        private bool EsModoMedico(Medico medicoActual)
+        {
+            if (medicoActual == null)
+            {
+                return false;
+            }
+
+            Turno turno = ObtenerTurnoActual(medicoActual);
+            return EsModoMedico(turno, medicoActual);
+        }
+
+        private bool EsModoMedico(Turno turno, Medico medicoActual)
+        {
+            return medicoActual != null
+                && turno != null
+                && turno.Medico != null
+                && turno.Medico.IdMedico == medicoActual.IdMedico;
+        }
+
+        private string ObtenerUrlVolver()
+        {
+            Usuario usuario = ObtenerUsuarioActual();
+            Medico medico = ObtenerMedicoActualSiCorresponde(usuario);
+            return EsModoMedico(medico) ? "MisTurnos.aspx" : "ListaTurnos.aspx";
         }
     }
 }
