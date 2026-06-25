@@ -1,5 +1,6 @@
 using System;
 using System.Web.UI;
+using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.Web
 {
@@ -11,6 +12,16 @@ namespace TurnosClinica.Web
             LnkPanelPrincipal.Visible = usuarioAutenticado;
             LnkIngresar.Visible = !usuarioAutenticado;
             LnkSalir.Visible = usuarioAutenticado;
+            imgAvatar.Visible = usuarioAutenticado;
+
+            if (usuarioAutenticado)
+            {
+                Usuario user = (Usuario)Session["UsuarioActual"];
+                
+                // Mostrar la imagen asumiendo el nombre fijo que configuramos al guardar.
+                // Tal como indicaste, la validación de si es null se hará en otro commit.
+                imgAvatar.ImageUrl = "~/Images/Perfiles/perfil-" + user.IdUsuario + ".jpg";
+            }
         }
 
         protected void LnkSalir_Click(object sender, EventArgs e)

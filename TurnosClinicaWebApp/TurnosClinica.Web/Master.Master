@@ -35,8 +35,11 @@
                         </li>
                     </ul>
 
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
                         <li class="nav-item"><a class="nav-link" href="/Perfil/MiPerfil.aspx">Mi Perfil</a></li>
+                        <li class="nav-item">
+                            <asp:Image ID="imgAvatar" style="height:40px; width:40px; border-radius:50%; object-fit:cover; margin: 0 10px;" ImageUrl="https://simg.nicepng.com/png/small/202-2022264_usuario-annimo-usuario-anpnimo-user-icon-png-transparent.png" runat="server" />
+                        </li>
                         <li class="nav-item">
                             <asp:HyperLink ID="LnkIngresar" runat="server" CssClass="nav-link" NavigateUrl="~/Ingresar.aspx">Ingresar</asp:HyperLink>
                         </li>

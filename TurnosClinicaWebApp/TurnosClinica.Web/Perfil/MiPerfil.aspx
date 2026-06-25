@@ -24,7 +24,7 @@
                 <asp:TextBox runat="server" CssClass="form-control" ID="txtFechaNacimiento" TextMode="Date" />
             </div>
             <div class="mb-3">
-                <asp:Button Text="Guardar" CssClass="btn btn-primary" ID="btnGuardar" runat="server" />
+                <asp:Button Text="Guardar" CssClass="btn btn-primary" OnClick="btnGuardar_Click" ID="btnGuardar" runat="server" />
                 <a href="/">Regresar</a>
             </div>
         </div>
