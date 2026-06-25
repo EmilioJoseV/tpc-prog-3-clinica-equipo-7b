@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
@@ -15,6 +14,21 @@ namespace TurnosClinica.Negocio
         public TurnoNegocio()
         {
             turnoDatos = new TurnoDatos(new AccesoDatosBase());
+        }
+
+        public List<Turno> Listar()
+        {
+            return turnoDatos.Listar();
+        }
+
+        public List<Turno> ListarFiltroRapido(string palabra)
+        {
+            return turnoDatos.ListarFiltroRapido(palabra);
+        }
+
+        public List<Turno> ListarPorFiltros(string palabra, int? idEstadoTurno, DateTime? fechaTurno)
+        {
+            return turnoDatos.ListarPorFiltros(palabra, idEstadoTurno, fechaTurno);
         }
 
         public Turno ObtenerPorId(int idTurno)
@@ -72,6 +86,109 @@ namespace TurnosClinica.Negocio
             }
 
             EnviarConfirmacion(turno);
+        }
+
+        public void Modificar(Turno turno)
+        {
+            ValidarModificacion(turno);
+
+            Turno turnoActual = ObtenerPorId(turno.IdTurno);
+            ValidarTurnoEditable(turnoActual);
+
+            turno.Paciente = turnoActual.Paciente;
+            turno.Medico = turnoActual.Medico;
+            turno.Especialidad = turnoActual.Especialidad;
+            turno.FechaTurno = turnoActual.FechaTurno;
+            turno.HoraInicio = turnoActual.HoraInicio;
+            turno.HoraFin = turnoActual.HoraFin;
+            turno.EstadoTurno = turnoActual.EstadoTurno;
+            turno.UsuarioAlta = turnoActual.UsuarioAlta;
+            turno.Observaciones = turno.Observaciones.Trim();
+            turno.DiagnosticoMedico = string.IsNullOrWhiteSpace(turno.DiagnosticoMedico)
+                ? null
+                : turno.DiagnosticoMedico.Trim();
+
+            turnoDatos.Modificar(turno);
+        }
+
+        public void Reprogramar(Turno turno)
+        {
+            ValidarReprogramacion(turno);
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
+            {
+                try
+                {
+                    manejador.Iniciar();
+
+                    TurnoDatos datos = new TurnoDatos(manejador.CrearAccesoDatos());
+                    EstadoTurnoNegocio estadoTurnoNegocio = new EstadoTurnoNegocio(manejador.CrearAccesoDatos());
+                    Turno turnoActual = datos.ObtenerPorId(turno.IdTurno);
+                    ValidarTurnoEditable(turnoActual);
+
+                    Especialidad especialidad = new EspecialidadNegocio().ObtenerPorId(turnoActual.Especialidad.IdEspecialidad);
+                    if (especialidad == null || !especialidad.Activo)
+                    {
+                        throw new Exception("La especialidad del turno no esta disponible.");
+                    }
+
+                    Medico medico = new MedicoNegocio().ObtenerPorId(turno.Medico.IdMedico);
+                    if (medico == null || !medico.Activo)
+                    {
+                        throw new Exception("El medico seleccionado no esta disponible.");
+                    }
+
+                    bool atiendeEspecialidad = AtiendeEspecialidad(medico, especialidad.IdEspecialidad);
+                    if (!atiendeEspecialidad)
+                    {
+                        throw new Exception("El medico no atiende la especialidad del turno.");
+                    }
+
+                    turno.Paciente = turnoActual.Paciente;
+                    turno.Especialidad = especialidad;
+                    turno.UsuarioAlta = turnoActual.UsuarioAlta;
+                    turno.EstadoTurno = estadoTurnoNegocio.ObtenerPorNombre(EstadoTurnoEnum.Reprogramado.ToString());
+                    turno.Observaciones = turno.Observaciones.Trim();
+                    turno.DiagnosticoMedico = string.IsNullOrWhiteSpace(turno.DiagnosticoMedico)
+                        ? null
+                        : turno.DiagnosticoMedico.Trim();
+
+                    ValidarHorarioDisponible(turno);
+
+                    if (datos.ExisteSuperposicionPacienteExcluyendoTurno(
+                        turno.Paciente.IdPaciente,
+                        turno.FechaTurno,
+                        turno.HoraInicio,
+                        turno.HoraFin,
+                        turno.IdTurno))
+                    {
+                        throw new Exception("El paciente ya tiene un turno en ese horario.");
+                    }
+
+                    datos.Modificar(turno);
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
+            }
+        }
+
+        public void Cancelar(int idTurno, int idUsuarioModificacion)
+        {
+            CambiarEstado(idTurno, idUsuarioModificacion, EstadoTurnoEnum.Cancelado);
+        }
+
+        public void MarcarNoAsistio(int idTurno, int idUsuarioModificacion)
+        {
+            CambiarEstado(idTurno, idUsuarioModificacion, EstadoTurnoEnum.NoAsistio);
+        }
+
+        public void Cerrar(int idTurno, int idUsuarioModificacion)
+        {
+            CambiarEstado(idTurno, idUsuarioModificacion, EstadoTurnoEnum.Cerrado);
         }
 
         private void ValidarAlta(Turno turno)
@@ -134,8 +251,7 @@ namespace TurnosClinica.Negocio
                 throw new Exception("El medico seleccionado no esta disponible.");
             }
 
-            bool atiendeEspecialidad = medico.Especialidades != null
-                && medico.Especialidades.Any(item => item.IdEspecialidad == especialidad.IdEspecialidad);
+            bool atiendeEspecialidad = AtiendeEspecialidad(medico, especialidad.IdEspecialidad);
             if (!atiendeEspecialidad)
             {
                 throw new Exception("El medico no atiende la especialidad seleccionada.");
@@ -164,18 +280,90 @@ namespace TurnosClinica.Negocio
             turno.UsuarioAlta = usuario;
         }
 
+        private void ValidarModificacion(Turno turno)
+        {
+            if (turno == null)
+            {
+                throw new Exception("El turno es obligatorio.");
+            }
+
+            if (turno.IdTurno <= 0)
+            {
+                throw new Exception("El id del turno no es valido.");
+            }
+
+            if (turno.UsuarioModificacion == null || turno.UsuarioModificacion.IdUsuario <= 0)
+            {
+                throw new Exception("No se pudo identificar al usuario que modifica el turno.");
+            }
+
+            if (string.IsNullOrWhiteSpace(turno.Observaciones))
+            {
+                throw new Exception("Las observaciones son obligatorias.");
+            }
+
+            if (turno.Observaciones.Trim().Length > 500)
+            {
+                throw new Exception("Las observaciones no pueden superar los 500 caracteres.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(turno.DiagnosticoMedico)
+                && turno.DiagnosticoMedico.Trim().Length > 500)
+            {
+                throw new Exception("El diagnostico no puede superar los 500 caracteres.");
+            }
+
+            Usuario usuario = new UsuarioNegocio().ObtenerPorId(turno.UsuarioModificacion.IdUsuario);
+            if (usuario == null)
+            {
+                throw new Exception("El usuario que modifica el turno no existe.");
+            }
+
+            turno.UsuarioModificacion = usuario;
+        }
+
+        private void ValidarReprogramacion(Turno turno)
+        {
+            ValidarModificacion(turno);
+
+            if (turno.Medico == null || turno.Medico.IdMedico <= 0)
+            {
+                throw new Exception("Debe seleccionar un medico.");
+            }
+        }
+
+        private void ValidarTurnoEditable(Turno turno)
+        {
+            if (turno == null)
+            {
+                throw new Exception("El turno no existe.");
+            }
+
+            if (turno.EstadoTurno != null && turno.EstadoTurno.EsFinal)
+            {
+                throw new Exception("El turno esta en un estado final y no admite cambios.");
+            }
+        }
+
         private void ValidarHorarioDisponible(Turno turno)
         {
             List<TurnoDisponibleDTO> disponibles = new TurnoCalculoService().ListarTurnosDisponibles(
                 turno.Especialidad.IdEspecialidad,
                 turno.FechaTurno);
 
-            bool horarioDisponible = disponibles.Any(disponible =>
-                disponible.Medico != null
-                && disponible.Medico.IdMedico == turno.Medico.IdMedico
-                && disponible.FechaTurno.Date == turno.FechaTurno.Date
-                && disponible.HoraInicio == turno.HoraInicio
-                && disponible.HoraFin == turno.HoraFin);
+            bool horarioDisponible = false;
+            foreach (TurnoDisponibleDTO disponible in disponibles)
+            {
+                if (disponible.Medico != null
+                    && disponible.Medico.IdMedico == turno.Medico.IdMedico
+                    && disponible.FechaTurno.Date == turno.FechaTurno.Date
+                    && disponible.HoraInicio == turno.HoraInicio
+                    && disponible.HoraFin == turno.HoraFin)
+                {
+                    horarioDisponible = true;
+                    break;
+                }
+            }
 
             if (!horarioDisponible)
             {
@@ -188,6 +376,70 @@ namespace TurnosClinica.Negocio
             turno.FechaTurno = turno.FechaTurno.Date;
             turno.Observaciones = turno.Observaciones.Trim();
             turno.DiagnosticoMedico = null;
+        }
+
+        private bool AtiendeEspecialidad(Medico medico, int idEspecialidad)
+        {
+            if (medico == null || medico.Especialidades == null)
+            {
+                return false;
+            }
+
+            foreach (Especialidad especialidad in medico.Especialidades)
+            {
+                if (especialidad != null && especialidad.IdEspecialidad == idEspecialidad)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void CambiarEstado(int idTurno, int idUsuarioModificacion, EstadoTurnoEnum estadoDestino)
+        {
+            if (idTurno <= 0)
+            {
+                throw new Exception("El id del turno no es valido.");
+            }
+
+            if (idUsuarioModificacion <= 0)
+            {
+                throw new Exception("El id del usuario no es valido.");
+            }
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
+            {
+                try
+                {
+                    manejador.Iniciar();
+
+                    TurnoDatos datos = new TurnoDatos(manejador.CrearAccesoDatos());
+                    EstadoTurnoNegocio estadoTurnoNegocio = new EstadoTurnoNegocio(manejador.CrearAccesoDatos());
+                    Turno turnoActual = datos.ObtenerPorId(idTurno);
+                    ValidarTurnoEditable(turnoActual);
+
+                    Usuario usuario = new UsuarioNegocio().ObtenerPorId(idUsuarioModificacion);
+                    if (usuario == null)
+                    {
+                        throw new Exception("El usuario que modifica el turno no existe.");
+                    }
+
+                    EstadoTurno estadoTurno = estadoTurnoNegocio.ObtenerPorNombre(estadoDestino.ToString());
+                    if (estadoTurno == null)
+                    {
+                        throw new Exception("El estado del turno no existe.");
+                    }
+
+                    datos.CambiarEstado(idTurno, estadoTurno.IdEstadoTurno, idUsuarioModificacion);
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
+            }
         }
 
         private void EnviarConfirmacion(Turno turno)
