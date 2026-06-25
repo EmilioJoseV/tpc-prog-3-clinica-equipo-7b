@@ -1,5 +1,6 @@
 using System;
 using System.Web.UI;
+using System.IO;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.Web
@@ -17,10 +18,20 @@ namespace TurnosClinica.Web
             if (usuarioAutenticado)
             {
                 Usuario user = (Usuario)Session["UsuarioActual"];
-                
-                // Mostrar la imagen asumiendo el nombre fijo que configuramos al guardar.
-                // Tal como indicaste, la validación de si es null se hará en otro commit.
-                imgAvatar.ImageUrl = "~/Images/Perfiles/perfil-" + user.IdUsuario + ".jpg";
+
+                //para tenr la ruta fisica
+                string rutaImagen = Server.MapPath("~/Images/Perfiles/perfil-" + user.IdUsuario + ".jpg");
+
+               
+                if (File.Exists(rutaImagen))
+                {
+                    // Si existe le voy a  mostrar la foto
+                    imgAvatar.ImageUrl = "~/Images/Perfiles/perfil-" + user.IdUsuario + ".jpg";
+                }
+                else
+                {
+                    imgAvatar.ImageUrl = "https://simg.nicepng.com/png/small/202-2022264_usuario-annimo-usuario-anpnimo-user-icon-png-transparent.png";
+                }
             }
         }
 
