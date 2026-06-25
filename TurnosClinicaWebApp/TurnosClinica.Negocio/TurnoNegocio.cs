@@ -181,6 +181,16 @@ namespace TurnosClinica.Negocio
                         throw new Exception("El paciente ya tiene un turno en ese horario.");
                     }
 
+                    if (datos.ExisteSuperposicionMedicoExcluyendoTurno(
+                        turno.Medico.IdMedico,
+                        turno.FechaTurno,
+                        turno.HoraInicio,
+                        turno.HoraFin,
+                        turno.IdTurno))
+                    {
+                        throw new Exception("El medico ya tiene un turno en ese horario.");
+                    }
+
                     datos.Modificar(turno);
                     manejador.Confirmar();
                 }
@@ -356,6 +366,15 @@ namespace TurnosClinica.Negocio
                 turno.HoraFin))
             {
                 throw new Exception("El paciente ya tiene un turno en ese horario.");
+            }
+
+            if (turnoDatos.ExisteSuperposicionMedico(
+                medico.IdMedico,
+                turno.FechaTurno,
+                turno.HoraInicio,
+                turno.HoraFin))
+            {
+                throw new Exception("El medico ya tiene un turno en ese horario.");
             }
 
             turno.Paciente = paciente;

@@ -337,6 +337,15 @@ namespace TurnosClinica.AccesoDatos
             return ExisteSuperposicion("T.IdPaciente = @id", idPaciente, fecha, horaInicio, horaFin);
         }
 
+        public bool ExisteSuperposicionMedico(
+            int idMedico,
+            DateTime fecha,
+            TimeSpan horaInicio,
+            TimeSpan horaFin)
+        {
+            return ExisteSuperposicion("T.IdMedico = @id", idMedico, fecha, horaInicio, horaFin);
+        }
+
         public bool ExisteSuperposicionPacienteExcluyendoTurno(
             int idPaciente,
             DateTime fecha,
@@ -347,6 +356,22 @@ namespace TurnosClinica.AccesoDatos
             return ExisteSuperposicion(
                 "T.IdPaciente = @id AND T.IdTurno <> @idTurnoExcluir",
                 idPaciente,
+                fecha,
+                horaInicio,
+                horaFin,
+                idTurnoExcluir);
+        }
+
+        public bool ExisteSuperposicionMedicoExcluyendoTurno(
+            int idMedico,
+            DateTime fecha,
+            TimeSpan horaInicio,
+            TimeSpan horaFin,
+            int idTurnoExcluir)
+        {
+            return ExisteSuperposicion(
+                "T.IdMedico = @id AND T.IdTurno <> @idTurnoExcluir",
+                idMedico,
                 fecha,
                 horaInicio,
                 horaFin,

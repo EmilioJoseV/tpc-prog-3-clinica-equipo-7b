@@ -252,6 +252,58 @@ CREATE TABLE dbo.Turnos
 );
 GO
 
+-- Trigger para validar solapamientos de turnos por medico y paciente
+CREATE TRIGGER TR_Turnos_ValidarSolapamientos
+ON dbo.Turnos
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS
+    (
+        SELECT 1
+        FROM inserted I
+        INNER JOIN dbo.EstadosTurno EI
+            ON EI.IdEstadoTurno = I.IdEstadoTurno
+        INNER JOIN dbo.Turnos T
+            ON T.IdMedico = I.IdMedico
+            AND T.FechaTurno = I.FechaTurno
+            AND I.HoraInicio < T.HoraFin
+            AND T.HoraInicio < I.HoraFin
+            AND T.IdTurno <> I.IdTurno
+        INNER JOIN dbo.EstadosTurno ET
+            ON ET.IdEstadoTurno = T.IdEstadoTurno
+        WHERE EI.EsFinal = 0
+            AND ET.EsFinal = 0
+    )
+    BEGIN
+        THROW 50001, 'El medico ya tiene un turno en ese horario', 1;
+    END;
+
+    IF EXISTS
+    (
+        SELECT 1
+        FROM inserted I
+        INNER JOIN dbo.EstadosTurno EI
+            ON EI.IdEstadoTurno = I.IdEstadoTurno
+        INNER JOIN dbo.Turnos T
+            ON T.IdPaciente = I.IdPaciente
+            AND T.FechaTurno = I.FechaTurno
+            AND I.HoraInicio < T.HoraFin
+            AND T.HoraInicio < I.HoraFin
+            AND T.IdTurno <> I.IdTurno
+        INNER JOIN dbo.EstadosTurno ET
+            ON ET.IdEstadoTurno = T.IdEstadoTurno
+        WHERE EI.EsFinal = 0
+            AND ET.EsFinal = 0
+    )
+    BEGIN
+        THROW 50002, 'El paciente ya tiene un turno en ese horario', 1;
+    END;
+END;
+GO
+
 -- DATOS DE PRUEBA
 INSERT INTO dbo.Roles (Nombre, Descripcion)
 VALUES
@@ -437,7 +489,7 @@ VALUES
 (2, 2, 3, 1, '2026-06-02', '14:00', '15:00', 'Dolor de muela', NULL, 2, NULL, NULL), -- Numero de turno: T-002
 (3, 3, 4, 2, '2026-06-03', '10:00', '11:00', 'Control pediatrico reprogramado', NULL, 2, GETDATE(), 2), -- Numero de turno: T-003
 (4, 4, 5, 3, '2026-06-04', '08:00', '09:00', 'Molestia en rodilla - turno cancelado', NULL, 2, GETDATE(), 2), -- Numero de turno: T-004
-(5, 5, 2, 5, '2026-06-05', '10:00', '11:00', 'Control cardiologico', 'Paciente evaluada. Se solicita control posterior.', 2, GETDATE(), 5); -- Numero de turno: T-005
+(5, 5, 2, 5, '2026-06-05', '10:00', '11:00', 'Control cardiologico', 'Paciente evaluada, hay que control posterior.', 2, GETDATE(), 5); -- Numero de turno: T-005
 GO
 
 SELECT 'Base de datos creada OK...' AS Resultado;
