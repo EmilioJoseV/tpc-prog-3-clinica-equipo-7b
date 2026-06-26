@@ -635,11 +635,11 @@ namespace TurnosClinica.Negocio
         {
             try
             {
-                new MailNegocio().EnviarConfirmacionTurnoNuevo(turno);
+                new MailService().EnviarConfirmacionTurnoNuevo(turno);
             }
             catch
             {
-                //Por ahora no hacemos nada....
+                //No hacemos nada, si no se pudo enviar el mail, no es un error critico para la aplicacion o que bloquee la accion
             }
         }
     }

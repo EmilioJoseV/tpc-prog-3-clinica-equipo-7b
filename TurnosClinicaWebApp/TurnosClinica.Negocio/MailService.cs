@@ -9,20 +9,21 @@ using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.Negocio
 {
-    public class MailNegocio
+    public class MailService
     {
+        private const string CuentaSmtp = "wonderfulboringapps@gmail.com";
         private MailMessage email;
         private SmtpClient server;
         
-        public MailNegocio()
+        public MailService()
         {
             server = new SmtpClient();
-            server.Credentials = new NetworkCredential("programationiii@gmail.com", "programacion3");
+            server.Credentials = new NetworkCredential(CuentaSmtp, "znqakfjxkoszbqrg");
             server.EnableSsl = true;
             server.Port = 587;
-            server.Host = "smtp.gmail.com";
+            server.Host = "smtp.gmail.com"; 
         }
-        // est es el metodo el cual usaremos
+
         public void EnviarConfirmacionTurnoNuevo(Turno turno)
         {
             // verifico si el paciente exist y el mail
@@ -48,7 +49,7 @@ namespace TurnosClinica.Negocio
             // el strong lo estoy usando para poner el texto en negritA
             
             email = new MailMessage();
-            email.From = new MailAddress("noresponder@clinicamedica.com", "Turnos Clínica");
+            email.From = new MailAddress("no-responder."  +CuentaSmtp, "Turnos Clinica");
             email.To.Add(turno.Paciente.Persona.Email);
             email.Subject = asunto;
             email.IsBodyHtml = true;
