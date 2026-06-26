@@ -43,24 +43,41 @@ namespace TurnosClinica.Web
         {
             try
             {
-                
                 Usuario user = (Usuario)Session["UsuarioActual"];
+
+                if (user != null)
+                { 
+                    if (txtImagen.PostedFile != null && txtImagen.PostedFile.FileName != "")
+                    {
+                        string ruta = Server.MapPath("~/Images/Perfiles/");
+                        txtImagen.PostedFile.SaveAs(ruta + "perfil-" + user.IdUsuario + ".jpg");
+                        imgNuevoPerfil.ImageUrl = "~/Images/Perfiles/perfil-" + user.IdUsuario + ".jpg";
+                    }
+
                 
-                if (txtImagen.PostedFile.FileName != "")
-                {
-                    
-                    string ruta = Server.MapPath("~/Images/Perfiles/");                  
-                    txtImagen.PostedFile.SaveAs(ruta + "perfil-" + user.IdUsuario + ".jpg");
-                    imgNuevoPerfil.ImageUrl = "~/Images/Perfiles/perfil-" + user.IdUsuario + ".jpg";
+                    if (user.Persona != null)
+                    {
+                        user.Persona.Email = txtEmail.Text;
+                        user.Persona.Nombre = txtNombre.Text;
+                        user.Persona.Apellido = txtApellido.Text;
+
+                        TurnosClinica.Negocio.PersonaNegocio personaNegocio = new TurnosClinica.Negocio.PersonaNegocio();
+                        personaNegocio.Modificar(user.Persona);
+
+                        Session["UsuarioActual"] = user;
+                    }
                 }
-               
+                else
+                {
+                    Response.Redirect("~/Ingresar.aspx", false);
+                }
             }
             catch (Exception ex)
             {
                 Session.Add("error", ex.ToString());
             }
-
-
         }
+
+
     }
 }

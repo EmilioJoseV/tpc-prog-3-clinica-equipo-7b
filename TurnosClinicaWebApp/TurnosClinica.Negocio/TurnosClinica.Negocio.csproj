@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccesoService.cs" />
     <Compile Include="ConfiguracionTurnoNegocio.cs" />
     <Compile Include="DTO\TurnoDisponibleDTO.cs" />
     <Compile Include="EstadoTurnoNegocio.cs" />

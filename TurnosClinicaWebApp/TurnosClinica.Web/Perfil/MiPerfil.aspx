@@ -19,10 +19,7 @@
                 <label class="form-label">Apellido</label>
                 <asp:TextBox runat="server" CssClass="form-control" ID="txtApellido" />
             </div>
-            <div class="mb-3">
-                <label class="form-label">Fecha de Nacimiento</label>
-                <asp:TextBox runat="server" CssClass="form-control" ID="txtFechaNacimiento" TextMode="Date" />
-            </div>
+           
             <div class="mb-3">
                 <asp:Button Text="Guardar" CssClass="btn btn-primary" OnClick="btnGuardar_Click" ID="btnGuardar" runat="server" />
                 <a href="/">Regresar</a>

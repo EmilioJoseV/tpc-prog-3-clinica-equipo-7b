@@ -4,6 +4,9 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Negocio;
+
 
 namespace TurnosClinica.Web
 {
@@ -17,12 +20,23 @@ namespace TurnosClinica.Web
         {
             try
             {
-                
+                Persona nuevaPersona = new Persona();
+                nuevaPersona.Nombre = TxtNombre.Text;
+                nuevaPersona.Apellido = TxtApellido.Text;
+                nuevaPersona.DNI = TxtDni.Text;
+                nuevaPersona.Email = TxtEmail.Text;
+
+                AccesoService accesoService = new AccesoService();
+                accesoService.RegistrarUsuarioWeb(nuevaPersona, TxtContrasena.Text);
+
+              
+                Response.Redirect("Ingresar.aspx", false);
             }
             catch (Exception ex)
             {
                 Session.Add("error", ex.ToString());
             }
         }
+
     }
 }
