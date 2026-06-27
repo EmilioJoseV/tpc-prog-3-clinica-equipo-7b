@@ -19,7 +19,7 @@
             <asp:Button ID="BtnRegistrarme" runat="server" CssClass="btn btn-outline-primary ms-2"
                 Text="Registrarme" CausesValidation="false" />
             <asp:Button ID="BtnRecuperarContrasena" runat="server" CssClass="btn btn-outline-primary ms-2"
-                Text="Recuperar contrasena" CausesValidation="false" />
+                Text="Recuperar contrasena" CausesValidation="false" OnClick="BtnRecuperarContrasena_Click" />
         </div>
     </div>
 </asp:Content>

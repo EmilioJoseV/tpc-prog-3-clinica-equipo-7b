@@ -1,6 +1,8 @@
 using System;
+using System.Web;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Web
 {
@@ -17,6 +19,21 @@ namespace TurnosClinica.Web
             if (usuarioAutenticado)
             {
                 Usuario user = (Usuario)Session["UsuarioActual"];
+                bool cambioClavePendiente = user.EstadoUsuario != null
+                    && string.Equals(
+                        user.EstadoUsuario.Nombre,
+                        EstadoUsuarioEnum.CambioClavePendiente.ToString(),
+                        StringComparison.OrdinalIgnoreCase);
+
+                if (cambioClavePendiente
+                    && !EsPaginaPermitidaCambioClavePendiente())
+                {
+                    Response.Redirect("~/CambiarContrasenaPendiente.aspx", false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
+                }
+
+                LnkPanelPrincipal.Visible = !cambioClavePendiente;
                 
                 // Mostrar la imagen asumiendo el nombre fijo que configuramos al guardar.
                 // Tal como indicaste, la validación de si es null se hará en otro commit.
@@ -39,6 +56,15 @@ namespace TurnosClinica.Web
                 : mensaje;
             LblMensajeError.Text = Server.HtmlEncode(mensajeVisible);
             PnlMensajeError.Visible = true;
+        }
+
+        private bool EsPaginaPermitidaCambioClavePendiente()
+        {
+            string ruta = VirtualPathUtility.ToAppRelative(Request.AppRelativeCurrentExecutionFilePath);
+
+            return string.Equals(ruta, "~/CambiarContrasenaPendiente.aspx", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(ruta, "~/Ingresar.aspx", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(ruta, "~/RecuperarContrasena.aspx", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

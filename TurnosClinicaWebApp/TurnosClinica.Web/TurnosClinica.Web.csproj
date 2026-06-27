@@ -83,6 +83,7 @@
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
     <Content Include="Default.aspx" />
+    <Content Include="CambiarContrasenaPendiente.aspx" />
     <Content Include="Error.aspx" />
     <Content Include="Especialidades\ListaEspecialidades.aspx" />
     <Content Include="Especialidades\FormularioEspecialidad.aspx" />
@@ -94,6 +95,7 @@
     <Content Include="Pacientes\FormularioPaciente.aspx" />
     <Content Include="PanelPrincipal.aspx" />
     <Content Include="Perfil\MiPerfil.aspx" />
+    <Content Include="RecuperarContrasena.aspx" />
     <Content Include="Registro.aspx" />
     <Content Include="Turnos\ListaTurnos.aspx" />
     <Content Include="Turnos\ConfiguracionTurnos.aspx" />
@@ -113,6 +115,13 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CambiarContrasenaPendiente.aspx.cs">
+      <DependentUpon>CambiarContrasenaPendiente.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CambiarContrasenaPendiente.aspx.designer.cs">
+      <DependentUpon>CambiarContrasenaPendiente.aspx</DependentUpon>
     </Compile>
     <Compile Include="Error.aspx.cs">
       <DependentUpon>Error.aspx</DependentUpon>
@@ -198,6 +207,13 @@
     </Compile>
     <Compile Include="Perfil\MiPerfil.aspx.designer.cs">
       <DependentUpon>MiPerfil.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RecuperarContrasena.aspx.cs">
+      <DependentUpon>RecuperarContrasena.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RecuperarContrasena.aspx.designer.cs">
+      <DependentUpon>RecuperarContrasena.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registro.aspx.cs">

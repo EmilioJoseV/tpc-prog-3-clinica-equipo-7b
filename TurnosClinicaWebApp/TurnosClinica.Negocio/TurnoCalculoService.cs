@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio.DTO;
@@ -36,7 +35,7 @@ namespace TurnosClinica.Negocio
                 throw new Exception("La especialidad no esta disponible.");
             }
 
-            List<Medico> medicos = medicoNegocio.ListarPorEspecialidad(idEspecialidad);
+            List<Medico> medicos = medicoNegocio.ListarPorEspecialidadActivos(idEspecialidad);
             if (medicos.Count == 0)
             {
                 return new List<TurnoDisponibleDTO>();
@@ -48,14 +47,12 @@ namespace TurnosClinica.Negocio
 
             foreach (Medico medico in medicos)
             {
-                if (medico == null || !medico.Activo)
+                if (medico == null)
                 {
                     continue;
                 }
 
-                List<HorarioDisponibilidadMedico> horariosDelDia = horarioDisponibilidadMedicoNegocio.ListarPorMedico(medico.IdMedico)
-                    .Where(horario => horario.DiaSemana == diaSemana)
-                    .ToList();
+                List<HorarioDisponibilidadMedico> horariosDelDia = ObtenerHorariosDelDia(medico.IdMedico, diaSemana);
 
                 if (horariosDelDia.Count == 0)
                 {
@@ -74,16 +71,7 @@ namespace TurnosClinica.Negocio
                 }
             }
 
-            return turnosDisponibles
-                .GroupBy(turno => new
-                {
-                    IdMedico = turno.Medico.IdMedico,
-                    turno.FechaTurno,
-                    turno.HoraInicio,
-                    turno.HoraFin
-                })
-                .Select(grupo => grupo.First())
-                .ToList();
+            return QuitarDuplicados(turnosDisponibles);
         }
 
         public List<TurnoDisponibleDTO> ListarTurnosDisponiblesMasProximos(
@@ -127,11 +115,19 @@ namespace TurnosClinica.Negocio
         private List<Turno> ObtenerTurnosOcupados(int idMedico, DateTime fecha)
         {
             List<Turno> turnos = turnoNegocio.ListarPorMedicoYFecha(idMedico, fecha);
-            return turnos
-                .Where(turno => turno != null
+            List<Turno> turnosOcupados = new List<Turno>();
+
+            foreach (Turno turno in turnos)
+            {
+                if (turno != null
                     && turno.EstadoTurno != null
                     && !turno.EstadoTurno.EsFinal)
-                .ToList();
+                {
+                    turnosOcupados.Add(turno);
+                }
+            }
+
+            return turnosOcupados;
         }
 
         private int ObtenerDuracionBloque()
@@ -183,7 +179,7 @@ namespace TurnosClinica.Negocio
                 DateTime inicioTurno = fecha.Date.Add(horaActual);
 
                 if (inicioTurno > DateTime.Now
-                    && !turnosOcupados.Any(turno => SeSuperpone(turno.HoraInicio, turno.HoraFin, horaActual, horaFin)))
+                    && !ExisteSuperposicion(turnosOcupados, horaActual, horaFin))
                 {
                     turnos.Add(new TurnoDisponibleDTO
                     {
@@ -198,6 +194,68 @@ namespace TurnosClinica.Negocio
             }
 
             return turnos;
+        }
+
+        private List<HorarioDisponibilidadMedico> ObtenerHorariosDelDia(int idMedico, DiaSemanaEnum diaSemana)
+        {
+            List<HorarioDisponibilidadMedico> horarios = horarioDisponibilidadMedicoNegocio.ListarPorMedico(idMedico);
+            List<HorarioDisponibilidadMedico> horariosDelDia = new List<HorarioDisponibilidadMedico>();
+
+            foreach (HorarioDisponibilidadMedico horario in horarios)
+            {
+                if (horario != null && horario.DiaSemana == diaSemana)
+                {
+                    horariosDelDia.Add(horario);
+                }
+            }
+
+            return horariosDelDia;
+        }
+
+        private List<TurnoDisponibleDTO> QuitarDuplicados(List<TurnoDisponibleDTO> turnosDisponibles)
+        {
+            List<TurnoDisponibleDTO> turnosSinDuplicados = new List<TurnoDisponibleDTO>();
+
+            foreach (TurnoDisponibleDTO turno in turnosDisponibles)
+            {
+                if (!ExisteTurnoEnLista(turnosSinDuplicados, turno))
+                {
+                    turnosSinDuplicados.Add(turno);
+                }
+            }
+
+            return turnosSinDuplicados;
+        }
+
+        private bool ExisteTurnoEnLista(List<TurnoDisponibleDTO> turnos, TurnoDisponibleDTO turnoBuscado)
+        {
+            foreach (TurnoDisponibleDTO turno in turnos)
+            {
+                if (turno.Medico != null
+                    && turnoBuscado.Medico != null
+                    && turno.Medico.IdMedico == turnoBuscado.Medico.IdMedico
+                    && turno.FechaTurno == turnoBuscado.FechaTurno
+                    && turno.HoraInicio == turnoBuscado.HoraInicio
+                    && turno.HoraFin == turnoBuscado.HoraFin)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool ExisteSuperposicion(List<Turno> turnosOcupados, TimeSpan horaInicio, TimeSpan horaFin)
+        {
+            foreach (Turno turno in turnosOcupados)
+            {
+                if (SeSuperpone(turno.HoraInicio, turno.HoraFin, horaInicio, horaFin))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool SeSuperpone(TimeSpan inicioExistente, TimeSpan finExistente, TimeSpan inicioNuevo, TimeSpan finNuevo)

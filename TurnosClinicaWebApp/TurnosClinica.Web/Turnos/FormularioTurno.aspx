@@ -7,19 +7,36 @@
     <div class="container mt-4">
         <div class="row mb-3">
             <div class="col">
-                <h1 class="h3 mb-2">Nuevo Turno</h1>
-                <p class="text-secondary">Selecciona el paciente y busca un horario disponible.</p>
+                <h1 class="h3 mb-2">
+                    <asp:Label ID="LblTitulo" runat="server" Text="Nuevo Turno" />
+                </h1>
+                <p class="text-secondary">
+                    <asp:Label ID="LblSubtitulo" runat="server" Text="Selecciona el paciente y busca un horario disponible." />
+                </p>
             </div>
         </div>
 
+        <asp:Panel ID="PnlTurnoActual" runat="server" Visible="false" CssClass="alert alert-info mb-4">
+            <strong>Turno actual</strong>
+            <asp:Label ID="LblTurnoActual" runat="server" CssClass="d-block mt-1" />
+        </asp:Panel>
+
         <div class="row g-3">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6" runat="server" id="ColPacienteEditable">
                 <asp:Label runat="server" AssociatedControlID="DdlPaciente" Text="Paciente" CssClass="form-label" />
                 <asp:DropDownList ID="DdlPaciente" runat="server" CssClass="form-select" />
             </div>
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6" runat="server" id="ColEspecialidadEditable">
                 <asp:Label runat="server" AssociatedControlID="DdlEspecialidad" Text="Especialidad" CssClass="form-label" />
                 <asp:DropDownList ID="DdlEspecialidad" runat="server" CssClass="form-select" />
+            </div>
+            <div class="col-12 col-md-6" runat="server" id="ColPacienteSoloLectura" visible="false">
+                <asp:Label runat="server" AssociatedControlID="TxtPaciente" Text="Paciente" CssClass="form-label" />
+                <asp:TextBox ID="TxtPaciente" runat="server" CssClass="form-control" ReadOnly="true" />
+            </div>
+            <div class="col-12 col-md-6" runat="server" id="ColEspecialidadSoloLectura" visible="false">
+                <asp:Label runat="server" AssociatedControlID="TxtEspecialidad" Text="Especialidad" CssClass="form-label" />
+                <asp:TextBox ID="TxtEspecialidad" runat="server" CssClass="form-control" ReadOnly="true" />
             </div>
         </div>
 
@@ -94,6 +111,9 @@
             <asp:TextBox ID="TxtObservaciones" runat="server" TextMode="MultiLine" Rows="4"
                 MaxLength="500" CssClass="form-control" />
         </div>
+
+        <asp:HiddenField ID="HfIdPaciente" runat="server" />
+        <asp:HiddenField ID="HfIdEspecialidad" runat="server" />
 
         <div class="mt-4">
             <asp:Button ID="BtnGuardar" runat="server" Text="Guardar" CssClass="btn btn-primary"

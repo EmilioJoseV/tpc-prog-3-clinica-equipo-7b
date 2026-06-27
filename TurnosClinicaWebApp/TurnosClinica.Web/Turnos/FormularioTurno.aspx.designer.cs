@@ -8,8 +8,18 @@ namespace TurnosClinica.Web
 {
     public partial class FormularioTurno
     {
+        protected global::System.Web.UI.WebControls.Label LblTitulo;
+        protected global::System.Web.UI.WebControls.Label LblSubtitulo;
+        protected global::System.Web.UI.WebControls.Panel PnlTurnoActual;
+        protected global::System.Web.UI.WebControls.Label LblTurnoActual;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ColPacienteEditable;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ColEspecialidadEditable;
         protected global::System.Web.UI.WebControls.DropDownList DdlPaciente;
         protected global::System.Web.UI.WebControls.DropDownList DdlEspecialidad;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ColPacienteSoloLectura;
+        protected global::System.Web.UI.WebControls.TextBox TxtPaciente;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ColEspecialidadSoloLectura;
+        protected global::System.Web.UI.WebControls.TextBox TxtEspecialidad;
         protected global::System.Web.UI.WebControls.CheckBox ChkBuscarPorFecha;
         protected global::System.Web.UI.WebControls.CheckBox ChkBuscarProximo;
         protected global::System.Web.UI.WebControls.TextBox TxtFecha;
@@ -22,6 +32,8 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.Panel PnlSeleccion;
         protected global::System.Web.UI.WebControls.Label LblSeleccion;
         protected global::System.Web.UI.WebControls.TextBox TxtObservaciones;
+        protected global::System.Web.UI.WebControls.HiddenField HfIdPaciente;
+        protected global::System.Web.UI.WebControls.HiddenField HfIdEspecialidad;
         protected global::System.Web.UI.WebControls.Button BtnGuardar;
         protected global::System.Web.UI.WebControls.Button BtnCancelar;
     }

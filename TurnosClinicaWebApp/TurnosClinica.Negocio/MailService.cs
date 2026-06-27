@@ -9,20 +9,21 @@ using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.Negocio
 {
-    public class MailNegocio
+    public class MailService
     {
+        private const string CuentaSmtp = "wonderfulboringapps@gmail.com";
         private MailMessage email;
         private SmtpClient server;
         
-        public MailNegocio()
+        public MailService()
         {
             server = new SmtpClient();
-            server.Credentials = new NetworkCredential("programationiii@gmail.com", "programacion3");
+            server.Credentials = new NetworkCredential(CuentaSmtp, "znqakfjxkoszbqrg");
             server.EnableSsl = true;
             server.Port = 587;
-            server.Host = "smtp.gmail.com";
+            server.Host = "smtp.gmail.com"; 
         }
-        // est es el metodo el cual usaremos
+
         public void EnviarConfirmacionTurnoNuevo(Turno turno)
         {
             // verifico si el paciente exist y el mail
@@ -48,7 +49,7 @@ namespace TurnosClinica.Negocio
             // el strong lo estoy usando para poner el texto en negritA
             
             email = new MailMessage();
-            email.From = new MailAddress("noresponder@clinicamedica.com", "Turnos Clínica");
+            email.From = new MailAddress(CuentaSmtp, "Turnos Clinica");
             email.To.Add(turno.Paciente.Persona.Email);
             email.Subject = asunto;
             email.IsBodyHtml = true;
@@ -62,6 +63,37 @@ namespace TurnosClinica.Negocio
             {
                 // por si hay algun error
                 throw new Exception("Hubo un error al enviar el mail: " + ex.Message);
+            }
+        }
+
+        public void EnviarRecuperacionContrasenaConClaveTemporal(Usuario usuario, string claveTemporal)
+        {
+            if (usuario == null || usuario.Persona == null || string.IsNullOrWhiteSpace(usuario.Persona.Email))
+            {
+                throw new Exception("El usuario no tiene un email configurado para recuperar la contrasena.");
+            }
+
+            email = new MailMessage();
+            email.From = new MailAddress(CuentaSmtp, "Turnos Clinica");
+            email.To.Add(usuario.Persona.Email.Trim());
+            email.Subject = "Recuperacion de contrasena - Turnos Clinica";
+            email.IsBodyHtml = true;
+            email.Body =
+                "<h2>Hola " + usuario.Persona.Nombre + " " + usuario.Persona.Apellido + ".</h2>"
+                + "<p>Generamos una nueva clave temporal para tu cuenta.</p>"
+                + "<ul>"
+                + "<li><strong>Usuario:</strong> " + usuario.NombreUsuario + "</li>"
+                + "<li><strong>Clave temporal:</strong> " + claveTemporal + "</li>"
+                + "</ul>"
+                + "<p>Ingresa con esa clave y el sistema te pedira cambiarla antes de continuar.</p>";
+
+            try
+            {
+                server.Send(email);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Hubo un error al enviar el mail de recuperacion: " + ex.Message);
             }
         }
 

@@ -24,6 +24,155 @@ namespace TurnosClinica.AccesoDatos
             return ListarPorFecha("T.IdPaciente = @id", idPaciente, fecha);
         }
 
+        public List<Turno> Listar()
+        {
+            return ListarPorFiltros(null, null, null);
+        }
+
+        public List<Turno> ListarFiltroRapido(string palabra)
+        {
+            return ListarPorFiltros(palabra, null, null);
+        }
+
+        public List<Turno> ListarPorMedicoConFiltros(int idMedico, string palabra, int? idEstadoTurno, DateTime? fechaTurno)
+        {
+            List<Turno> turnos = new List<Turno>();
+
+            try
+            {
+                string consulta = ObtenerConsultaBase() + " WHERE T.IdMedico = @idMedico";
+
+                if (!string.IsNullOrWhiteSpace(palabra))
+                {
+                    consulta += " AND ("
+                        + "CAST(T.IdTurno AS VARCHAR(20)) LIKE '%' + @palabra + '%'"
+                        + " OR PPA.DNI LIKE '%' + @palabra + '%'"
+                        + " OR PPA.Nombre LIKE '%' + @palabra + '%'"
+                        + " OR PPA.Apellido LIKE '%' + @palabra + '%'"
+                        + " OR E.Nombre LIKE '%' + @palabra + '%'"
+                        + " OR ET.Nombre LIKE '%' + @palabra + '%'"
+                        + ")";
+                }
+
+                if (idEstadoTurno.HasValue)
+                {
+                    consulta += " AND T.IdEstadoTurno = @idEstadoTurno";
+                }
+
+                if (fechaTurno.HasValue)
+                {
+                    consulta += " AND T.FechaTurno = @fechaTurno";
+                }
+
+                consulta += " ORDER BY T.FechaTurno ASC, T.HoraInicio ASC, PPA.Apellido, PPA.Nombre";
+
+                accesoDatos.setearConsulta(consulta);
+                accesoDatos.setearParametro("@idMedico", idMedico);
+
+                if (!string.IsNullOrWhiteSpace(palabra))
+                {
+                    accesoDatos.setearParametro("@palabra", palabra.Trim());
+                }
+
+                if (idEstadoTurno.HasValue)
+                {
+                    accesoDatos.setearParametro("@idEstadoTurno", idEstadoTurno.Value);
+                }
+
+                if (fechaTurno.HasValue)
+                {
+                    accesoDatos.setearParametro("@fechaTurno", fechaTurno.Value.Date);
+                }
+
+                accesoDatos.ejecutarLectura();
+
+                while (accesoDatos.Lector.Read())
+                {
+                    turnos.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
+
+                return turnos;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public List<Turno> ListarPorFiltros(string palabra, int? idEstadoTurno, DateTime? fechaTurno)
+        {
+            List<Turno> turnos = new List<Turno>();
+
+            try
+            {
+                string consulta = ObtenerConsultaBase() + " WHERE 1=1";
+
+                if (!string.IsNullOrWhiteSpace(palabra))
+                {
+                    consulta += " AND ("
+                        + "CAST(T.IdTurno AS VARCHAR(20)) LIKE '%' + @palabra + '%'"
+                        + " OR PPA.DNI LIKE '%' + @palabra + '%'"
+                        + " OR PPA.Nombre LIKE '%' + @palabra + '%'"
+                        + " OR PPA.Apellido LIKE '%' + @palabra + '%'"
+                        + " OR PM.Nombre LIKE '%' + @palabra + '%'"
+                        + " OR PM.Apellido LIKE '%' + @palabra + '%'"
+                        + " OR E.Nombre LIKE '%' + @palabra + '%'"
+                        + " OR ET.Nombre LIKE '%' + @palabra + '%'"
+                        + ")";
+                }
+
+                if (idEstadoTurno.HasValue)
+                {
+                    consulta += " AND T.IdEstadoTurno = @idEstadoTurno";
+                }
+
+                if (fechaTurno.HasValue)
+                {
+                    consulta += " AND T.FechaTurno = @fechaTurno";
+                }
+
+                consulta += " ORDER BY T.FechaTurno ASC, T.HoraInicio ASC, PPA.Apellido, PPA.Nombre";
+
+                accesoDatos.setearConsulta(consulta);
+
+                if (!string.IsNullOrWhiteSpace(palabra))
+                {
+                    accesoDatos.setearParametro("@palabra", palabra.Trim());
+                }
+
+                if (idEstadoTurno.HasValue)
+                {
+                    accesoDatos.setearParametro("@idEstadoTurno", idEstadoTurno.Value);
+                }
+
+                if (fechaTurno.HasValue)
+                {
+                    accesoDatos.setearParametro("@fechaTurno", fechaTurno.Value.Date);
+                }
+
+                accesoDatos.ejecutarLectura();
+
+                while (accesoDatos.Lector.Read())
+                {
+                    turnos.Add(MapearFilaAEntidad(accesoDatos.Lector));
+                }
+
+                return turnos;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
         public Turno ObtenerPorId(int idTurno)
         {
             Turno turno = null;
@@ -86,6 +235,99 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
+        public void Modificar(Turno turno)
+        {
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "UPDATE Turnos"
+                    + " SET IdMedico = @idMedico,"
+                    + " IdEspecialidad = @idEspecialidad,"
+                    + " IdEstadoTurno = @idEstadoTurno,"
+                    + " FechaTurno = @fechaTurno,"
+                    + " HoraInicio = @horaInicio,"
+                    + " HoraFin = @horaFin,"
+                    + " Observaciones = @observaciones,"
+                    + " DiagnosticoMedico = @diagnosticoMedico,"
+                    + " FechaModificacion = GETDATE(),"
+                    + " IdUsuarioModificacion = @idUsuarioModificacion"
+                    + " WHERE IdTurno = @idTurno");
+                accesoDatos.setearParametro("@idTurno", turno.IdTurno);
+                accesoDatos.setearParametro("@idMedico", turno.Medico.IdMedico);
+                accesoDatos.setearParametro("@idEspecialidad", turno.Especialidad.IdEspecialidad);
+                accesoDatos.setearParametro("@idEstadoTurno", turno.EstadoTurno.IdEstadoTurno);
+                accesoDatos.setearParametro("@fechaTurno", turno.FechaTurno.Date);
+                accesoDatos.setearParametro("@horaInicio", turno.HoraInicio);
+                accesoDatos.setearParametro("@horaFin", turno.HoraFin);
+                accesoDatos.setearParametro("@observaciones", turno.Observaciones);
+                accesoDatos.setearParametro("@diagnosticoMedico", string.IsNullOrWhiteSpace(turno.DiagnosticoMedico)
+                    ? (object)DBNull.Value
+                    : turno.DiagnosticoMedico.Trim());
+                accesoDatos.setearParametro("@idUsuarioModificacion", turno.UsuarioModificacion.IdUsuario);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public void ModificarDiagnosticoMedico(int idTurno, string diagnosticoMedico, int idUsuarioModificacion)
+        {
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "UPDATE Turnos"
+                    + " SET DiagnosticoMedico = @diagnosticoMedico,"
+                    + " FechaModificacion = GETDATE(),"
+                    + " IdUsuarioModificacion = @idUsuarioModificacion"
+                    + " WHERE IdTurno = @idTurno");
+                accesoDatos.setearParametro("@idTurno", idTurno);
+                accesoDatos.setearParametro("@diagnosticoMedico", string.IsNullOrWhiteSpace(diagnosticoMedico)
+                    ? (object)DBNull.Value
+                    : diagnosticoMedico.Trim());
+                accesoDatos.setearParametro("@idUsuarioModificacion", idUsuarioModificacion);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
+        public void CambiarEstado(int idTurno, int idEstadoTurno, int idUsuarioModificacion)
+        {
+            try
+            {
+                accesoDatos.setearConsulta(
+                    "UPDATE Turnos"
+                    + " SET IdEstadoTurno = @idEstadoTurno,"
+                    + " FechaModificacion = GETDATE(),"
+                    + " IdUsuarioModificacion = @idUsuarioModificacion"
+                    + " WHERE IdTurno = @idTurno");
+                accesoDatos.setearParametro("@idTurno", idTurno);
+                accesoDatos.setearParametro("@idEstadoTurno", idEstadoTurno);
+                accesoDatos.setearParametro("@idUsuarioModificacion", idUsuarioModificacion);
+                accesoDatos.ejecutarAccion();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
         public bool ExisteSuperposicionPaciente(
             int idPaciente,
             DateTime fecha,
@@ -93,6 +335,47 @@ namespace TurnosClinica.AccesoDatos
             TimeSpan horaFin)
         {
             return ExisteSuperposicion("T.IdPaciente = @id", idPaciente, fecha, horaInicio, horaFin);
+        }
+
+        public bool ExisteSuperposicionMedico(
+            int idMedico,
+            DateTime fecha,
+            TimeSpan horaInicio,
+            TimeSpan horaFin)
+        {
+            return ExisteSuperposicion("T.IdMedico = @id", idMedico, fecha, horaInicio, horaFin);
+        }
+
+        public bool ExisteSuperposicionPacienteExcluyendoTurno(
+            int idPaciente,
+            DateTime fecha,
+            TimeSpan horaInicio,
+            TimeSpan horaFin,
+            int idTurnoExcluir)
+        {
+            return ExisteSuperposicion(
+                "T.IdPaciente = @id AND T.IdTurno <> @idTurnoExcluir",
+                idPaciente,
+                fecha,
+                horaInicio,
+                horaFin,
+                idTurnoExcluir);
+        }
+
+        public bool ExisteSuperposicionMedicoExcluyendoTurno(
+            int idMedico,
+            DateTime fecha,
+            TimeSpan horaInicio,
+            TimeSpan horaFin,
+            int idTurnoExcluir)
+        {
+            return ExisteSuperposicion(
+                "T.IdMedico = @id AND T.IdTurno <> @idTurnoExcluir",
+                idMedico,
+                fecha,
+                horaInicio,
+                horaFin,
+                idTurnoExcluir);
         }
 
         public Turno MapearFilaAEntidad(SqlDataReader fila)
@@ -213,7 +496,8 @@ namespace TurnosClinica.AccesoDatos
             int id,
             DateTime fecha,
             TimeSpan horaInicio,
-            TimeSpan horaFin)
+            TimeSpan horaFin,
+            int? idTurnoExcluir = null)
         {
             try
             {
@@ -230,6 +514,12 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@fecha", fecha.Date);
                 accesoDatos.setearParametro("@horaInicio", horaInicio);
                 accesoDatos.setearParametro("@horaFin", horaFin);
+
+                if (idTurnoExcluir.HasValue)
+                {
+                    accesoDatos.setearParametro("@idTurnoExcluir", idTurnoExcluir.Value);
+                }
+
                 return accesoDatos.ejecutarAccionScalar() > 0;
             }
             catch

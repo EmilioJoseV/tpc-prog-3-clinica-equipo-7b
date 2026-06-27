@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccesoService.cs" />
     <Compile Include="ConfiguracionTurnoNegocio.cs" />
     <Compile Include="DTO\TurnoDisponibleDTO.cs" />
     <Compile Include="EstadoTurnoNegocio.cs" />
@@ -48,7 +49,7 @@
     <Compile Include="EspecialidadNegocio.cs" />
     <Compile Include="ManejadorTransaccionNegocio.cs" />
     <Compile Include="PersonaNegocio.cs" />
-    <Compile Include="MailNegocio.cs" />
+    <Compile Include="MailService.cs" />
     <Compile Include="MedicoNegocio.cs" />
     <Compile Include="HorarioDisponibilidadMedicoNegocio.cs" />
     <Compile Include="PacienteNegocio.cs" />

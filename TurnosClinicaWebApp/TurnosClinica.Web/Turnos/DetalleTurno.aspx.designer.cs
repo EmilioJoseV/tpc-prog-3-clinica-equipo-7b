@@ -8,5 +8,38 @@ namespace TurnosClinica.Web
 {
     public partial class DetalleTurno
     {
+        protected global::System.Web.UI.WebControls.Panel pnlContenido;
+
+        protected global::System.Web.UI.WebControls.TextBox txtNumeroTurno;
+
+        protected global::System.Web.UI.WebControls.TextBox txtEstado;
+
+        protected global::System.Web.UI.WebControls.TextBox txtFechaActual;
+
+        protected global::System.Web.UI.WebControls.TextBox txtHorarioActual;
+
+        protected global::System.Web.UI.WebControls.TextBox txtPaciente;
+
+        protected global::System.Web.UI.WebControls.TextBox txtMedico;
+
+        protected global::System.Web.UI.WebControls.TextBox txtEspecialidad;
+
+        protected global::System.Web.UI.WebControls.TextBox txtEmailPaciente;
+
+        protected global::System.Web.UI.WebControls.TextBox txtObservaciones;
+
+        protected global::System.Web.UI.WebControls.TextBox txtDiagnosticoMedico;
+
+        protected global::System.Web.UI.WebControls.Button btnGuardar;
+
+        protected global::System.Web.UI.WebControls.Button btnReprogramar;
+
+        protected global::System.Web.UI.WebControls.Button btnCancelarTurno;
+
+        protected global::System.Web.UI.WebControls.Button btnNoAsistio;
+
+        protected global::System.Web.UI.WebControls.Button btnCerrarTurno;
+
+        protected global::System.Web.UI.WebControls.Button btnVolver;
     }
 }
