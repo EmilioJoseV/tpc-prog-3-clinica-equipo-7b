@@ -48,6 +48,22 @@ namespace TurnosClinica.Negocio
             return medicoDatos.ListarPorEspecialidad(idEspecialidad);
         }
 
+        public List<Medico> ListarPorEspecialidadActivos(int idEspecialidad)
+        {
+            List<Medico> medicos = ListarPorEspecialidad(idEspecialidad);
+            List<Medico> medicosActivos = new List<Medico>();
+
+            foreach (Medico medico in medicos)
+            {
+                if (medico != null && medico.Activo)
+                {
+                    medicosActivos.Add(medico);
+                }
+            }
+
+            return medicosActivos;
+        }
+
         public Medico ObtenerPorId(int id)
         {
             if (id <= 0)
@@ -56,6 +72,27 @@ namespace TurnosClinica.Negocio
             }
 
             return medicoDatos.ObtenerPorId(id);
+        }
+
+        public Medico ObtenerPorIdPersona(int idPersona)
+        {
+            if (idPersona <= 0)
+            {
+                throw new Exception("El id de persona del medico no es valido.");
+            }
+
+            Medico medico = medicoDatos.ObtenerPorIdPersona(idPersona);
+            if (medico == null)
+            {
+                throw new Exception("El usuario autenticado no tiene un medico asociado.");
+            }
+
+            if (!medico.Activo)
+            {
+                throw new Exception("El medico asociado al usuario autenticado esta inactivo.");
+            }
+
+            return medico;
         }
 
         public void Agregar(Medico medico)

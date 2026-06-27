@@ -144,6 +144,35 @@ namespace TurnosClinica.AccesoDatos
             }
         }
 
+        public Usuario ObtenerPorEmail(string email)
+        {
+            Usuario usuario = null;
+
+            try
+            {
+                accesoDatos.setearConsulta(
+                    ObtenerConsultaBase()
+                    + " WHERE UPPER(P.Email) = UPPER(@email)");
+                accesoDatos.setearParametro("@email", email);
+                accesoDatos.ejecutarLectura();
+
+                if (accesoDatos.Lector.Read())
+                {
+                    usuario = MapearFilaAEntidad(accesoDatos.Lector);
+                }
+
+                return usuario;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                accesoDatos.cerrarConexion();
+            }
+        }
+
         public Usuario ValidarCredenciales(string nombreUsuario, string password)
         {
             Usuario usuario = null;
@@ -154,10 +183,12 @@ namespace TurnosClinica.AccesoDatos
                     ObtenerConsultaBase()
                     + " WHERE UPPER(U.NombreUsuario) = UPPER(@nombreUsuario)"
                     + " AND U.PasswordHash = @password"
-                    + " AND UPPER(EU.Nombre) = UPPER(@estadoActivo)");
+                    + " AND (UPPER(EU.Nombre) = UPPER(@estadoActivo)"
+                    + " OR UPPER(EU.Nombre) = UPPER(@estadoCambioClavePendiente))");
                 accesoDatos.setearParametro("@nombreUsuario", nombreUsuario);
                 accesoDatos.setearParametro("@password", password);
                 accesoDatos.setearParametro("@estadoActivo", EstadoUsuarioEnum.Activo.ToString());
+                accesoDatos.setearParametro("@estadoCambioClavePendiente", EstadoUsuarioEnum.CambioClavePendiente.ToString());
                 accesoDatos.ejecutarLectura();
 
                 if (accesoDatos.Lector.Read())

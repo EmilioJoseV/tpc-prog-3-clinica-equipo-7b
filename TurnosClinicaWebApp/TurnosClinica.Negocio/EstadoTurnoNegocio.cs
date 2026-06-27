@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 
@@ -16,6 +17,11 @@ namespace TurnosClinica.Negocio
         public EstadoTurnoNegocio(AccesoDatosBase accesoDatos)
         {
             estadoTurnoDatos = new EstadoTurnoDatos(accesoDatos);
+        }
+
+        public List<EstadoTurno> Listar(bool? activo = null)
+        {
+            return estadoTurnoDatos.Listar(activo);
         }
 
         public EstadoTurno ObtenerPorNombre(string nombre)
