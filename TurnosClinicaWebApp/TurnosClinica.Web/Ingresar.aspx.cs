@@ -56,5 +56,11 @@ namespace TurnosClinica.Web
             Response.Redirect("RecuperarContrasena.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
+
+        protected void BtnRegistrarme_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("GenerarClave.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+        }
     }
 }

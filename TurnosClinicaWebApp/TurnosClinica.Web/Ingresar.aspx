@@ -17,7 +17,7 @@
             </div>
             <asp:Button ID="BtnIngresar" runat="server" CssClass="btn btn-primary" Text="Ingresar" OnClick="BtnIngresar_Click" />
             <asp:Button ID="BtnRegistrarme" runat="server" CssClass="btn btn-outline-primary ms-2"
-                Text="Registrarme" CausesValidation="false" />
+                Text="Registrarme" CausesValidation="false" OnClick="BtnRegistrarme_Click" />
             <asp:Button ID="BtnRecuperarContrasena" runat="server" CssClass="btn btn-outline-primary ms-2"
                 Text="Recuperar contrasena" CausesValidation="false" OnClick="BtnRecuperarContrasena_Click" />
         </div>
