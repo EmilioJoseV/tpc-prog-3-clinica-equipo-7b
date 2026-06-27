@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 using TurnosClinica.Negocio.DTO;
 
@@ -37,6 +38,7 @@ namespace TurnosClinica.Web
 
                 if (!IsPostBack)
                 {
+                    ValidarAcceso();
                     CargarPacientes();
                     CargarEspecialidades();
                     TxtFecha.Text = DateTime.Today.ToString("yyyy-MM-dd");
@@ -137,6 +139,8 @@ namespace TurnosClinica.Web
             {
                 if (EsReprogramacion)
                 {
+                    ExigirRolAdministrativo();
+
                     Turno turno = new Turno
                     {
                         IdTurno = ObtenerIdTurno(),
@@ -187,7 +191,7 @@ namespace TurnosClinica.Web
                 };
 
                 turnoNegocio.Agregar(turnoAlta);
-                Response.Redirect("ListaTurnos.aspx", false);
+                Response.Redirect(ObtenerUrlDespuesDeGuardarAlta(), false);
                 Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
@@ -346,6 +350,8 @@ namespace TurnosClinica.Web
                 return;
             }
 
+            ExigirRolAdministrativo();
+
             Turno turno = turnoNegocio.ObtenerPorId(ObtenerIdTurno());
             if (turno == null)
             {
@@ -400,6 +406,28 @@ namespace TurnosClinica.Web
             HfHoraFin.Value = string.Empty;
             LblSeleccion.Text = string.Empty;
             PnlSeleccion.Visible = false;
+        }
+
+        private void ValidarAcceso()
+        {
+            if (!AutorizacionRutasService.PuedeGestionarRecepcion(ObtenerUsuarioActual()))
+            {
+                throw new Exception("No tiene permisos para gestionar turnos.");
+            }
+        }
+
+        private void ExigirRolAdministrativo()
+        {
+            Usuario usuario = ObtenerUsuarioActual();
+            if (!AutorizacionRutasService.PuedeGestionarRecepcion(usuario))
+            {
+                throw new Exception("No tiene permisos para reprogramar turnos.");
+            }
+        }
+
+        private string ObtenerUrlDespuesDeGuardarAlta()
+        {
+            return "ListaTurnos.aspx";
         }
 
         private int CompararPacientes(Paciente paciente1, Paciente paciente2)

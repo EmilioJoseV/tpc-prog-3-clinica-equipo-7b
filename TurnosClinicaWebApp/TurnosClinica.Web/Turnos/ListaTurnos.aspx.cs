@@ -25,6 +25,7 @@ namespace TurnosClinica.Web
             {
                 if (!IsPostBack)
                 {
+                    ValidarAcceso();
                     txtFecha.Text = DateTime.Today.ToString("yyyy-MM-dd");
                     CargarEstados();
                     CargarLista();
@@ -141,6 +142,15 @@ namespace TurnosClinica.Web
 
             dgvTurnos.DataSource = turnoNegocio.ListarPorFiltros(txtFiltro.Text, idEstado, fecha);
             dgvTurnos.DataBind();
+        }
+
+        private void ValidarAcceso()
+        {
+            Usuario usuario = Session["UsuarioActual"] as Usuario;
+            if (!AutorizacionRutasService.PuedeGestionarRecepcion(usuario))
+            {
+                throw new Exception("No tiene permisos para consultar este listado.");
+            }
         }
 
         private int CompararEstadosTurno(EstadoTurno estado1, EstadoTurno estado2)

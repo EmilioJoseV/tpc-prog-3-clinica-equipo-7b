@@ -27,14 +27,15 @@ namespace TurnosClinica.Web
                     throw new Exception("Los datos ingresados no son validos.");
                 }
 
+                if (!AutorizacionRutasService.TieneAccesoOperativo(usuario))
+                {
+                    Session.Clear();
+                    throw new Exception("Su rol no tiene acceso a este modulo.");
+                }
+
                 Session["UsuarioActual"] = usuario;
 
-                //Aca agregamos el flujo de cambiar el password si corresponde
-                if (usuario.EstadoUsuario != null
-                    && string.Equals(
-                        usuario.EstadoUsuario.Nombre,
-                        EstadoUsuarioEnum.CambioClavePendiente.ToString(),
-                        StringComparison.OrdinalIgnoreCase))
+                if (AutorizacionRutasService.EstaCambioClavePendiente(usuario))
                 {
                     Response.Redirect("CambiarContrasenaPendiente.aspx", false);
                     Context.ApplicationInstance.CompleteRequest();
