@@ -2,7 +2,6 @@ using System;
 using System.Web;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
-using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Web
 {
@@ -10,34 +9,22 @@ namespace TurnosClinica.Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            bool usuarioAutenticado = Session["UsuarioActual"] != null;
-            LnkPanelPrincipal.Visible = usuarioAutenticado;
-            LnkIngresar.Visible = !usuarioAutenticado;
-            LnkSalir.Visible = usuarioAutenticado;
-            imgAvatar.Visible = usuarioAutenticado;
+            string rutaActual = VirtualPathUtility.ToAppRelative(Request.AppRelativeCurrentExecutionFilePath);
+            Usuario usuario = AutorizacionRutasService.ObtenerUsuarioActual(Session);
 
-            if (usuarioAutenticado)
+            if (!AutorizacionRutasService.UsuarioPuedeAccederRuta(usuario, rutaActual))
             {
-                Usuario user = (Usuario)Session["UsuarioActual"];
-                bool cambioClavePendiente = user.EstadoUsuario != null
-                    && string.Equals(
-                        user.EstadoUsuario.Nombre,
-                        EstadoUsuarioEnum.CambioClavePendiente.ToString(),
-                        StringComparison.OrdinalIgnoreCase);
+                RedirigirSinPermiso(usuario);
+                return;
+            }
 
-                if (cambioClavePendiente
-                    && !EsPaginaPermitidaCambioClavePendiente())
-                {
-                    Response.Redirect("~/CambiarContrasenaPendiente.aspx", false);
-                    Context.ApplicationInstance.CompleteRequest();
-                    return;
-                }
+            ConfigurarNavegacion(usuario);
 
-                LnkPanelPrincipal.Visible = !cambioClavePendiente;
-                
-                // Mostrar la imagen asumiendo el nombre fijo que configuramos al guardar.
-                // Tal como indicaste, la validación de si es null se hará en otro commit.
-                imgAvatar.ImageUrl = "~/Images/Perfiles/perfil-" + user.IdUsuario + ".jpg";
+            string errorAutorizacion = Session["ErrorAutorizacion"] as string;
+            if (!string.IsNullOrWhiteSpace(errorAutorizacion))
+            {
+                MostrarError(errorAutorizacion);
+                Session.Remove("ErrorAutorizacion");
             }
         }
 
@@ -46,6 +33,41 @@ namespace TurnosClinica.Web
             Session.Clear();
             Session.Abandon();
             Response.Redirect("~/Ingresar.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
+        }
+
+        private void ConfigurarNavegacion(Usuario usuario)
+        {
+            bool usuarioAutenticado = AutorizacionRutasService.EstaAutenticado(usuario);
+            bool puedeIrAlPanel = usuarioAutenticado
+                && AutorizacionRutasService.TieneAccesoOperativo(usuario)
+                && !AutorizacionRutasService.EstaCambioClavePendiente(usuario);
+
+            LnkPanelPrincipal.Visible = puedeIrAlPanel;
+            LnkIngresar.Visible = !usuarioAutenticado;
+            LnkSalir.Visible = usuarioAutenticado;
+            imgAvatar.Visible = usuarioAutenticado;
+
+            if (usuarioAutenticado)
+            {
+                imgAvatar.ImageUrl = "~/Images/Perfiles/perfil-" + usuario.IdUsuario + ".jpg";
+            }
+        }
+
+        private void RedirigirSinPermiso(Usuario usuario)
+        {
+            string destino = "~/Ingresar.aspx";
+
+            if (AutorizacionRutasService.EstaAutenticado(usuario))
+            {
+                Session["ErrorAutorizacion"] = "No tiene permisos para acceder a esta pantalla.";
+                if (AutorizacionRutasService.TieneAccesoOperativo(usuario))
+                {
+                    destino = "~/PanelPrincipal.aspx";
+                }
+            }
+
+            Response.Redirect(destino, false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
@@ -58,13 +80,5 @@ namespace TurnosClinica.Web
             PnlMensajeError.Visible = true;
         }
 
-        private bool EsPaginaPermitidaCambioClavePendiente()
-        {
-            string ruta = VirtualPathUtility.ToAppRelative(Request.AppRelativeCurrentExecutionFilePath);
-
-            return string.Equals(ruta, "~/CambiarContrasenaPendiente.aspx", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(ruta, "~/Ingresar.aspx", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(ruta, "~/RecuperarContrasena.aspx", StringComparison.OrdinalIgnoreCase);
-        }
     }
 }
