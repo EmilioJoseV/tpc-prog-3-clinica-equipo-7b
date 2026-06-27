@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TurnosClinica.Dominio.Entidades;
@@ -79,7 +78,7 @@ namespace TurnosClinica.Web
 
             foreach (ListItem item in CblEspecialidades.Items)
             {
-                item.Selected = medico.Especialidades.Any(especialidad => especialidad.IdEspecialidad.ToString() == item.Value);
+                item.Selected = MedicoTieneEspecialidadSeleccionada(medico, item.Value);
             }
 
             Session[HorariosSessionKey] = medico.HorariosDisponibilidad ?? new List<HorarioDisponibilidadMedico>();
@@ -193,6 +192,24 @@ namespace TurnosClinica.Web
             }
 
             return especialidades;
+        }
+
+        private bool MedicoTieneEspecialidadSeleccionada(Medico medico, string idEspecialidad)
+        {
+            if (medico == null || medico.Especialidades == null || string.IsNullOrWhiteSpace(idEspecialidad))
+            {
+                return false;
+            }
+
+            foreach (Especialidad especialidad in medico.Especialidades)
+            {
+                if (especialidad != null && especialidad.IdEspecialidad.ToString() == idEspecialidad)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private List<HorarioDisponibilidadMedico> ObtenerHorariosTemporales()

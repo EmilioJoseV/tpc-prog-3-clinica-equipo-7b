@@ -1,24 +1,10 @@
 <%@ Page Title="Panel Principal" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="PanelPrincipal.aspx.cs" Inherits="TurnosClinica.Web.PanelPrincipal" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <style>
-        .dropdown:hover > .dropdown-menu {
-            display: block;
-            margin-top: 0;
-        }
-
-        .dropdown:hover > .dropdown-toggle {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-    </style>
-</asp:Content>
-
-<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+<asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <h1 class="h3 mb-3">Panel Principal</h1>
     <div class="row">
-        <div class="col-12">
-        <div class="dropdown d-inline-block me-2 mb-2">
+        <div class="col-12 d-flex flex-wrap gap-2">
+        <div id="MenuPacientes" runat="server" class="dropdown">
             <asp:Button ID="BtnPacientes" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Pacientes" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
@@ -30,7 +16,7 @@
             </ul>
         </div>
 
-        <div class="dropdown d-inline-block me-2 mb-2">
+        <div id="MenuMedicos" runat="server" class="dropdown">
             <asp:Button ID="BtnMedicos" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Medicos" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
@@ -42,7 +28,7 @@
             </ul>
         </div>
 
-        <div class="dropdown d-inline-block me-2 mb-2">
+        <div id="MenuEspecialidades" runat="server" class="dropdown">
             <asp:Button ID="BtnEspecialidades" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Especialidades" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
@@ -54,7 +40,7 @@
             </ul>
         </div>
 
-        <div class="dropdown d-inline-block me-2 mb-2">
+        <div id="MenuUsuarios" runat="server" class="dropdown">
             <asp:Button ID="BtnUsuarios" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Usuarios" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>
@@ -66,7 +52,7 @@
             </ul>
         </div>
 
-        <div class="dropdown d-inline-block me-2 mb-2">
+        <div id="MenuTurnos" runat="server" class="dropdown">
             <asp:Button ID="BtnTurnos" runat="server" CssClass="btn btn-outline-primary dropdown-toggle" Text="Turnos" data-bs-toggle="dropdown" aria-expanded="false" />
             <ul class="dropdown-menu">
                 <li>

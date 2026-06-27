@@ -24,6 +24,7 @@ namespace TurnosClinica.Web
             {
                 if (!IsPostBack)
                 {
+                    ValidarAccesoPantalla(usuario);
                     CargarTurno();
                 }
             }
@@ -38,6 +39,7 @@ namespace TurnosClinica.Web
             try
             {
                 Usuario usuario = ObtenerUsuarioActual();
+                ValidarAccesoPantalla(usuario);
                 Medico medico = ObtenerMedicoActualSiCorresponde(usuario);
 
                 if (EsModoMedico(medico))
@@ -50,6 +52,7 @@ namespace TurnosClinica.Web
                 }
                 else
                 {
+                    ExigirAdministrador(usuario);
                     Turno turno = ConstruirTurnoModificado();
                     turnoNegocio.Modificar(turno);
                 }
@@ -65,6 +68,7 @@ namespace TurnosClinica.Web
 
         protected void btnReprogramar_Click(object sender, EventArgs e)
         {
+            ExigirRolAdministrativo(ObtenerUsuarioActual());
             Response.Redirect("FormularioTurno.aspx?id=" + ObtenerIdTurno(), false);
             Context.ApplicationInstance.CompleteRequest();
         }
@@ -73,6 +77,7 @@ namespace TurnosClinica.Web
         {
             try
             {
+                ExigirAdministrador(ObtenerUsuarioActual());
                 turnoNegocio.Cancelar(ObtenerIdTurno(), ObtenerUsuarioActual().IdUsuario);
                 Response.Redirect(ObtenerUrlVolver(), false);
                 Context.ApplicationInstance.CompleteRequest();
@@ -88,6 +93,7 @@ namespace TurnosClinica.Web
             try
             {
                 Usuario usuario = ObtenerUsuarioActual();
+                ValidarAccesoPantalla(usuario);
                 Medico medico = ObtenerMedicoActualSiCorresponde(usuario);
 
                 if (EsModoMedico(medico))
@@ -96,6 +102,7 @@ namespace TurnosClinica.Web
                 }
                 else
                 {
+                    ExigirAdministrador(usuario);
                     turnoNegocio.MarcarNoAsistio(ObtenerIdTurno(), usuario.IdUsuario);
                 }
 
@@ -113,6 +120,7 @@ namespace TurnosClinica.Web
             try
             {
                 Usuario usuario = ObtenerUsuarioActual();
+                ValidarAccesoPantalla(usuario);
                 Medico medico = ObtenerMedicoActualSiCorresponde(usuario);
 
                 if (EsModoMedico(medico))
@@ -125,6 +133,7 @@ namespace TurnosClinica.Web
                 }
                 else
                 {
+                    ExigirAdministrador(usuario);
                     turnoNegocio.Cerrar(ObtenerIdTurno(), usuario.IdUsuario);
                 }
 
@@ -182,15 +191,18 @@ namespace TurnosClinica.Web
 
         private void ConfigurarSegunEstado(Turno turno, bool esModoMedico)
         {
+            Usuario usuario = ObtenerUsuarioActual();
+            bool esAdministrador = AutorizacionRutasService.EsAdministrador(usuario);
+            bool esRecepcionista = AutorizacionRutasService.EsRecepcionista(usuario);
             bool esFinal = turno.EstadoTurno != null && turno.EstadoTurno.EsFinal;
 
-            txtObservaciones.ReadOnly = esFinal || esModoMedico;
+            txtObservaciones.ReadOnly = esFinal || esModoMedico || esRecepcionista;
             txtDiagnosticoMedico.ReadOnly = esFinal;
-            btnGuardar.Visible = !esFinal;
-            btnReprogramar.Visible = !esFinal && !esModoMedico;
-            btnCancelarTurno.Visible = !esFinal && !esModoMedico;
-            btnNoAsistio.Visible = !esFinal;
-            btnCerrarTurno.Visible = !esFinal;
+            btnGuardar.Visible = !esFinal && (esModoMedico || esAdministrador);
+            btnReprogramar.Visible = !esFinal && !esModoMedico && (esAdministrador || esRecepcionista);
+            btnCancelarTurno.Visible = !esFinal && esAdministrador;
+            btnNoAsistio.Visible = !esFinal && (esModoMedico || esAdministrador);
+            btnCerrarTurno.Visible = !esFinal && (esModoMedico || esAdministrador);
             btnVolver.Text = esModoMedico ? "Volver" : "Cancelar";
         }
 
@@ -293,6 +305,32 @@ namespace TurnosClinica.Web
                 && turno != null
                 && turno.Medico != null
                 && turno.Medico.IdMedico == medicoActual.IdMedico;
+        }
+
+        private void ValidarAccesoPantalla(Usuario usuario)
+        {
+            if (AutorizacionRutasService.TieneAccesoOperativo(usuario))
+            {
+                return;
+            }
+
+            throw new Exception("No tiene permisos para acceder a este turno.");
+        }
+
+        private void ExigirAdministrador(Usuario usuario)
+        {
+            if (!AutorizacionRutasService.EsAdministrador(usuario))
+            {
+                throw new Exception("No tiene permisos para ejecutar esta accion.");
+            }
+        }
+
+        private void ExigirRolAdministrativo(Usuario usuario)
+        {
+            if (!AutorizacionRutasService.PuedeGestionarRecepcion(usuario))
+            {
+                throw new Exception("No tiene permisos para ejecutar esta accion.");
+            }
         }
 
         private string ObtenerUrlVolver()

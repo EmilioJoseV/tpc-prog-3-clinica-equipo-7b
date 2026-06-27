@@ -1,5 +1,4 @@
 using System;
-using System.Security.Cryptography;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
 
@@ -21,6 +20,11 @@ namespace TurnosClinica.Negocio
             if (usuario == null)
             {
                 return false;
+            }
+
+            if (!TieneAccesoOperativo(usuario))
+            {
+                throw new Exception("La cuenta no tiene acceso a este modulo.");
             }
 
             if (EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
@@ -46,6 +50,11 @@ namespace TurnosClinica.Negocio
                     if (usuarioActual == null)
                     {
                         throw new Exception("El usuario no existe.");
+                    }
+
+                    if (!TieneAccesoOperativo(usuarioActual))
+                    {
+                        throw new Exception("La cuenta no tiene acceso a este modulo.");
                     }
 
                     if (EsEstado(usuarioActual, EstadoUsuarioEnum.Inactivo))
@@ -137,7 +146,6 @@ namespace TurnosClinica.Negocio
 
         private string GenerarClaveTemporal()
         {
-            //Caracteres permitidos para la clave temporal.
             const string caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*()_+-={}[]";
             string clave = "";
             Random random = new Random();
@@ -159,6 +167,15 @@ namespace TurnosClinica.Negocio
                     usuario.EstadoUsuario.Nombre,
                     estado.ToString(),
                     StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool TieneAccesoOperativo(Usuario usuario)
+        {
+            return usuario != null
+                && usuario.Rol != null
+                && (string.Equals(usuario.Rol.Nombre, RolEnum.Administrador.ToString(), StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(usuario.Rol.Nombre, RolEnum.Recepcionista.ToString(), StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(usuario.Rol.Nombre, RolEnum.Medico.ToString(), StringComparison.OrdinalIgnoreCase));
         }
     }
 }

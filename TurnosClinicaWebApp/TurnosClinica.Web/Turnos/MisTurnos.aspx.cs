@@ -26,8 +26,7 @@ namespace TurnosClinica.Web
             {
                 if (!IsPostBack)
                 {
-                    Medico medico = ObtenerMedicoActual();
-                    litMedico.Text = "Medico: " + medico.Persona.Apellido + ", " + medico.Persona.Nombre;
+                    ValidarAcceso();
                     txtFecha.Text = DateTime.Today.ToString("yyyy-MM-dd");
                     CargarEstados();
                     CargarLista();
@@ -176,7 +175,7 @@ namespace TurnosClinica.Web
         private void CargarLista()
         {
             Medico medico = ObtenerMedicoActual();
-            litMedico.Text = "Medico: " + medico.Persona.Apellido + ", " + medico.Persona.Nombre;
+            MostrarMedicoActual(medico);
 
             int? idEstado = null;
             if (int.TryParse(ddlEstado.SelectedValue, out int valorEstado) && valorEstado > 0)
@@ -207,6 +206,20 @@ namespace TurnosClinica.Web
             }
 
             return medicoNegocio.ObtenerPorIdPersona(usuario.Persona.IdPersona);
+        }
+
+        private void MostrarMedicoActual(Medico medico)
+        {
+            litMedico.Text = "Medico: " + medico.Persona.Apellido + ", " + medico.Persona.Nombre;
+        }
+
+        private void ValidarAcceso()
+        {
+            Usuario usuario = ObtenerUsuarioActual();
+            if (!AutorizacionRutasService.EsMedico(usuario))
+            {
+                throw new Exception("No tiene permisos para consultar sus turnos.");
+            }
         }
 
         private Usuario ObtenerUsuarioActual()
