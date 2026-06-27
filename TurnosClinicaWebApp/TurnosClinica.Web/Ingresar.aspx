@@ -16,9 +16,8 @@
                 <asp:TextBox ID="TxtContrasena" runat="server" TextMode="Password" CssClass="form-control" />
             </div>
             <asp:Button ID="BtnIngresar" runat="server" CssClass="btn btn-primary" Text="Ingresar" OnClick="BtnIngresar_Click" />
-            <asp:Button ID="BtnRegistrarme" runat="server" CssClass="btn btn-outline-primary ms-2"
-                Text="Registrarme" CausesValidation="false" />
-            <asp:Button ID="BtnRecuperarContrasena" runat="server" CssClass="btn btn-outline-primary ms-2"
+           <a href="Registro.aspx" class="btn btn-outline-primary ms-2">Registrarme</a>
+           <asp:Button ID="BtnRecuperarContrasena" runat="server" CssClass="btn btn-outline-primary ms-2"
                 Text="Recuperar contrasena" CausesValidation="false" />
         </div>
     </div>
