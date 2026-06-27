@@ -21,10 +21,13 @@ namespace TurnosClinica.Web
                     {
                         txtEmail.Text = user.Persona.Email;
                         txtNombre.Text = user.Persona.Nombre;
-                        txtApellido.Text = user.Persona.Apellido;//nota a ver
-                        
+                        txtApellido.Text = user.Persona.Apellido;
+                        txtTelefono.Text = user.Persona.Telefono;
+
+
+
                     }
-                    
+
                     string rutaImagen = Server.MapPath("~/Images/Perfiles/perfil-" + user.IdUsuario + ".jpg");
                     if (File.Exists(rutaImagen))
                     {
@@ -60,6 +63,8 @@ namespace TurnosClinica.Web
                         user.Persona.Email = txtEmail.Text;
                         user.Persona.Nombre = txtNombre.Text;
                         user.Persona.Apellido = txtApellido.Text;
+                        user.Persona.Telefono = txtTelefono.Text;
+
 
                         TurnosClinica.Negocio.PersonaNegocio personaNegocio = new TurnosClinica.Negocio.PersonaNegocio();
                         personaNegocio.Modificar(user.Persona);
