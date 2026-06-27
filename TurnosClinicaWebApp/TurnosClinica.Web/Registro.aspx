@@ -19,7 +19,7 @@
                             <asp:TextBox ID="TxtNombre" runat="server" CssClass="form-control" placeholder="Ej: Juan" />
                             <asp:RequiredFieldValidator ID="ReqNombre" runat="server"
                                 ControlToValidate="TxtNombre"
-                                ErrorMessage="Debe completar el nombre"
+                                ErrorMessage="* Debe completar el nombre"
                                 ForeColor="Red"
                                 Display="Dynamic" />
                         </div>
@@ -28,6 +28,12 @@
                         <div class="col-md-6 mb-3">
                             <asp:Label ID="LblApellido" runat="server" Text="Apellido" CssClass="form-label" />
                             <asp:TextBox ID="TxtApellido" runat="server" CssClass="form-control" placeholder="Ej: Perez" />
+                            <asp:RequiredFieldValidator ID="ReqApellido" runat="server"
+                                ControlToValidate="TxtApellido"
+                                ErrorMessage="* Debe completar el Apellido"
+                                ForeColor="Red"
+                                Display="Dynamic" />
+
                         </div>
                     </div>
 
@@ -35,18 +41,36 @@
                     <div class="mb-3">
                         <asp:Label ID="LblDni" runat="server" Text="DNI" CssClass="form-label" />
                         <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" placeholder="Sin puntos" />
+                        <asp:RequiredFieldValidator ID="ReqDni" runat="server"
+                            ControlToValidate="TxtDni"
+                            ErrorMessage="* El dni es obligatorio"
+                            ForeColor="Red"
+                            Display="Dynamic" />
+
                     </div>
 
 
                     <div class="mb-3">
                         <asp:Label ID="LblEmail" runat="server" Text="Correo Electrónico" CssClass="form-label" />
                         <asp:TextBox ID="TxtEmail" runat="server" TextMode="Email" CssClass="form-control" placeholder="juan@ejemplo.com" />
+                        <asp:RequiredFieldValidator ID="ReqEmail" runat="server"
+                            ControlToValidate="TxtEmail"
+                            ErrorMessage="* El Email es obligatorio"
+                            ForeColor="Red"
+                            Display="Dynamic" />
+
                     </div>
 
 
                     <div class="mb-4">
                         <asp:Label ID="LblContrasena" runat="server" Text="Contraseña" CssClass="form-label" />
                         <asp:TextBox ID="TxtContrasena" runat="server" TextMode="Password" CssClass="form-control" />
+                        <asp:RequiredFieldValidator ID="ReqContrasena" runat="server"
+                            ControlToValidate="TxtContrasena"
+                            ErrorMessage="* La contraseña es obligatoria"
+                            ForeColor="Red"
+                            Display="Dynamic" />
+
                     </div>
 
 

@@ -60,6 +60,15 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.TextBox TxtApellido;
 
         /// <summary>
+        /// ReqApellido control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator ReqApellido;
+
+        /// <summary>
         /// LblDni control.
         /// </summary>
         /// <remarks>
@@ -76,6 +85,15 @@ namespace TurnosClinica.Web
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox TxtDni;
+
+        /// <summary>
+        /// ReqDni control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator ReqDni;
 
         /// <summary>
         /// LblEmail control.
@@ -96,6 +114,15 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.TextBox TxtEmail;
 
         /// <summary>
+        /// ReqEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator ReqEmail;
+
+        /// <summary>
         /// LblContrasena control.
         /// </summary>
         /// <remarks>
@@ -112,6 +139,15 @@ namespace TurnosClinica.Web
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox TxtContrasena;
+
+        /// <summary>
+        /// ReqContrasena control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator ReqContrasena;
 
         /// <summary>
         /// BtnCrearCuenta control.
