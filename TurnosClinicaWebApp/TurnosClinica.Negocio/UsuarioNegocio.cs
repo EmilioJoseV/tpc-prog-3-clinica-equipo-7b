@@ -55,6 +55,16 @@ namespace TurnosClinica.Negocio
             return usuarioDatos.ObtenerPorIdPersona(idPersona);
         }
 
+        public Usuario ObtenerPorEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
+
+            return usuarioDatos.ObtenerPorEmail(email.Trim());
+        }
+
         public Usuario ValidarCredenciales(string nombreUsuario, string password)
         {
             if (string.IsNullOrWhiteSpace(nombreUsuario) || string.IsNullOrWhiteSpace(password))

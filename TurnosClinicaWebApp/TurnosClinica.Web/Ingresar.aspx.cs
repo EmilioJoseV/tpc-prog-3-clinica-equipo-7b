@@ -1,6 +1,7 @@
 using System;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
@@ -27,6 +28,19 @@ namespace TurnosClinica.Web
                 }
 
                 Session["UsuarioActual"] = usuario;
+
+                //Aca agregamos el flujo de cambiar el password si corresponde
+                if (usuario.EstadoUsuario != null
+                    && string.Equals(
+                        usuario.EstadoUsuario.Nombre,
+                        EstadoUsuarioEnum.CambioClavePendiente.ToString(),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    Response.Redirect("CambiarContrasenaPendiente.aspx", false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
+                }
+
                 Response.Redirect("PanelPrincipal.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
             }
@@ -34,6 +48,12 @@ namespace TurnosClinica.Web
             {
                 ((MasterLayout)Master).MostrarError(ex.Message);
             }
+        }
+
+        protected void BtnRecuperarContrasena_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("RecuperarContrasena.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
     }
 }
