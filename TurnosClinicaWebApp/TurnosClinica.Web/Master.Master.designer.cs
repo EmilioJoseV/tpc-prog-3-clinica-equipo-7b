@@ -66,6 +66,8 @@ namespace TurnosClinica.Web
 
         protected global::System.Web.UI.WebControls.HyperLink LnkIngresar;
 
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ContenedorPrincipal;
+
         /// <summary>
         /// PnlMensajeError control.
         /// </summary>

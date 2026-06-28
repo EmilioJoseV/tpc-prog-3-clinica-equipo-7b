@@ -1,0 +1,7 @@
+.imagen-inicio {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url("Recursos/Imagenes/FotoInicio.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: calc(100vh - 56px);
+}

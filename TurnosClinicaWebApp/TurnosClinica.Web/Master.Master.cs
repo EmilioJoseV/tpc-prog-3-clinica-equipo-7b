@@ -19,6 +19,7 @@ namespace TurnosClinica.Web
             }
 
             ConfigurarNavegacion(usuario);
+            ConfigurarContenedor(rutaActual);
 
             string errorAutorizacion = Session["ErrorAutorizacion"] as string;
             if (!string.IsNullOrWhiteSpace(errorAutorizacion))
@@ -26,6 +27,17 @@ namespace TurnosClinica.Web
                 MostrarError(errorAutorizacion);
                 Session.Remove("ErrorAutorizacion");
             }
+        }
+
+        private void ConfigurarContenedor(string rutaActual)
+        {
+            if (string.Equals(rutaActual, "~/Inicio.aspx", StringComparison.OrdinalIgnoreCase))
+            {
+                ContenedorPrincipal.Attributes["class"] = "container-fluid p-0";
+                return;
+            }
+
+            ContenedorPrincipal.Attributes["class"] = "container py-4";
         }
 
         protected void LnkSalir_Click(object sender, EventArgs e)
