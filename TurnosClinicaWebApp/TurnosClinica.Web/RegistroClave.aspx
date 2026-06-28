@@ -1,8 +1,17 @@
-﻿<%@ Page Title="Generar Clave" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="RegistroClave.aspx.cs" Inherits="TurnosClinica.Web.RegistroClave" %>
+﻿<%@ Page Title="Registro de Clave" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="RegistroClave.aspx.cs" Inherits="TurnosClinica.Web.RegistroClave" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server"></asp:Content>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+</asp:Content>
+
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <div class="row">
+    
+    <div class="container mt-4">
+        <h1 style="color: blue; font-weight: bold; border-bottom: 2px solid blue; padding-bottom: 10px;">
+            PANTALLA: REGISTRO DE CLAVE
+        </h1>
+    </div>
+
+    <div class="row mt-4">
         <div class="col-12 col-md-6 col-lg-4">
             <h2>Activar mi Cuenta</h2>
             <p class="text-muted">Ingresá tu correo para generar tu clave de acceso por primera vez.</p>

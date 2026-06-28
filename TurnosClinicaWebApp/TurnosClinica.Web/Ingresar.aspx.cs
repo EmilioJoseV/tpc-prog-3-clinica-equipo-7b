@@ -59,7 +59,7 @@ namespace TurnosClinica.Web
 
         protected void BtnRegistrarme_Click(object sender, EventArgs e)
         {
-            Response.Redirect("RegistroClave.aspx", true);
+            Response.Redirect("RegistroClave.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
     }
