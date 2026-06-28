@@ -43,6 +43,8 @@ namespace TurnosClinica.Web
 
         protected global::System.Web.UI.WebControls.HyperLink LnkPanelPrincipal;
 
+        protected global::System.Web.UI.WebControls.HyperLink LnkMiPerfil;
+
         protected global::System.Web.UI.WebControls.HyperLink LnkIngresar;
 
         /// <summary>
@@ -53,6 +55,8 @@ namespace TurnosClinica.Web
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Image imgAvatar;
+
+        protected global::System.Web.UI.WebControls.Label lblAvatarPlaceholder;
 
         protected global::System.Web.UI.WebControls.LinkButton LnkSalir;
 
