@@ -8,28 +8,24 @@ namespace TurnosClinica.Web
 {
     public partial class PanelPrincipal
     {
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl MenuPacientes;
-        protected global::System.Web.UI.WebControls.Button BtnPacientes;
+        protected global::System.Web.UI.WebControls.Label LblBienvenida;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl CardPacientes;
         protected global::System.Web.UI.WebControls.LinkButton LnkAltaPaciente;
         protected global::System.Web.UI.WebControls.LinkButton LnkListaPacientes;
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl MenuMedicos;
-        protected global::System.Web.UI.WebControls.Button BtnMedicos;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl CardMedicos;
         protected global::System.Web.UI.WebControls.LinkButton LnkAltaMedico;
         protected global::System.Web.UI.WebControls.HyperLink LnkListaMedicos;
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl MenuEspecialidades;
-        protected global::System.Web.UI.WebControls.Button BtnEspecialidades;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl CardTurnos;
+        protected global::System.Web.UI.WebControls.LinkButton LnkAltaTurno;
+        protected global::System.Web.UI.WebControls.LinkButton LnkListaTurnos;
+        protected global::System.Web.UI.WebControls.LinkButton LnkMisTurnos;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl CardEspecialidades;
         protected global::System.Web.UI.WebControls.LinkButton LnkAltaEspecialidad;
         protected global::System.Web.UI.WebControls.LinkButton LnkListaEspecialidades;
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl MenuUsuarios;
-        protected global::System.Web.UI.WebControls.Button BtnUsuarios;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl CardUsuarios;
         protected global::System.Web.UI.WebControls.LinkButton LnkAltaUsuario;
-        protected global::System.Web.UI.WebControls.LinkButton LnkAsociarUsuario;
         protected global::System.Web.UI.WebControls.LinkButton LnkListaUsuarios;
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl MenuTurnos;
-        protected global::System.Web.UI.WebControls.Button BtnTurnos;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl CardConfiguracion;
         protected global::System.Web.UI.WebControls.LinkButton LnkConfiguracionTurnos;
-        protected global::System.Web.UI.WebControls.LinkButton LnkAltaTurno;
-        protected global::System.Web.UI.WebControls.LinkButton LnkMisTurnos;
-        protected global::System.Web.UI.WebControls.LinkButton LnkListaTurnos;
     }
 }

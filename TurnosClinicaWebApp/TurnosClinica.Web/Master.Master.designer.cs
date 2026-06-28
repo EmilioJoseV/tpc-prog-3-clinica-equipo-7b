@@ -43,7 +43,7 @@ namespace TurnosClinica.Web
 
         protected global::System.Web.UI.WebControls.HyperLink LnkPanelPrincipal;
 
-        protected global::System.Web.UI.WebControls.HyperLink LnkIngresar;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ItemUsuario;
 
         /// <summary>
         /// imgAvatar control.
@@ -54,7 +54,19 @@ namespace TurnosClinica.Web
         /// </remarks>
         protected global::System.Web.UI.WebControls.Image imgAvatar;
 
+        protected global::System.Web.UI.WebControls.Label lblAvatarPlaceholder;
+
+        protected global::System.Web.UI.WebControls.Label LblNombreUsuario;
+
+        protected global::System.Web.UI.WebControls.Label LblRolUsuario;
+
+        protected global::System.Web.UI.WebControls.HyperLink LnkMiPerfil;
+
         protected global::System.Web.UI.WebControls.LinkButton LnkSalir;
+
+        protected global::System.Web.UI.WebControls.HyperLink LnkIngresar;
+
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ContenedorPrincipal;
 
         /// <summary>
         /// PnlMensajeError control.

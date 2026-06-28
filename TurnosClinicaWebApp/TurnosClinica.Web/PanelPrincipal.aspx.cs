@@ -16,6 +16,11 @@ namespace TurnosClinica.Web
                 return;
             }
 
+            if (!IsPostBack)
+            {
+                LblBienvenida.Text = "Hola, " + ObtenerNombre(usuario);
+            }
+
             ConfigurarAccesos(usuario);
         }
 
@@ -80,56 +85,42 @@ namespace TurnosClinica.Web
             bool esRecepcionista = AutorizacionRutasService.EsRecepcionista(usuario);
             bool esMedico = AutorizacionRutasService.EsMedico(usuario);
 
-            bool puedeVerPacientes = esAdministrador || esRecepcionista;
-            bool puedeVerMedicos = esAdministrador || esRecepcionista;
-            bool puedeVerEspecialidades = esAdministrador;
-            bool puedeVerUsuarios = esAdministrador;
-            bool puedeVerTurnos = esAdministrador || esRecepcionista || esMedico;
+            CardPacientes.Visible = esAdministrador || esRecepcionista;
+            CardMedicos.Visible = esAdministrador || esRecepcionista;
+            CardEspecialidades.Visible = esAdministrador;
+            CardUsuarios.Visible = esAdministrador;
+            CardConfiguracion.Visible = esAdministrador;
+            CardTurnos.Visible = esAdministrador || esRecepcionista || esMedico;
 
-            MenuPacientes.Visible = puedeVerPacientes;
-            MenuMedicos.Visible = puedeVerMedicos;
-            MenuEspecialidades.Visible = puedeVerEspecialidades;
-            MenuUsuarios.Visible = puedeVerUsuarios;
-            MenuTurnos.Visible = puedeVerTurnos;
-
-            BtnPacientes.Visible = puedeVerPacientes;
-            BtnMedicos.Visible = puedeVerMedicos;
-            BtnEspecialidades.Visible = puedeVerEspecialidades;
-            BtnUsuarios.Visible = puedeVerUsuarios;
-            BtnTurnos.Visible = puedeVerTurnos;
-
-            LnkAltaPaciente.Visible = puedeVerPacientes;
-            LnkListaPacientes.Visible = puedeVerPacientes;
-
-            LnkAltaMedico.Visible = puedeVerMedicos;
-            LnkListaMedicos.Visible = puedeVerMedicos;
-
-            LnkAltaEspecialidad.Visible = esAdministrador;
-            LnkListaEspecialidades.Visible = esAdministrador;
-
-            LnkAltaUsuario.Visible = esAdministrador;
-            LnkListaUsuarios.Visible = esAdministrador;
-
-            LnkConfiguracionTurnos.Visible = esAdministrador;
             LnkAltaTurno.Visible = esAdministrador || esRecepcionista;
             LnkListaTurnos.Visible = esAdministrador || esRecepcionista;
             LnkMisTurnos.Visible = esMedico;
         }
 
-        private void AbrirPagina(string ruta, params RolEnum[] roles)
+        private string ObtenerNombre(Usuario usuario)
         {
-            ExigirRoles(roles);
-            Response.Redirect(ruta, false);
-            Context.ApplicationInstance.CompleteRequest();
+            if (usuario != null && usuario.Persona != null)
+            {
+                string nombre = (usuario.Persona.Nombre + " " + usuario.Persona.Apellido).Trim();
+                if (!string.IsNullOrWhiteSpace(nombre))
+                {
+                    return nombre;
+                }
+            }
+
+            return usuario.NombreUsuario;
         }
 
-        private void ExigirRoles(params RolEnum[] roles)
+        private void AbrirPagina(string ruta, params RolEnum[] roles)
         {
             Usuario usuario = Session["UsuarioActual"] as Usuario;
             if (!AutorizacionRutasService.TieneAlgunRol(usuario, roles))
             {
                 throw new Exception("No tiene permisos para ejecutar esta accion.");
             }
+
+            Response.Redirect(ruta, false);
+            Context.ApplicationInstance.CompleteRequest();
         }
     }
 }

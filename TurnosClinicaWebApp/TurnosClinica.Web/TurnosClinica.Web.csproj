@@ -89,6 +89,7 @@
     <Content Include="Especialidades\FormularioEspecialidad.aspx" />
     <Content Include="Inicio.aspx" />
     <Content Include="Ingresar.aspx" />
+    <Content Include="Recursos\Imagenes\FotoInicio.jpg" />
     <Content Include="Medicos\ListaMedicos.aspx" />
     <Content Include="Medicos\FormularioMedico.aspx" />
     <Content Include="Pacientes\ListaPacientes.aspx" />
@@ -97,6 +98,7 @@
     <Content Include="Perfil\MiPerfil.aspx" />
     <Content Include="RecuperarContrasena.aspx" />
     <Content Include="Registro.aspx" />
+    <Content Include="site.css" />
     <Content Include="Turnos\ListaTurnos.aspx" />
     <Content Include="Turnos\ConfiguracionTurnos.aspx" />
     <Content Include="Turnos\DetalleTurno.aspx" />

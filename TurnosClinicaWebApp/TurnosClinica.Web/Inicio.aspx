@@ -4,21 +4,14 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <h1>Turnos Clinica</h1>
-    <p>Sistema de turnos medicos online.</p>
-
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        <asp:Repeater runat="server" ID="RptResumen">
-            <ItemTemplate>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><%# Eval("Titulo") %></h5>
-                            <p class="card-text"><%# Eval("Descripcion") %></p>
-                        </div>
-                    </div>
-                </div>
-            </ItemTemplate>
-        </asp:Repeater>
+    <div class="imagen-inicio text-white d-flex align-items-center">
+        <div class="container">
+            <div class="col-12 col-md-8 col-lg-6 bg-dark bg-opacity-75 rounded-4 p-4 p-md-5 shadow">
+                <h1 class="display-5 fw-semibold mb-3">Turnos Clinica</h1>
+                <p class="lead mb-0">
+                    Sistema para administrar pacientes, medicos y turnos
+                </p>
+            </div>
+        </div>
     </div>
 </asp:Content>
