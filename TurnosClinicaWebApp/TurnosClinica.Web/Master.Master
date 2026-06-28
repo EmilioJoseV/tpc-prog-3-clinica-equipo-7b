@@ -18,9 +18,9 @@
 
         </asp:ScriptManager>
 
-        <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <nav class="navbar navbar-expand-lg bg-dark navbar-dark shadow-sm">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/Inicio.aspx">Turnos Clinica</a>
+                <a class="navbar-brand fw-semibold" href="/Inicio.aspx">Turnos Clinica</a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -28,37 +28,45 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
+                        <li class="nav-item me-2">
                             <asp:HyperLink ID="LnkPanelPrincipal" runat="server"
-                                CssClass="btn btn-warning text-dark"
+                                CssClass="btn btn-outline-light"
                                 NavigateUrl="~/PanelPrincipal.aspx">Panel principal</asp:HyperLink>
                         </li>
                     </ul>
 
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-                        <li class="nav-item">
+                        <li id="ItemUsuario" runat="server" class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <asp:Image ID="imgAvatar" runat="server" Width="40" Height="40"
-                                CssClass="rounded-circle object-fit-cover mx-2" />
+                                    CssClass="rounded-circle object-fit-cover" />
                             <asp:Label ID="lblAvatarPlaceholder" runat="server" Width="40" Height="40"
-                                CssClass="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center mx-2" />
+                                    CssClass="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center" />
+                                <span class="d-flex flex-column lh-sm">
+                                    <asp:Label ID="LblNombreUsuario" runat="server" CssClass="text-white" />
+                                    <asp:Label ID="LblRolUsuario" runat="server" CssClass="text-white-50 small" />
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <asp:HyperLink ID="LnkMiPerfil" runat="server" CssClass="dropdown-item"
+                                        NavigateUrl="~/Perfil/MiPerfil.aspx">Mi Perfil</asp:HyperLink>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <asp:LinkButton ID="LnkSalir" runat="server" CssClass="dropdown-item" Text="Salir" OnClick="LnkSalir_Click" />
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <asp:HyperLink ID="LnkMiPerfil" runat="server" CssClass="nav-link"
-                                NavigateUrl="~/Perfil/MiPerfil.aspx">Mi Perfil</asp:HyperLink>
-                        </li>
-                        <li class="nav-item">
-                            <asp:HyperLink ID="LnkIngresar" runat="server" CssClass="nav-link" NavigateUrl="~/Ingresar.aspx">Ingresar</asp:HyperLink>
-                        </li>
-                        <li class="nav-item">
-                            <asp:LinkButton ID="LnkSalir" runat="server" CssClass="nav-link" Text="Salir" OnClick="LnkSalir_Click" />
+                            <asp:HyperLink ID="LnkIngresar" runat="server" CssClass="btn btn-warning text-dark" NavigateUrl="~/Ingresar.aspx">Ingresar</asp:HyperLink>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <div class="container">
-            <hr />
+        <div class="container py-4">
             <asp:Panel ID="PnlMensajeError" runat="server" Visible="false" EnableViewState="false"
                 CssClass="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>No se pudo completar la operacion</strong>

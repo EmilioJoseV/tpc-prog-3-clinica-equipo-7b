@@ -44,16 +44,22 @@ namespace TurnosClinica.Web
                 && !AutorizacionRutasService.EstaCambioClavePendiente(usuario);
 
             LnkPanelPrincipal.Visible = puedeIrAlPanel;
-            LnkMiPerfil.Visible = usuarioAutenticado;
+            ItemUsuario.Visible = usuarioAutenticado;
             LnkIngresar.Visible = !usuarioAutenticado;
-            LnkSalir.Visible = usuarioAutenticado;
             imgAvatar.Visible = usuarioAutenticado;
             lblAvatarPlaceholder.Visible = false;
 
             if (usuarioAutenticado)
             {
+                CargarDatosUsuario(usuario);
                 CargarAvatar(usuario);
             }
+        }
+
+        private void CargarDatosUsuario(Usuario usuario)
+        {
+            LblNombreUsuario.Text = ObtenerNombreVisible(usuario);
+            LblRolUsuario.Text = ObtenerRolVisible(usuario);
         }
 
         private void CargarAvatar(Usuario usuario)
@@ -81,6 +87,40 @@ namespace TurnosClinica.Web
             }
 
             return "U";
+        }
+
+        private string ObtenerNombreVisible(Usuario usuario)
+        {
+            if (usuario != null && usuario.Persona != null)
+            {
+                string nombre = usuario.Persona.Nombre;
+                string apellido = usuario.Persona.Apellido;
+                string nombreCompleto = (nombre + " " + apellido).Trim();
+
+                if (!string.IsNullOrWhiteSpace(nombreCompleto))
+                {
+                    return nombreCompleto;
+                }
+            }
+
+            if (usuario != null && !string.IsNullOrWhiteSpace(usuario.NombreUsuario))
+            {
+                return usuario.NombreUsuario;
+            }
+
+            return "Usuario";
+        }
+
+        private string ObtenerRolVisible(Usuario usuario)
+        {
+            if (usuario != null
+                && usuario.Rol != null
+                && !string.IsNullOrWhiteSpace(usuario.Rol.Nombre))
+            {
+                return usuario.Rol.Nombre;
+            }
+
+            return "Sin rol";
         }
 
         private void RedirigirSinPermiso(Usuario usuario)
