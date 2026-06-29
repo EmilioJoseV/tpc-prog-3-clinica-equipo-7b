@@ -15,7 +15,7 @@ namespace TurnosClinica.Web
             "~/Error.aspx",
             "~/Ingresar.aspx",
             "~/Registro.aspx",
-            "~/RegistroClave.aspx",//Cambio Almada Mauricio
+            "~/RegistroClave.aspx",
             "~/RecuperarContrasena.aspx"
         };
 
