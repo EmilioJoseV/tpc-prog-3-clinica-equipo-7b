@@ -17,15 +17,15 @@
         <div class="row g-3">
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="txtDni" Text="DNI" CssClass="form-label" />
-                <asp:TextBox ID="txtDni" runat="server" CssClass="form-control" />
+                <asp:TextBox ID="txtDni" runat="server" CssClass="form-control" required="required" />
             </div>
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="txtNombre" Text="Nombre" CssClass="form-label" />
-                <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" />
+                <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" required="required" />
             </div>
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="txtApellido" Text="Apellido" CssClass="form-label" />
-                <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control" />
+                <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control" required="required" />
             </div>
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="txtTelefono" Text="Telefono" CssClass="form-label" />
@@ -33,7 +33,7 @@
             </div>
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="txtEmail" Text="Email" CssClass="form-label" />
-                <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email" />
+                <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email" required="required" />
             </div>
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="ddlRol" Text="Rol" CssClass="form-label" />
