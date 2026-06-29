@@ -1,4 +1,4 @@
-<%@ Page Title="Mi Perfil" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="MiPerfil.aspx.cs" Inherits="TurnosClinica.Web.MiPerfil" %>
+﻿<%@ Page Title="Mi Perfil" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="MiPerfil.aspx.cs" Inherits="TurnosClinica.Web.MiPerfil" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
@@ -27,7 +27,7 @@
                     <asp:TextBox runat="server" CssClass="form-control" ID="txtNombreUsuario" />
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Nueva Contrase�a (dejar en blanco para no cambiar)</label>
+                    <label class="form-label">Nueva Contraseña (dejar en blanco para no cambiar)</label>
                     <asp:TextBox runat="server" CssClass="form-control" ID="txtPassword" TextMode="Password" />
                 </div>
                 
@@ -51,13 +51,13 @@
                     
                     
                     <asp:Image ID="imgPerfil" runat="server" Visible="false"
-                        CssClass="img-thumbnail rounded-circle"
-                        Style="width: 150px; height: 150px; object-fit: cover;" />
+                        Width="150" Height="150"
+                        CssClass="img-thumbnail rounded-circle object-fit-cover" />
                     
                     
                     <asp:Panel ID="pnlInicial" runat="server"
-                        CssClass="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto"
-                        Style="width: 150px; height: 150px; font-size: 50px;">
+                        Width="150" Height="150"
+                        CssClass="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto fs-1">
                         <asp:Literal ID="litInicial" runat="server" Text="U" />
                     </asp:Panel>
                 </div>

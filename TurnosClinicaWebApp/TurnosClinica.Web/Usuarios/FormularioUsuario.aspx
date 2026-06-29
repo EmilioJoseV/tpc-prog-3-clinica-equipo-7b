@@ -57,11 +57,11 @@
             <div class="col-12">
                 <asp:Label runat="server" Text="Vista previa" CssClass="form-label d-block" />
                 <asp:Image ID="imgPerfil" runat="server" Visible="false"
-                    CssClass="img-thumbnail rounded-circle"
-                    Style="width: 100px; height: 100px; object-fit: cover;" />
+                    Width="120" Height="120"
+                    CssClass="img-thumbnail rounded-circle object-fit-cover" />
                 <asp:Panel ID="pnlInicial" runat="server"
-                    CssClass="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
-                    Style="width: 140px; height: 140px; font-size: 40px;">
+                    Width="120" Height="120"
+                    CssClass="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center fs-1">
                     <asp:Literal ID="litInicial" runat="server" Text="U" />
                 </asp:Panel>
             </div>
