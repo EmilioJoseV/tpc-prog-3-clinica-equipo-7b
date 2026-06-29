@@ -98,6 +98,7 @@
     <Content Include="Perfil\MiPerfil.aspx" />
     <Content Include="RecuperarContrasena.aspx" />
     <Content Include="Registro.aspx" />
+    <Content Include="RegistroClave.aspx" />
     <Content Include="site.css" />
     <Content Include="Turnos\ListaTurnos.aspx" />
     <Content Include="Turnos\ConfiguracionTurnos.aspx" />
@@ -225,6 +226,13 @@
     </Compile>
     <Compile Include="Registro.aspx.designer.cs">
       <DependentUpon>Registro.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RegistroClave.aspx.cs">
+      <DependentUpon>RegistroClave.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RegistroClave.aspx.designer.cs">
+      <DependentUpon>RegistroClave.aspx</DependentUpon>
     </Compile>
     <Compile Include="Turnos\ListaTurnos.aspx.cs">
       <DependentUpon>ListaTurnos.aspx</DependentUpon>
