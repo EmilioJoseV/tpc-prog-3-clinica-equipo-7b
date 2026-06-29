@@ -42,15 +42,6 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.TextBox txtApellido;
 
         /// <summary>
-        /// txtFechaNacimiento control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtFechaNacimiento;
-
-        /// <summary>
         /// btnGuardar control.
         /// </summary>
         /// <remarks>
@@ -60,21 +51,48 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.Button btnGuardar;
 
         /// <summary>
-        /// txtImagen control.
+        /// fileImagen control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputFile txtImagen;
+        protected global::System.Web.UI.WebControls.FileUpload fileImagen;
 
         /// <summary>
-        /// imgNuevoPerfil control.
+        /// btnPrevisualizar control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Image imgNuevoPerfil;
+        protected global::System.Web.UI.WebControls.Button btnPrevisualizar;
+
+        /// <summary>
+        /// imgPerfil control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgPerfil;
+
+        /// <summary>
+        /// pnlInicial control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlInicial;
+
+        /// <summary>
+        /// litInicial control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal litInicial;
     }
 }
