@@ -20,17 +20,39 @@
     <div class="row">
         <div class="col-12 col-md-6 col-lg-4">
             <div class="mb-3">
-                <asp:Label ID="LblEmail" runat="server" Text="Correo Electrónico" CssClass="form-label" />
-                <asp:TextBox ID="TxtEmail" runat="server" CssClass="form-control" placeholder="ejemplo@correo.com" autocomplete="off" list="correosExistentes" />
+                <asp:Label ID="LblEmail" runat="server" Text="Correo Electrónico" CssClass="form-label" Style="font-weight: bold;" />
 
-                <datalist id="correosExistentes">
-                    <asp:Repeater ID="RepCorreos" runat="server">
-                        <ItemTemplate>
-                            <option value='<%# Container.DataItem %>'></option>
-                        </ItemTemplate>
-                    </asp:Repeater>
-                </datalist>
+                <asp:TextBox ID="TxtEmail" runat="server" CssClass="form-control" placeholder="ejemplo@correo.com"
+                    AutoPostBack="true" OnTextChanged="TxtEmail_TextChanged" />
+
+                <asp:ListBox ID="LstCorreosSugeridos" runat="server" CssClass="form-control mt-1"
+                    Visible="false" AutoPostBack="true" OnSelectedIndexChanged="LstCorreosSugeridos_SelectedIndexChanged"
+                    Style="max-height: 150px;" />
             </div>
+
+            <asp:Panel ID="PnlCuadroInfoUsuario" runat="server" Visible="false" CssClass="card mb-3 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-primary mb-3" style="font-weight: bold;">Datos Asociados Detectados</h5>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <strong>Nombre completo:</strong>
+                            <asp:Label ID="LblInfoNombreCompleto" runat="server" />
+                        </div>
+                        <div class="col-6">
+                            <strong>Rol en Clínica:</strong>
+                            <asp:Label ID="LblInfoRol" runat="server" CssClass="badge bg-secondary" />
+                        </div>
+                        <div class="col-6">
+                            <strong>Correo:</strong>
+                            <asp:Label ID="LblInfoCorreo" runat="server" />
+                        </div>
+                        <div class="col-6">
+                            <strong>Estado Actual:</strong>
+                            <asp:Label ID="LblInfoEstado" runat="server" />
+                        </div>
+                    </div>
+                </div>
+            </asp:Panel>
 
             <div class="mb-3">
                 <asp:Label ID="LblClave" runat="server" Text="Nueva Contraseña" CssClass="form-label" />
