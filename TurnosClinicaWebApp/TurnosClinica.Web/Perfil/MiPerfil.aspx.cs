@@ -2,13 +2,13 @@ using System;
 using System.IO;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
-using TurnosClinica.Negocio; // Importante: para poder usar UsuarioNegocio
+using TurnosClinica.Negocio; 
 
 namespace TurnosClinica.Web
 {
     public partial class MiPerfil : Page
     {
-        // Variables para mantener la foto en memoria al previsualizar
+        
         private const string ImagenTemporalSessionKey = "ImagenTemporalMiPerfil";
         private const string ImagenTemporalTipoSessionKey = "ImagenTemporalMiPerfilTipo";
 
@@ -42,8 +42,8 @@ namespace TurnosClinica.Web
                 txtNombre.Text = user.Persona.Nombre;
                 txtApellido.Text = user.Persona.Apellido;
                 txtEmail.Text = user.Persona.Email;
+                txtNombreUsuario.Text = user.NombreUsuario;
 
-              
 
                 MostrarImagenActual(user);
             }
@@ -60,8 +60,15 @@ namespace TurnosClinica.Web
                     
                     user.Persona.Nombre = txtNombre.Text;
                     user.Persona.Apellido = txtApellido.Text;
-                    user.Persona.Email = txtEmail.Text;
-                   
+                    user.Persona.Email = txtEmail.Text; user.NombreUsuario = txtNombreUsuario.Text;
+
+                    if (!string.IsNullOrWhiteSpace(txtPassword.Text))
+                    {
+                       
+                        user.PasswordHash = new SeguridadService().CalcularHash(txtPassword.Text);
+                    }
+
+
                     user.Imagen = ObtenerImagenParaGuardar(user);
 
                     UsuarioNegocio negocio = new UsuarioNegocio();
@@ -71,7 +78,7 @@ namespace TurnosClinica.Web
 
                     LimpiarImagenTemporal();
 
-                    Response.Redirect("Default.aspx", false);
+                    Response.Redirect("~/Default.aspx", false);
                 }
             }
             catch (Exception ex)
@@ -79,8 +86,15 @@ namespace TurnosClinica.Web
                 Session.Add("error", ex.ToString());
             }
         }
+        protected void btnCancelar_Click(object sender, EventArgs e)
+        {
+            
+            LimpiarImagenTemporal();
+            Response.Redirect("~/Default.aspx", false);
+        }
 
-      
+
+
         protected void btnPrevisualizar_Click(object sender, EventArgs e)
         {
             try

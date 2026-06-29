@@ -22,12 +22,20 @@
                     <asp:TextBox runat="server" CssClass="form-control" ID="txtApellido" />
                 </div>
                 
+               <div class="mb-3">
+                    <label class="form-label">Nombre de Usuario</label>
+                    <asp:TextBox runat="server" CssClass="form-control" ID="txtNombreUsuario" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Nueva Contraseña (dejar en blanco para no cambiar)</label>
+                    <asp:TextBox runat="server" CssClass="form-control" ID="txtPassword" TextMode="Password" />
+                </div>
+                
                 <div class="mb-3 mt-4">
                     <asp:Button Text="Guardar Cambios" CssClass="btn btn-primary" OnClick="btnGuardar_Click" ID="btnGuardar" runat="server" />
-                    <a href="Default.aspx" class="ms-3">Regresar</a>
+                    <asp:Button Text="Cancelar" CssClass="btn btn-outline-secondary ms-2" OnClick="btnCancelar_Click" ID="btnCancelar" runat="server" CausesValidation="false" />
                 </div>
             </div>
-
             
             <div class="col-md-4 ms-md-5">
                 <div class="mb-3">
