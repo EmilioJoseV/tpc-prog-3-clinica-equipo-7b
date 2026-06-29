@@ -173,7 +173,7 @@ namespace TurnosClinica.Web
                 return PuedeGestionarRecepcion(usuario);
             }
 
-            return true;
+            return false;
         }
 
         private static bool EsUnaDeEstasRutas(string rutaActual, string[] rutas)
