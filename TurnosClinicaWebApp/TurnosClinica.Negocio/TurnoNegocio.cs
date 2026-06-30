@@ -461,7 +461,9 @@ namespace TurnosClinica.Negocio
         {
             List<TurnoDisponibleDTO> disponibles = new TurnoCalculoService().ListarTurnosDisponibles(
                 turno.Especialidad.IdEspecialidad,
-                turno.FechaTurno);
+                turno.FechaTurno,
+                turno.Paciente.IdPaciente,
+                turno.IdTurno);
 
             bool horarioDisponible = false;
             foreach (TurnoDisponibleDTO disponible in disponibles)
