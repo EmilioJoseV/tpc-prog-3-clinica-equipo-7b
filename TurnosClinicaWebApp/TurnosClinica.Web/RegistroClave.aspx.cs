@@ -49,7 +49,6 @@ namespace TurnosClinica.Web
 
                 if (usuariosFiltrados.Count > 0)
                 {
-                    // Enlazamos el resultado directamente a la grilla corporativa
                     DgvUsuarios.DataSource = usuariosFiltrados;
                     DgvUsuarios.DataBind();
                     DgvUsuarios.Visible = true;
@@ -70,21 +69,32 @@ namespace TurnosClinica.Web
         {
             if (e.CommandName == "Seleccionar")
             {
-                string emailSeleccionado = e.CommandArgument.ToString();
+                PnlMensaje.Visible = false;
 
-                // Fijamos el TextBox con el valor seleccionado y seteamos la etiqueta del panel
-                TxtEmail.Text = emailSeleccionado;
-                LblUsuarioSeleccionado.Text = emailSeleccionado;
+                string argumento = e.CommandArgument.ToString();
+                string[] partes = argumento.Split('|');
 
-                // Ocultamos la grilla y desplegamos el formulario para cargar la contraseña
-                DgvUsuarios.Visible = false;
-                PnlFormularioClave.Visible = true;
+                if (partes.Length == 2)
+                {
+                    string emailSeleccionado = partes[0];
+                    string estadoSeleccionado = partes[1];
+
+                    if (estadoSeleccionado.Equals(EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        PnlFormularioClave.Visible = false;
+
+                        MostrarError($"El usuario con el correo {emailSeleccionado} ya se encuentra dado de alta en el sistema y operativo.");
+                        return;
+                    }
+
+                    TxtEmail.Text = emailSeleccionado;
+                    LblUsuarioSeleccionado.Text = emailSeleccionado;
+
+                    DgvUsuarios.Visible = false;
+                    PnlFormularioClave.Visible = true;
+                }
             }
         }
-
-        /// <summary>
-        /// Nuevo método: Retorna la clase CSS del badge según el estado (idéntico a tu ListaUsuarios)
-        /// </summary>
         protected string ObtenerClaseEstado(object estado)
         {
             if (estado == null) return "badge bg-secondary";

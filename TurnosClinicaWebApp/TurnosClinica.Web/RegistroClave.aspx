@@ -41,26 +41,31 @@
                     <asp:TemplateField HeaderText="Nombre">
                         <ItemTemplate><%#: Eval("Persona.Nombre") %></ItemTemplate>
                     </asp:TemplateField>
+
                     <asp:TemplateField HeaderText="Apellido">
                         <ItemTemplate><%#: Eval("Persona.Apellido") %></ItemTemplate>
                     </asp:TemplateField>
+
                     <asp:TemplateField HeaderText="Email">
                         <ItemTemplate><%#: Eval("Persona.Email") %></ItemTemplate>
                     </asp:TemplateField>
+
                     <asp:TemplateField HeaderText="Rol">
                         <ItemTemplate><%#: Eval("Rol.Nombre") %></ItemTemplate>
                     </asp:TemplateField>
+
                     <asp:TemplateField HeaderText="Estado">
                         <ItemTemplate>
                             <span class='<%# ObtenerClaseEstado(Eval("EstadoUsuario.Nombre")) %>'>
                                 <%#: Eval("EstadoUsuario.Nombre") %>
-                            </span>
+                        </span>
                         </ItemTemplate>
                     </asp:TemplateField>
+
                     <asp:TemplateField HeaderText="Acción">
                         <ItemTemplate>
                             <asp:LinkButton ID="BtnSeleccionar" runat="server" CommandName="Seleccionar"
-                                CommandArgument='<%# Eval("Persona.Email") %>'
+                                CommandArgument='<%# Eval("Persona.Email") + "|" + Eval("EstadoUsuario.Nombre") %>'
                                 CssClass="btn btn-warning btn-sm">Seleccionar</asp:LinkButton>
                         </ItemTemplate>
                     </asp:TemplateField>
