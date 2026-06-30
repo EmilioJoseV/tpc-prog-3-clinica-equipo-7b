@@ -13,27 +13,27 @@
     <div class="row g-3">
         <div class="col-12 col-md-4">
             <asp:Label ID="LblMatricula" runat="server" Text="Matricula" CssClass="form-label" />
-            <asp:TextBox ID="TxtMatricula" runat="server" CssClass="form-control" />
+            <asp:TextBox ID="TxtMatricula" runat="server" CssClass="form-control" placeholder="Ej: MN 123456" required="required" />
         </div>
         <div class="col-12 col-md-4">
             <asp:Label ID="LblDni" runat="server" Text="DNI" CssClass="form-label" />
-            <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" />
+            <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" placeholder="Sin puntos (Ej: 30123456)" required="required" />
         </div>
         <div class="col-12 col-md-4">
             <asp:Label ID="LblTelefono" runat="server" Text="Telefono" CssClass="form-label" />
-            <asp:TextBox ID="TxtTelefono" runat="server" CssClass="form-control" />
+            <asp:TextBox ID="TxtTelefono" runat="server" CssClass="form-control" placeholder="Ej: 11-1234-5678" required="required" />
         </div>
         <div class="col-12 col-md-6">
             <asp:Label ID="LblNombre" runat="server" Text="Nombre" CssClass="form-label" />
-            <asp:TextBox ID="TxtNombre" runat="server" CssClass="form-control" />
+            <asp:TextBox ID="TxtNombre" runat="server" CssClass="form-control" placeholder="Ej: Juan" required="required" />
         </div>
         <div class="col-12 col-md-6">
             <asp:Label ID="LblApellido" runat="server" Text="Apellido" CssClass="form-label" />
-            <asp:TextBox ID="TxtApellido" runat="server" CssClass="form-control" />
+            <asp:TextBox ID="TxtApellido" runat="server" CssClass="form-control"  placeholder="Ej: Favaloro" required="required"/>
         </div>
         <div class="col-12">
             <asp:Label ID="LblEmail" runat="server" Text="Email" CssClass="form-label" />
-            <asp:TextBox ID="TxtEmail" runat="server" TextMode="Email" CssClass="form-control" />
+            <asp:TextBox ID="TxtEmail" runat="server" TextMode="Email" CssClass="form-control" placeholder="correo@clinica.com" required="required"/>
         </div>
         <div class="col-12">
             <asp:CheckBox ID="ChkMedicoActivo" runat="server" Text="Activo" Checked="true" />
