@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
 
@@ -132,10 +131,17 @@ namespace TurnosClinica.AccesoDatos
 
         public void ReemplazarPorMedico(int idMedico, IEnumerable<HorarioDisponibilidadMedico> horarios)
         {
-            List<HorarioDisponibilidadMedico> lista = horarios == null
-                ? new List<HorarioDisponibilidadMedico>()
-                : horarios.Where(horario => horario != null)
-                    .ToList();
+            List<HorarioDisponibilidadMedico> lista = new List<HorarioDisponibilidadMedico>();
+            if (horarios != null)
+            {
+                foreach (HorarioDisponibilidadMedico horario in horarios)
+                {
+                    if (horario != null)
+                    {
+                        lista.Add(horario);
+                    }
+                }
+            }
 
             EliminarPorMedico(idMedico);
 
