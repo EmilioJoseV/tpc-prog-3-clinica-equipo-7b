@@ -134,7 +134,7 @@ namespace TurnosClinica.Web
                 else
                 {
                     ExigirAdministrador(usuario);
-                    turnoNegocio.Cerrar(ObtenerIdTurno(), usuario.IdUsuario);
+                    turnoNegocio.Cerrar(ObtenerIdTurno(), usuario.IdUsuario, txtDiagnosticoMedico.Text);
                 }
 
                 Response.Redirect(ObtenerUrlVolver(), false);

@@ -27,6 +27,15 @@ namespace TurnosClinica.Negocio
 
         public List<TurnoDisponibleDTO> ListarTurnosDisponibles(int idEspecialidad, DateTime fechaConsulta)
         {
+            return ListarTurnosDisponibles(idEspecialidad, fechaConsulta, 0, 0);
+        }
+
+        public List<TurnoDisponibleDTO> ListarTurnosDisponibles(
+            int idEspecialidad,
+            DateTime fechaConsulta,
+            int idPaciente,
+            int idTurnoExcluir = 0)
+        {
             ValidarConsulta(idEspecialidad, fechaConsulta);
 
             Especialidad especialidad = especialidadNegocio.ObtenerPorId(idEspecialidad);
@@ -59,7 +68,11 @@ namespace TurnosClinica.Negocio
                     continue;
                 }
 
-                List<Turno> turnosOcupados = ObtenerTurnosOcupados(medico.IdMedico, fechaConsulta.Date);
+                List<Turno> turnosOcupados = ObtenerTurnosOcupados(
+                    medico.IdMedico,
+                    idPaciente,
+                    fechaConsulta.Date,
+                    idTurnoExcluir);
                 foreach (HorarioDisponibilidadMedico horario in horariosDelDia)
                 {
                     turnosDisponibles.AddRange(ConstruirBloquesDisponibles(
@@ -78,6 +91,15 @@ namespace TurnosClinica.Negocio
             int idEspecialidad,
             DateTime fechaDesde)
         {
+            return ListarTurnosDisponiblesMasProximos(idEspecialidad, fechaDesde, 0, 0);
+        }
+
+        public List<TurnoDisponibleDTO> ListarTurnosDisponiblesMasProximos(
+            int idEspecialidad,
+            DateTime fechaDesde,
+            int idPaciente,
+            int idTurnoExcluir = 0)
+        {
             ValidarConsulta(idEspecialidad, fechaDesde);
 
             DateTime fechaLimite = DateTime.Today.AddDays(DiasMaximosAnticipacion);
@@ -86,7 +108,7 @@ namespace TurnosClinica.Negocio
             while (fechaConsulta <= fechaLimite)
             {
                 List<TurnoDisponibleDTO> disponibles =
-                    ListarTurnosDisponibles(idEspecialidad, fechaConsulta);
+                    ListarTurnosDisponibles(idEspecialidad, fechaConsulta, idPaciente, idTurnoExcluir);
 
                 if (disponibles.Count > 0)
                 {
@@ -112,22 +134,31 @@ namespace TurnosClinica.Negocio
             }
         }
 
-        private List<Turno> ObtenerTurnosOcupados(int idMedico, DateTime fecha)
+        private List<Turno> ObtenerTurnosOcupados(int idMedico, int idPaciente, DateTime fecha, int idTurnoExcluir)
         {
-            List<Turno> turnos = turnoNegocio.ListarPorMedicoYFecha(idMedico, fecha);
             List<Turno> turnosOcupados = new List<Turno>();
+            AgregarTurnosOcupados(turnosOcupados, turnoNegocio.ListarPorMedicoYFecha(idMedico, fecha), idTurnoExcluir);
 
-            foreach (Turno turno in turnos)
+            if (idPaciente > 0)
             {
-                if (turno != null
-                    && turno.EstadoTurno != null
-                    && !turno.EstadoTurno.EsFinal)
-                {
-                    turnosOcupados.Add(turno);
-                }
+                AgregarTurnosOcupados(turnosOcupados, turnoNegocio.ListarPorPacienteYFecha(idPaciente, fecha), idTurnoExcluir);
             }
 
             return turnosOcupados;
+        }
+
+        private void AgregarTurnosOcupados(List<Turno> destino, List<Turno> turnos, int idTurnoExcluir)
+        {
+            foreach (Turno turno in turnos)
+            {
+                if (turno != null
+                    && turno.IdTurno != idTurnoExcluir
+                    && turno.EstadoTurno != null
+                    && !turno.EstadoTurno.EsFinal)
+                {
+                    destino.Add(turno);
+                }
+            }
         }
 
         private int ObtenerDuracionBloque()

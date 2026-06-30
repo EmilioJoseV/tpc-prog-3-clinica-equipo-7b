@@ -15,7 +15,7 @@ namespace TurnosClinica.Web
             "~/Error.aspx",
             "~/Ingresar.aspx",
             "~/Registro.aspx",
-            "~/RegistroClave.aspx",//Cambio Almada Mauricio
+            "~/RegistroClave.aspx",
             "~/RecuperarContrasena.aspx"
         };
 
@@ -173,7 +173,7 @@ namespace TurnosClinica.Web
                 return PuedeGestionarRecepcion(usuario);
             }
 
-            return true;
+            return false;
         }
 
         private static bool EsUnaDeEstasRutas(string rutaActual, string[] rutas)

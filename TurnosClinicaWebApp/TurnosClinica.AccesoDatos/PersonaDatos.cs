@@ -28,9 +28,9 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@email", persona.Email);
                 return accesoDatos.ejecutarAccionScalar();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -54,9 +54,9 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@email", persona.Email);
                 accesoDatos.ejecutarAccion();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -91,9 +91,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return persona;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -128,9 +128,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return persona;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {

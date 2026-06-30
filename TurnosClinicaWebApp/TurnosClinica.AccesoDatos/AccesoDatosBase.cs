@@ -58,9 +58,9 @@ namespace TurnosClinica.AccesoDatos
 
                 lector = comando.ExecuteReader();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -78,9 +78,9 @@ namespace TurnosClinica.AccesoDatos
 
                 comando.ExecuteNonQuery();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -99,9 +99,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return int.Parse(comando.ExecuteScalar().ToString());
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {

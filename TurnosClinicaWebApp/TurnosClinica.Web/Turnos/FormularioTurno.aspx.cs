@@ -78,7 +78,9 @@ namespace TurnosClinica.Web
                 {
                     disponibles = turnoCalculoService.ListarTurnosDisponiblesMasProximos(
                         idEspecialidad,
-                        DateTime.Now);
+                        DateTime.Now,
+                        ObtenerIdPaciente(),
+                        ObtenerIdTurno());
                 }
                 else
                 {
@@ -86,7 +88,9 @@ namespace TurnosClinica.Web
                     ChkBuscarProximo.Checked = false;
                     disponibles = turnoCalculoService.ListarTurnosDisponibles(
                         idEspecialidad,
-                        ObtenerFecha());
+                        ObtenerFecha(),
+                        ObtenerIdPaciente(),
+                        ObtenerIdTurno());
                 }
 
                 if (disponibles.Count > 0)

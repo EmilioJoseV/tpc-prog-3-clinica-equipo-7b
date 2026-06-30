@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using TurnosClinica.Dominio.Entidades;
 
 namespace TurnosClinica.AccesoDatos
@@ -89,12 +88,19 @@ namespace TurnosClinica.AccesoDatos
 
         public void ReemplazarPorMedico(int idMedico, List<Especialidad> especialidadesRequeridas)
         {
-            List<Especialidad> especialidadesFiltradas = especialidadesRequeridas == null
-                ? new List<Especialidad>()
-                : especialidadesRequeridas.Where(especialidad => especialidad != null && especialidad.IdEspecialidad > 0)
-                    .GroupBy(especialidad => especialidad.IdEspecialidad)
-                    .Select(grupo => grupo.First())
-                    .ToList();
+            List<Especialidad> especialidadesFiltradas = new List<Especialidad>();
+            if (especialidadesRequeridas != null)
+            {
+                foreach (Especialidad especialidad in especialidadesRequeridas)
+                {
+                    if (especialidad != null
+                        && especialidad.IdEspecialidad > 0
+                        && !ExisteEspecialidad(especialidadesFiltradas, especialidad.IdEspecialidad))
+                    {
+                        especialidadesFiltradas.Add(especialidad);
+                    }
+                }
+            }
 
             EliminarPorMedico(idMedico);
 
@@ -103,6 +109,19 @@ namespace TurnosClinica.AccesoDatos
                 Agregar(idMedico, especialidad.IdEspecialidad);
             }
 
+        }
+
+        private bool ExisteEspecialidad(List<Especialidad> especialidades, int idEspecialidad)
+        {
+            foreach (Especialidad especialidad in especialidades)
+            {
+                if (especialidad != null && especialidad.IdEspecialidad == idEspecialidad)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public Especialidad MapearFilaAEntidad(SqlDataReader fila)
