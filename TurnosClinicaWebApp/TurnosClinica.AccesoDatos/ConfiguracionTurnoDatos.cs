@@ -31,9 +31,9 @@ namespace TurnosClinica.AccesoDatos
 
                 return new ConfiguracionTurno();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -64,9 +64,9 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearParametro("@activo", configuracionTurno.Activo);
                 accesoDatos.ejecutarAccion();
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             finally
             {

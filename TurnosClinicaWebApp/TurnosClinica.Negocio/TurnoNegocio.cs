@@ -217,6 +217,11 @@ namespace TurnosClinica.Negocio
             CambiarEstado(idTurno, idUsuarioModificacion, EstadoTurnoEnum.Cerrado);
         }
 
+        public void Cerrar(int idTurno, int idUsuarioModificacion, string diagnosticoMedico)
+        {
+            CambiarEstado(idTurno, idUsuarioModificacion, EstadoTurnoEnum.Cerrado, diagnosticoMedico);
+        }
+
         public Turno ObtenerPorIdParaMedico(int idTurno, int idMedicoAutenticado)
         {
             Turno turno = ObtenerPorId(idTurno);
@@ -528,7 +533,11 @@ namespace TurnosClinica.Negocio
             }
         }
 
-        private void CambiarEstado(int idTurno, int idUsuarioModificacion, EstadoTurnoEnum estadoDestino)
+        private void CambiarEstado(
+            int idTurno,
+            int idUsuarioModificacion,
+            EstadoTurnoEnum estadoDestino,
+            string diagnosticoMedico = null)
         {
             if (idTurno <= 0)
             {
@@ -557,10 +566,17 @@ namespace TurnosClinica.Negocio
                         throw new Exception("El usuario que modifica el turno no existe.");
                     }
 
+                    ValidarDiagnosticoMedico(diagnosticoMedico);
+
                     EstadoTurno estadoTurno = estadoTurnoNegocio.ObtenerPorNombre(estadoDestino.ToString());
                     if (estadoTurno == null)
                     {
                         throw new Exception("El estado del turno no existe.");
+                    }
+
+                    if (estadoDestino == EstadoTurnoEnum.Cerrado)
+                    {
+                        datos.ModificarDiagnosticoMedico(idTurno, diagnosticoMedico, idUsuarioModificacion);
                     }
 
                     datos.CambiarEstado(idTurno, estadoTurno.IdEstadoTurno, idUsuarioModificacion);
