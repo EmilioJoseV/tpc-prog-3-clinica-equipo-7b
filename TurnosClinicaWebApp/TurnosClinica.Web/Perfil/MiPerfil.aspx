@@ -11,24 +11,24 @@
             <div class="col-md-4">
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <asp:TextBox runat="server" CssClass="form-control" ID="txtEmail" TextMode="Email" />
+                    <asp:TextBox runat="server" CssClass="form-control" ID="txtEmail" TextMode="Email" placeholder="correo@ejemplo.com" required="required" />
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nombre</label>
-                    <asp:TextBox runat="server" CssClass="form-control" ID="txtNombre" />
+                    <asp:TextBox runat="server" CssClass="form-control" ID="txtNombre"  placeholder="Ej: Pepe" required="required"/>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Apellido</label>
-                    <asp:TextBox runat="server" CssClass="form-control" ID="txtApellido" />
+                    <asp:TextBox runat="server" CssClass="form-control" ID="txtApellido" placeholder="Ej: Argento" required="required" />
                 </div>
                 
                <div class="mb-3">
                     <label class="form-label">Nombre de Usuario</label>
-                    <asp:TextBox runat="server" CssClass="form-control" ID="txtNombreUsuario" />
+                    <asp:TextBox runat="server" CssClass="form-control" ID="txtNombreUsuario" placeholder="Ej: Admin" required="required" />
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nueva Contraseña (dejar en blanco para no cambiar)</label>
-                    <asp:TextBox runat="server" CssClass="form-control" ID="txtPassword" TextMode="Password" />
+                    <asp:TextBox runat="server" CssClass="form-control" ID="txtPassword" TextMode="Password" placeholder="******" />
                 </div>
                 
                 <div class="mb-3 mt-4">
