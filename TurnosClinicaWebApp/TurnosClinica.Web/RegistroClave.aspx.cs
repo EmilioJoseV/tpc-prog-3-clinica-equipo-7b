@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
@@ -20,37 +22,83 @@ namespace TurnosClinica.Web
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                CargarCorreosDatalist();
-            }
+            
         }
-        private void CargarCorreosDatalist()
+
+        protected void TxtEmail_TextChanged(object sender, EventArgs e)
         {
+            PnlMensaje.Visible = false;
+            string filtro = TxtEmail.Text.Trim();
+
+            if (string.IsNullOrEmpty(filtro) || filtro.Length < 2)
+            {
+                LstCorreosSugeridos.Visible = false;
+                PnlCuadroInfoUsuario.Visible = false;
+                return;
+            }
+
             try
             {
-                List<Usuario> listaUsuarios = usuarioDatos.Listar();
-                List<string> listaCorreos = new List<string>();
+                List<Usuario> todosLosUsuarios = usuarioDatos.Listar();
 
-                foreach (var usu in listaUsuarios)
+                var usuariosFiltrados = todosLosUsuarios
+                    .Where(u => u.Persona != null &&
+                                !string.IsNullOrEmpty(u.Persona.Email) &&
+                                u.Persona.Email.ToLower().Contains(filtro.ToLower()))
+                    .ToList();
+
+                if (usuariosFiltrados.Count > 0)
                 {
-                    if (usu.Persona != null && !string.IsNullOrWhiteSpace(usu.Persona.Email))
+                    LstCorreosSugeridos.Items.Clear();
+                    foreach (var usu in usuariosFiltrados)
                     {
-                        if (!listaCorreos.Contains(usu.Persona.Email))
-                        {
-                            listaCorreos.Add(usu.Persona.Email);
-                        }
+                        string datosConcatenados = $"{usu.Persona.Nombre}|{usu.Persona.Apellido}|{usu.Rol.Nombre}|{usu.EstadoUsuario.Nombre}";
+                        ListItem item = new ListItem(usu.Persona.Email, datosConcatenados);
+                        LstCorreosSugeridos.Items.Add(item);
                     }
+                    LstCorreosSugeridos.Visible = true;
                 }
-
-                RepCorreos.DataSource = listaCorreos;
-                RepCorreos.DataBind();
+                else
+                {
+                    LstCorreosSugeridos.Visible = false;
+                    PnlCuadroInfoUsuario.Visible = false;
+                    MostrarError("No se encontraron correos que coincidan.");
+                }
             }
             catch (Exception ex)
             {
-                MostrarError("Error al cargar el listado de validación: " + ex.Message);
+                MostrarError("Error al filtrar los usuarios: " + ex.Message);
             }
         }
+        protected void LstCorreosSugeridos_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (LstCorreosSugeridos.SelectedItem == null) return;
+
+            string emailSeleccionado = LstCorreosSugeridos.SelectedItem.Text;
+            string datosConcatenados = LstCorreosSugeridos.SelectedItem.Value;
+
+            TxtEmail.Text = emailSeleccionado;
+            LstCorreosSugeridos.Visible = false;
+
+            string[] partes = datosConcatenados.Split('|');
+            if (partes.Length == 4)
+            {
+                LblInfoNombreCompleto.Text = partes[1] + ", " + partes[0];
+                LblInfoCorreo.Text = emailSeleccionado;
+                LblInfoRol.Text = partes[2];
+                LblInfoEstado.Text = partes[3];
+
+                if (partes[3].Equals(EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
+                    LblInfoEstado.CssClass = "badge bg-success";
+                else if (partes[3].Equals(EstadoUsuarioEnum.CambioClavePendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+                    LblInfoEstado.CssClass = "badge bg-warning text-dark";
+                else
+                    LblInfoEstado.CssClass = "badge bg-danger";
+
+                PnlCuadroInfoUsuario.Visible = true;
+            }
+        }
+
         protected void BtnActivar_Click(object sender, EventArgs e)
         {
             PnlMensaje.Visible = false;
@@ -77,7 +125,7 @@ namespace TurnosClinica.Web
 
                 if (usuario == null)
                 {
-                    MostrarError("El correo ingresado no se encuentra registrado en el sistema clínico.");
+                    MostrarError("El correo ingresado no corresponde a ningún usuario del sistema.");
                     return;
                 }
 
@@ -96,7 +144,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                MostrarError("Ocurrió un error al procesar el alta: " + ex.Message);
+                MostrarError("Ocurrió un error al activar la cuenta: " + ex.Message);
             }
         }
 
