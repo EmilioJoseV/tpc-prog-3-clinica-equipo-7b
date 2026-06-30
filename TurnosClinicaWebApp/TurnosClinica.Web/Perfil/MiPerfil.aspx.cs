@@ -30,7 +30,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
+                MostrarError(ex.Message);
             }
         }
 
@@ -83,7 +83,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.ToString());
+                MostrarError(ex.Message);
             }
         }
         protected void btnCancelar_Click(object sender, EventArgs e)
@@ -118,7 +118,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                Session.Add("error", ex.Message);
+                MostrarError(ex.Message);
             }
         }
 
@@ -179,6 +179,11 @@ namespace TurnosClinica.Web
         {
             Session.Remove(ImagenTemporalSessionKey);
             Session.Remove(ImagenTemporalTipoSessionKey);
+        }
+
+        private void MostrarError(string mensaje)
+        {
+            ((MasterLayout)Master).MostrarError(mensaje);
         }
     }
 }
