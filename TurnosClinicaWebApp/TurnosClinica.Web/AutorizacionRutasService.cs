@@ -138,6 +138,11 @@ namespace TurnosClinica.Web
                 return RutaPermitidaCambioClave(ruta);
             }
 
+            if (EsRuta(ruta, "~/Perfil/MiPerfil.aspx"))
+            {
+                return true;
+            }
+
             if (!TieneAccesoOperativo(usuario))
             {
                 return false;

@@ -6,6 +6,7 @@ using System.Web.UI.WebControls;
 using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
+using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
 {
@@ -121,20 +122,17 @@ namespace TurnosClinica.Web
             string clave = TxtClave.Text;
             string claveConfirmar = TxtClaveConfirmar.Text;
 
-            if (string.IsNullOrWhiteSpace(emailIngresado) || string.IsNullOrWhiteSpace(clave))
+            if (string.IsNullOrWhiteSpace(emailIngresado))
             {
-                MostrarError("Por favor, completá todos los campos requeridos.");
-                return;
-            }
-
-            if (clave != claveConfirmar)
-            {
-                MostrarError("Las contraseñas ingresadas no coinciden.");
+                MostrarError("Por favor, completá el email.");
                 return;
             }
 
             try
             {
+                SeguridadService seguridadService = new SeguridadService();
+                seguridadService.ValidarNuevaContrasena(clave, claveConfirmar);
+
                 Usuario usuario = usuarioDatos.ObtenerPorEmail(emailIngresado);
 
                 if (usuario == null)
@@ -143,7 +141,7 @@ namespace TurnosClinica.Web
                     return;
                 }
 
-                usuario.PasswordHash = clave;
+                usuario.PasswordHash = seguridadService.CalcularHash(clave.Trim());
 
                 usuario.EstadoUsuario = new EstadoUsuario
                 {
