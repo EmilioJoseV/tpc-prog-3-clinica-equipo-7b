@@ -14,11 +14,11 @@
             <div class="col-12 col-md-6">
                 <div class="mb-3">
                     <asp:Label runat="server" AssociatedControlID="txtNombre" Text="Nombre" CssClass="form-label" />
-                    <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" placeholder="Ej: Cardiología" />
+                    <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" placeholder="Ej: Cardiología" required="required" />
                 </div>
                 <div class="mb-3">
                     <asp:Label runat="server" AssociatedControlID="txtDescripcion" Text="Descripcion" CssClass="form-label" />
-                    <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" placeholder="Escribe una breve descripción aquí..." />
+                    <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" placeholder="Escribe una breve descripción aquí..." required="required" />
                 </div>
                 <div class="mb-3">
                     <asp:CheckBox ID="chkActivo" runat="server" Text="Activo" />

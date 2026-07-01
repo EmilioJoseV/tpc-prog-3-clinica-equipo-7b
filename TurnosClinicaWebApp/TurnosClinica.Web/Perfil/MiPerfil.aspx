@@ -28,7 +28,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nueva Contraseña (dejar en blanco para no cambiar)</label>
-                    <asp:TextBox runat="server" CssClass="form-control" ID="txtPassword" TextMode="Password" placeholder="******" />
+                    <asp:TextBox runat="server" CssClass="form-control" ID="txtPassword"  autocomplete="new-password" TextMode="Password" />
                 </div>
                 
                 <div class="mb-3 mt-4">

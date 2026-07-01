@@ -55,6 +55,7 @@ namespace TurnosClinica.Web
             {
                 Usuario user = (Usuario)Session["UsuarioActual"];
 
+                string userPasswordAnterior = user.PasswordHash;
                 if (user != null)
                 {
                     
@@ -64,12 +65,15 @@ namespace TurnosClinica.Web
 
                     if (!string.IsNullOrWhiteSpace(txtPassword.Text))
                     {
-                       
+
                         user.PasswordHash = new SeguridadService().CalcularHash(txtPassword.Text);
+                    }
+                    else {
+                        user.PasswordHash = userPasswordAnterior;
                     }
 
 
-                    user.Imagen = ObtenerImagenParaGuardar(user);
+                        user.Imagen = ObtenerImagenParaGuardar(user);
 
                     UsuarioNegocio negocio = new UsuarioNegocio();
                     negocio.ModificarConPersona(user);
@@ -78,7 +82,7 @@ namespace TurnosClinica.Web
 
                     LimpiarImagenTemporal();
 
-                    Response.Redirect("~/Default.aspx", false);
+                    Response.Redirect("~/PanelPrincipal.aspx", false);
                 }
             }
             catch (Exception ex)
@@ -90,7 +94,7 @@ namespace TurnosClinica.Web
         {
             
             LimpiarImagenTemporal();
-            Response.Redirect("~/Default.aspx", false);
+            Response.Redirect("~/PanelPrincipal.aspx", false);
         }
 
 
