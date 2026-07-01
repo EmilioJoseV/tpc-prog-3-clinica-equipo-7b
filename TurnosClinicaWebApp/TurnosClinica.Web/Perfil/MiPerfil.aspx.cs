@@ -54,36 +54,39 @@ namespace TurnosClinica.Web
             try
             {
                 Usuario user = (Usuario)Session["UsuarioActual"];
-
-                string userPasswordAnterior = user.PasswordHash;
-                if (user != null)
+                if (user == null)
                 {
-                    
-                    user.Persona.Nombre = txtNombre.Text;
-                    user.Persona.Apellido = txtApellido.Text;
-                    user.Persona.Email = txtEmail.Text; user.NombreUsuario = txtNombreUsuario.Text;
-
-                    if (!string.IsNullOrWhiteSpace(txtPassword.Text))
-                    {
-
-                        user.PasswordHash = new SeguridadService().CalcularHash(txtPassword.Text);
-                    }
-                    else {
-                        user.PasswordHash = userPasswordAnterior;
-                    }
-
-
-                        user.Imagen = ObtenerImagenParaGuardar(user);
-
-                    UsuarioNegocio negocio = new UsuarioNegocio();
-                    negocio.ModificarConPersona(user);
-
-                    Session["UsuarioActual"] = user;
-
-                    LimpiarImagenTemporal();
-
-                    Response.Redirect("~/PanelPrincipal.aspx", false);
+                    Response.Redirect("~/Ingresar.aspx", false);
+                    return;
                 }
+                    
+                string userPasswordAnterior = user.PasswordHash;
+                user.Persona.Nombre = txtNombre.Text;
+                user.Persona.Apellido = txtApellido.Text;
+                user.Persona.Email = txtEmail.Text; user.NombreUsuario = txtNombreUsuario.Text;
+
+                if (!string.IsNullOrWhiteSpace(txtPassword.Text)
+                    || !string.IsNullOrWhiteSpace(txtConfirmarPassword.Text))
+                {
+                    SeguridadService seguridadService = new SeguridadService();
+                    seguridadService.ValidarNuevaContrasena(txtPassword.Text, txtConfirmarPassword.Text);
+                    user.PasswordHash = seguridadService.CalcularHash(txtPassword.Text.Trim());
+                }
+                else
+                {
+                    user.PasswordHash = userPasswordAnterior;
+                }
+
+                user.Imagen = ObtenerImagenParaGuardar(user);
+
+                UsuarioNegocio negocio = new UsuarioNegocio();
+                negocio.ModificarPerfilConPersona(user);
+
+                Session["UsuarioActual"] = user;
+
+                LimpiarImagenTemporal();
+
+                Response.Redirect("~/PanelPrincipal.aspx", false);
             }
             catch (Exception ex)
             {

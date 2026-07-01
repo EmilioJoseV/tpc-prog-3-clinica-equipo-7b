@@ -73,7 +73,9 @@ namespace TurnosClinica.Negocio
             }
 
             string passwordHash = new SeguridadService().CalcularHash(password);
-            return usuarioDatos.ValidarCredenciales(nombreUsuario.Trim(), passwordHash);
+            Usuario usuario = usuarioDatos.ValidarCredenciales(nombreUsuario.Trim(), passwordHash);
+            ValidarEstadoParaIngreso(usuario);
+            return usuario;
         }
 
         public void Agregar(Usuario usuario)
@@ -127,6 +129,51 @@ namespace TurnosClinica.Negocio
             {
                 throw new Exception("La persona asociada al usuario no se puede cambiar.");
             }
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
+            {
+                try
+                {
+                    manejador.Iniciar();
+
+                    PersonaNegocio personaNegocio = new PersonaNegocio(manejador.CrearAccesoDatos());
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
+
+                    personaNegocio.Modificar(usuario.Persona);
+                    usuarioNegocio.Modificar(usuario);
+
+                    manejador.Confirmar();
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
+            }
+        }
+
+        public void ModificarPerfilConPersona(Usuario usuario)
+        {
+            if (usuario == null || usuario.IdUsuario <= 0)
+            {
+                throw new Exception("El id de usuario no es valido.");
+            }
+
+            Usuario usuarioActual = ObtenerPorId(usuario.IdUsuario);
+            if (usuarioActual == null)
+            {
+                throw new Exception("El usuario no existe.");
+            }
+
+            if (usuario.Persona == null
+                || usuarioActual.Persona.IdPersona != usuario.Persona.IdPersona)
+            {
+                throw new Exception("La persona asociada al usuario no se puede cambiar.");
+            }
+
+            usuario.Rol = usuarioActual.Rol;
+            usuario.EstadoUsuario = usuarioActual.EstadoUsuario;
+            ValidarModificacion(usuario);
 
             using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {
@@ -307,6 +354,24 @@ namespace TurnosClinica.Negocio
             }
 
             ValidarRolAdministrativo(usuario);
+        }
+
+        private void ValidarEstadoParaIngreso(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                return;
+            }
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                throw new Exception("La cuenta se encuentra inactiva.");
+            }
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.Bloqueado))
+            {
+                throw new Exception("La cuenta se encuentra bloqueada.");
+            }
         }
 
         private void PrepararEstadoInicial(Usuario usuario)

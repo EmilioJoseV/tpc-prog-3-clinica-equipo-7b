@@ -93,20 +93,7 @@ namespace TurnosClinica.Negocio
                 throw new Exception("El usuario autenticado no es valido.");
             }
 
-            if (string.IsNullOrWhiteSpace(nuevaContrasena))
-            {
-                throw new Exception("Debe ingresar la nueva contrasena.");
-            }
-
-            if (nuevaContrasena.Trim().Length < 8)
-            {
-                throw new Exception("La nueva contrasena debe tener al menos 8 caracteres.");
-            }
-
-            if (!string.Equals(nuevaContrasena, confirmacionContrasena, StringComparison.Ordinal))
-            {
-                throw new Exception("La confirmacion de contrasena no coincide.");
-            }
+            seguridadService.ValidarNuevaContrasena(nuevaContrasena, confirmacionContrasena);
 
             using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
             {

@@ -192,17 +192,17 @@ namespace TurnosClinica.Web
         private void ConfigurarSegunEstado(Turno turno, bool esModoMedico)
         {
             Usuario usuario = ObtenerUsuarioActual();
-            bool esAdministrador = AutorizacionRutasService.EsAdministrador(usuario);
-            bool esRecepcionista = AutorizacionRutasService.EsRecepcionista(usuario);
+            bool puedeGestionarTurnos = AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista);
+            bool puedeGestionAdministrativaTurno = AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador);
             bool esFinal = turno.EstadoTurno != null && turno.EstadoTurno.EsFinal;
 
-            txtObservaciones.ReadOnly = esFinal || esModoMedico || esRecepcionista;
+            txtObservaciones.ReadOnly = esFinal || esModoMedico || !puedeGestionAdministrativaTurno;
             txtDiagnosticoMedico.ReadOnly = esFinal;
-            btnGuardar.Visible = !esFinal && (esModoMedico || esAdministrador);
-            btnReprogramar.Visible = !esFinal && !esModoMedico && (esAdministrador || esRecepcionista);
-            btnCancelarTurno.Visible = !esFinal && esAdministrador;
-            btnNoAsistio.Visible = !esFinal && (esModoMedico || esAdministrador);
-            btnCerrarTurno.Visible = !esFinal && (esModoMedico || esAdministrador);
+            btnGuardar.Visible = !esFinal && (esModoMedico || puedeGestionAdministrativaTurno);
+            btnReprogramar.Visible = !esFinal && !esModoMedico && puedeGestionarTurnos;
+            btnCancelarTurno.Visible = !esFinal && puedeGestionAdministrativaTurno;
+            btnNoAsistio.Visible = !esFinal && (esModoMedico || puedeGestionAdministrativaTurno);
+            btnCerrarTurno.Visible = !esFinal && (esModoMedico || puedeGestionAdministrativaTurno);
             btnVolver.Text = esModoMedico ? "Volver" : "Cancelar";
         }
 
@@ -290,6 +290,11 @@ namespace TurnosClinica.Web
 
         private bool EsModoMedico(Medico medicoActual)
         {
+            if (!AutorizacionRutasService.TieneRol(ObtenerUsuarioActual(), RolEnum.Medico))
+            {
+                return false;
+            }
+
             if (medicoActual == null)
             {
                 return false;
@@ -301,7 +306,8 @@ namespace TurnosClinica.Web
 
         private bool EsModoMedico(Turno turno, Medico medicoActual)
         {
-            return medicoActual != null
+            return AutorizacionRutasService.TieneRol(ObtenerUsuarioActual(), RolEnum.Medico)
+                && medicoActual != null
                 && turno != null
                 && turno.Medico != null
                 && turno.Medico.IdMedico == medicoActual.IdMedico;
@@ -309,7 +315,7 @@ namespace TurnosClinica.Web
 
         private void ValidarAccesoPantalla(Usuario usuario)
         {
-            if (AutorizacionRutasService.TieneAccesoOperativo(usuario))
+            if (AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico))
             {
                 return;
             }
@@ -319,7 +325,7 @@ namespace TurnosClinica.Web
 
         private void ExigirAdministrador(Usuario usuario)
         {
-            if (!AutorizacionRutasService.EsAdministrador(usuario))
+            if (!AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador))
             {
                 throw new Exception("No tiene permisos para ejecutar esta accion.");
             }
@@ -327,7 +333,7 @@ namespace TurnosClinica.Web
 
         private void ExigirRolAdministrativo(Usuario usuario)
         {
-            if (!AutorizacionRutasService.PuedeGestionarRecepcion(usuario))
+            if (!AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista))
             {
                 throw new Exception("No tiene permisos para ejecutar esta accion.");
             }

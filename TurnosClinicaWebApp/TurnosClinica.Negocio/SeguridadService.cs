@@ -1,3 +1,4 @@
+using System;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -5,6 +6,24 @@ namespace TurnosClinica.Negocio
 {
     public class SeguridadService
     {
+        public void ValidarNuevaContrasena(string nuevaContrasena, string confirmacionContrasena)
+        {
+            if (string.IsNullOrWhiteSpace(nuevaContrasena))
+            {
+                throw new Exception("Debe ingresar la nueva contrasena.");
+            }
+
+            if (nuevaContrasena.Trim().Length < 8)
+            {
+                throw new Exception("La nueva contrasena debe tener al menos 8 caracteres.");
+            }
+
+            if (!string.Equals(nuevaContrasena, confirmacionContrasena, StringComparison.Ordinal))
+            {
+                throw new Exception("La confirmacion de contrasena no coincide.");
+            }
+        }
+
         public string CalcularHash(string texto)
         {
             if (string.IsNullOrWhiteSpace(texto))

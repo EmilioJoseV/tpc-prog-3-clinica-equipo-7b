@@ -2,6 +2,7 @@ using System;
 using System.Web;
 using System.Web.UI;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 
 namespace TurnosClinica.Web
 {
@@ -10,7 +11,7 @@ namespace TurnosClinica.Web
         protected void Page_Load(object sender, EventArgs e)
         {
             string rutaActual = VirtualPathUtility.ToAppRelative(Request.AppRelativeCurrentExecutionFilePath);
-            Usuario usuario = AutorizacionRutasService.ObtenerUsuarioActual(Session);
+            Usuario usuario = Session["UsuarioActual"] as Usuario;
 
             if (!AutorizacionRutasService.UsuarioPuedeAccederRuta(usuario, rutaActual))
             {
@@ -52,7 +53,7 @@ namespace TurnosClinica.Web
         {
             bool usuarioAutenticado = AutorizacionRutasService.EstaAutenticado(usuario);
             bool puedeIrAlPanel = usuarioAutenticado
-                && AutorizacionRutasService.TieneAccesoOperativo(usuario)
+                && AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico)
                 && !AutorizacionRutasService.EstaCambioClavePendiente(usuario);
 
             LnkPanelPrincipal.Visible = puedeIrAlPanel;
@@ -142,7 +143,13 @@ namespace TurnosClinica.Web
             if (AutorizacionRutasService.EstaAutenticado(usuario))
             {
                 Session["ErrorAutorizacion"] = "No tiene permisos para acceder a esta pantalla.";
-                if (AutorizacionRutasService.TieneAccesoOperativo(usuario))
+
+                if (AutorizacionRutasService.EstaCambioClavePendiente(usuario))
+                {
+                    Session["ErrorAutorizacion"] = "Debe cambiar su contrasena para continuar.";
+                    destino = "~/CambiarContrasenaPendiente.aspx";
+                }
+                else if (AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico))
                 {
                     destino = "~/PanelPrincipal.aspx";
                 }

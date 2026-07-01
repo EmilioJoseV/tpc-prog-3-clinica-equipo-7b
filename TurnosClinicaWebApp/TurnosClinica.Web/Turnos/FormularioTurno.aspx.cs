@@ -414,7 +414,7 @@ namespace TurnosClinica.Web
 
         private void ValidarAcceso()
         {
-            if (!AutorizacionRutasService.PuedeGestionarRecepcion(ObtenerUsuarioActual()))
+            if (!AutorizacionRutasService.TieneRol(ObtenerUsuarioActual(), RolEnum.Administrador, RolEnum.Recepcionista))
             {
                 throw new Exception("No tiene permisos para gestionar turnos.");
             }
@@ -423,7 +423,7 @@ namespace TurnosClinica.Web
         private void ExigirRolAdministrativo()
         {
             Usuario usuario = ObtenerUsuarioActual();
-            if (!AutorizacionRutasService.PuedeGestionarRecepcion(usuario))
+            if (!AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista))
             {
                 throw new Exception("No tiene permisos para reprogramar turnos.");
             }

@@ -48,3 +48,5 @@ Notas:
 - Toda persona registrada puede tener un perfil de paciente, medico o usuario.
 - Al registrar un paciente o un medico se crea tambien un usuario pendiente asociado a la misma persona.
 - El usuario puede completar sus datos de accoeso posteriormente al momento de querer registrarse.
+- Para ejecutar todos los scripts TSQL en SQL Server ejecutar el comando en Powershell parado en la raiz del proyecto: 
+	- 'sqlcmd -S . -E -i "Recursos\Base de datos\SCRIPTS_BD.sql"'
