@@ -22,7 +22,7 @@
             </div>
             <div class="col-12 col-md-6">
                 <label class="form-label">Nombre</label>
-                <asp:TextBox ID="TxtNombre" runat="server" CssClass="form-control" placeholder="Ej: María" required="required" />
+                <asp:TextBox ID="TxtNombre" runat="server" CssClass="form-control" placeholder="Ej: Pedro" required="required" />
             </div>
             <div class="col-12 col-md-6">
                 <label class="form-label">Apellido</label>
@@ -51,7 +51,8 @@
 
         <div class="mt-4">
             <asp:Button ID="BtnGuardar" runat="server" CssClass="btn btn-primary" Text="Guardar" OnClick="BtnGuardar_Click" />
-            <asp:Button ID="BtnCancelar" runat="server" CssClass="btn btn-outline-primary" Text="Cancelar" OnClick="BtnCancelar_Click" />
+            <asp:Button ID="BtnCancelar" runat="server" CssClass="btn btn-outline-primary" Text="Cancelar"
+                OnClick="BtnCancelar_Click" CausesValidation="false" UseSubmitBehavior="false" />
         </div>
     </div>
 </asp:Content>

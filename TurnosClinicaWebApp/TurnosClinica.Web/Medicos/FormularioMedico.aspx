@@ -135,6 +135,7 @@
 
     <div class="mt-4">
         <asp:Button ID="BtnGuardar" runat="server" CssClass="btn btn-primary" Text="Guardar" OnClick="BtnGuardar_Click" />
-        <asp:Button ID="BtnCancelar" runat="server" CssClass="btn btn-outline-primary" Text="Cancelar" OnClick="BtnCancelar_Click" />
+        <asp:Button ID="BtnCancelar" runat="server" CssClass="btn btn-outline-primary" Text="Cancelar"
+            OnClick="BtnCancelar_Click" CausesValidation="false" UseSubmitBehavior="false" />
     </div>
 </asp:Content>
