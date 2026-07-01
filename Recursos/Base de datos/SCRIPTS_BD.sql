@@ -554,18 +554,27 @@ VALUES
 ((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50200006'), 'dr.brown', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2), -- Medico123
 ((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50200007'), 'dra.lisa', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2), -- Medico123
 ((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50200008'), 'dra.grey', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2), -- Medico123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50100001'), 'clark.kent', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- Paciente123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50100002'), 'will.smith', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- Paciente123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50100003'), 'john.doe', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- Paciente123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50100004'), 'satoshi.nakamoto', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- Paciente123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50100005'), 'bill.gates', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- Paciente123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50100006'), 'marco.solis', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- Paciente123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50100013'), 'pepe.argento', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 2), -- Paciente123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50300004'), 'pancho.pendiente', NULL, NULL, 4, 1),
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50300005'), 'berta.clave', '1d11d88472cc3a3b6e3f3df865f0ca13716e1c0d4552a1f4d8c9bc429fa2ceca', NULL, 4, 5), -- Paciente123
 ((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50300006'), 'beto.bloqueado', '0c01954c0f4f6bbda12d86eaecbd6a524225a0cad0fac52e6aaf4c237f7f9cbe', NULL, 2, 3), -- Recep123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50300007'), 'lola.inactiva', '3b612c75a7b5048a435fb6ec81e52ff92d6d795a8b5a9c17070f6a63c97a53b2', NULL, 1, 4), -- Admin123
-((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50300008'), 'fermin.sinmatricula', '4537a9fc80c4e8dfc60b7f4728fa77d654fa730ded77f2d201091a3418a27b93', NULL, 3, 2); -- Medico123
+((SELECT IdPersona FROM dbo.Personas WHERE DNI = '50300007'), 'lola.inactiva', '3b612c75a7b5048a435fb6ec81e52ff92d6d795a8b5a9c17070f6a63c97a53b2', NULL, 1, 4); -- Admin123
+GO
+
+INSERT INTO dbo.Usuarios
+(
+    IdPersona,
+    NombreUsuario,
+    PasswordHash,
+    Imagen,
+    IdRol,
+    IdEstadoUsuario
+)
+SELECT
+    P.IdPersona,
+    NULL,
+    NULL,
+    NULL,
+    (SELECT IdRol FROM dbo.Roles WHERE Nombre = 'Paciente'),
+    (SELECT IdEstadoUsuario FROM dbo.EstadosUsuario WHERE Nombre = 'Pendiente')
+FROM dbo.Pacientes P;
 GO
 
 DECLARE @AyerTurno DATE = DATEADD(DAY, -1, CAST(GETDATE() AS DATE));
