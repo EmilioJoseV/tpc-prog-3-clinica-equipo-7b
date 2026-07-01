@@ -32,8 +32,8 @@ namespace TurnosClinica.Web
 
             if (string.IsNullOrEmpty(filtro) || filtro.Length < 2)
             {
-                LstCorreosSugeridos.Visible = false;
-                PnlCuadroInfoUsuario.Visible = false;
+                DgvUsuarios.Visible = false;
+                PnlFormularioClave.Visible = false;
                 return;
             }
 
@@ -49,19 +49,14 @@ namespace TurnosClinica.Web
 
                 if (usuariosFiltrados.Count > 0)
                 {
-                    LstCorreosSugeridos.Items.Clear();
-                    foreach (var usu in usuariosFiltrados)
-                    {
-                        string datosConcatenados = $"{usu.Persona.Nombre}|{usu.Persona.Apellido}|{usu.Rol.Nombre}|{usu.EstadoUsuario.Nombre}";
-                        ListItem item = new ListItem(usu.Persona.Email, datosConcatenados);
-                        LstCorreosSugeridos.Items.Add(item);
-                    }
-                    LstCorreosSugeridos.Visible = true;
+                    DgvUsuarios.DataSource = usuariosFiltrados;
+                    DgvUsuarios.DataBind();
+                    DgvUsuarios.Visible = true;
                 }
                 else
                 {
-                    LstCorreosSugeridos.Visible = false;
-                    PnlCuadroInfoUsuario.Visible = false;
+                    DgvUsuarios.Visible = false;
+                    PnlFormularioClave.Visible = false;
                     MostrarError("No se encontraron correos que coincidan.");
                 }
             }
@@ -70,33 +65,52 @@ namespace TurnosClinica.Web
                 MostrarError("Error al filtrar los usuarios: " + ex.Message);
             }
         }
-        protected void LstCorreosSugeridos_SelectedIndexChanged(object sender, EventArgs e)
+        protected void DgvUsuarios_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (LstCorreosSugeridos.SelectedItem == null) return;
-
-            string emailSeleccionado = LstCorreosSugeridos.SelectedItem.Text;
-            string datosConcatenados = LstCorreosSugeridos.SelectedItem.Value;
-
-            TxtEmail.Text = emailSeleccionado;
-            LstCorreosSugeridos.Visible = false;
-
-            string[] partes = datosConcatenados.Split('|');
-            if (partes.Length == 4)
+            if (e.CommandName == "Seleccionar")
             {
-                LblInfoNombreCompleto.Text = partes[1] + ", " + partes[0];
-                LblInfoCorreo.Text = emailSeleccionado;
-                LblInfoRol.Text = partes[2];
-                LblInfoEstado.Text = partes[3];
+                PnlMensaje.Visible = false;
 
-                if (partes[3].Equals(EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
-                    LblInfoEstado.CssClass = "badge bg-success";
-                else if (partes[3].Equals(EstadoUsuarioEnum.CambioClavePendiente.ToString(), StringComparison.OrdinalIgnoreCase))
-                    LblInfoEstado.CssClass = "badge bg-warning text-dark";
-                else
-                    LblInfoEstado.CssClass = "badge bg-danger";
+                string argumento = e.CommandArgument.ToString();
+                string[] partes = argumento.Split('|');
 
-                PnlCuadroInfoUsuario.Visible = true;
+                if (partes.Length == 2)
+                {
+                    string emailSeleccionado = partes[0];
+                    string estadoSeleccionado = partes[1];
+
+                    if (estadoSeleccionado.Equals(EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        PnlFormularioClave.Visible = false;
+
+                        MostrarError($"El usuario con el correo {emailSeleccionado} ya se encuentra dado de alta en el sistema y operativo.");
+                        return;
+                    }
+
+                    TxtEmail.Text = emailSeleccionado;
+                    LblUsuarioSeleccionado.Text = emailSeleccionado;
+
+                    DgvUsuarios.Visible = false;
+                    PnlFormularioClave.Visible = true;
+                }
             }
+        }
+        protected string ObtenerClaseEstado(object estado)
+        {
+            if (estado == null) return "badge bg-secondary";
+
+            string nombreEstado = estado.ToString().ToLower();
+            if (nombreEstado == "activo") return "badge bg-success";
+            if (nombreEstado == "cambioclavependiente") return "badge bg-warning text-dark";
+
+            return "badge bg-danger";
+        }
+        protected void BtnLimpiar_Click(object sender, EventArgs e)
+        {
+            TxtEmail.Text = string.Empty;
+            DgvUsuarios.Visible = false;
+            PnlFormularioClave.Visible = false;
+            PnlMensaje.Visible = false;
         }
 
         protected void BtnActivar_Click(object sender, EventArgs e)

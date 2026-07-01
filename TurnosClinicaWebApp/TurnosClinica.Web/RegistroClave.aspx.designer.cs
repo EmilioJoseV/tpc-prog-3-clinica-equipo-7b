@@ -51,58 +51,40 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.TextBox TxtEmail;
 
         /// <summary>
-        /// LstCorreosSugeridos control.
+        /// BtnLimpiar control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.ListBox LstCorreosSugeridos;
+        protected global::System.Web.UI.WebControls.Button BtnLimpiar;
 
         /// <summary>
-        /// PnlCuadroInfoUsuario control.
+        /// DgvUsuarios control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel PnlCuadroInfoUsuario;
+        protected global::System.Web.UI.WebControls.GridView DgvUsuarios;
 
         /// <summary>
-        /// LblInfoNombreCompleto control.
+        /// PnlFormularioClave control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblInfoNombreCompleto;
+        protected global::System.Web.UI.WebControls.Panel PnlFormularioClave;
 
         /// <summary>
-        /// LblInfoRol control.
+        /// LblUsuarioSeleccionado control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblInfoRol;
-
-        /// <summary>
-        /// LblInfoCorreo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblInfoCorreo;
-
-        /// <summary>
-        /// LblInfoEstado control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblInfoEstado;
+        protected global::System.Web.UI.WebControls.Label LblUsuarioSeleccionado;
 
         /// <summary>
         /// LblClave control.
