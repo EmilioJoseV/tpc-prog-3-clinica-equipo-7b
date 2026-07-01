@@ -51,22 +51,22 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.TextBox TxtEmail;
 
         /// <summary>
-        /// BtnLimpiar control.
+        /// BtnContinuar control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button BtnLimpiar;
+        protected global::System.Web.UI.WebControls.Button BtnContinuar;
 
         /// <summary>
-        /// DgvUsuarios control.
+        /// BtnCancelarEmail control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView DgvUsuarios;
+        protected global::System.Web.UI.WebControls.Button BtnCancelarEmail;
 
         /// <summary>
         /// PnlFormularioClave control.

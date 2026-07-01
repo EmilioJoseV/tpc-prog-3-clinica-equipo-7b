@@ -1,213 +1,152 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Web.UI;
-using System.Web.UI.WebControls;
-using TurnosClinica.AccesoDatos;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
 {
-    public partial class RegistroClave : System.Web.UI.Page
+    public partial class RegistroClave : Page
     {
-        private UsuarioDatos usuarioDatos;
-        private AccesoDatosBase conexionBase;
-
-        protected void Page_Init(object sender, EventArgs e)
-        {
-            conexionBase = new AccesoDatosBase();
-            usuarioDatos = new UsuarioDatos(conexionBase);
-        }
+        private readonly UsuarioNegocio usuarioNegocio = new UsuarioNegocio();
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            
         }
 
-        protected void TxtEmail_TextChanged(object sender, EventArgs e)
+        protected void BtnContinuar_Click(object sender, EventArgs e)
         {
-            PnlMensaje.Visible = false;
-            string filtro = TxtEmail.Text.Trim();
-
-            if (string.IsNullOrEmpty(filtro) || filtro.Length < 2)
-            {
-                DgvUsuarios.Visible = false;
-                PnlFormularioClave.Visible = false;
-                return;
-            }
-
-            try
-            {
-                List<Usuario> todosLosUsuarios = usuarioDatos.Listar();
-
-                var usuariosFiltrados = todosLosUsuarios
-                    .Where(u => u.Persona != null &&
-                                !string.IsNullOrEmpty(u.Persona.Email) &&
-                                u.Persona.Email.ToLower().Contains(filtro.ToLower()))
-                    .ToList();
-
-                if (usuariosFiltrados.Count > 0)
-                {
-                    DgvUsuarios.DataSource = usuariosFiltrados;
-                    DgvUsuarios.DataBind();
-                    DgvUsuarios.Visible = true;
-                }
-                else
-                {
-                    DgvUsuarios.Visible = false;
-                    PnlFormularioClave.Visible = false;
-                    MostrarError("No se encontraron correos que coincidan.");
-                }
-            }
-            catch (Exception ex)
-            {
-                MostrarError("Error al filtrar los usuarios: " + ex.Message);
-            }
-        }
-        protected void DgvUsuarios_RowCommand(object sender, GridViewCommandEventArgs e)
-        {
-            if (e.CommandName == "Seleccionar")
-            {
-                PnlMensaje.Visible = false;
-
-                string argumento = e.CommandArgument.ToString();
-                string[] partes = argumento.Split('|');
-
-                if (partes.Length == 2)
-                {
-                    string emailSeleccionado = partes[0];
-                    string estadoSeleccionado = partes[1];
-
-                    if (estadoSeleccionado.Equals(EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
-                    {
-                        PnlFormularioClave.Visible = false;
-
-                        MostrarError($"El usuario con el correo {emailSeleccionado} ya se encuentra dado de alta en el sistema y operativo.");
-                        return;
-                    }
-
-                    TxtEmail.Text = emailSeleccionado;
-                    LblUsuarioSeleccionado.Text = emailSeleccionado;
-
-                    DgvUsuarios.Visible = false;
-                    PnlFormularioClave.Visible = true;
-                }
-            }
-        }
-        protected string ObtenerClaseEstado(object estado)
-        {
-            if (estado == null) return "badge bg-secondary";
-
-            string nombreEstado = estado.ToString().ToLower();
-            if (nombreEstado == "activo") return "badge bg-success";
-            if (nombreEstado == "cambioclavependiente") return "badge bg-warning text-dark";
-
-            return "badge bg-danger";
-        }
-        protected void BtnLimpiar_Click(object sender, EventArgs e)
-        {
-            TxtEmail.Text = string.Empty;
-            DgvUsuarios.Visible = false;
-            PnlFormularioClave.Visible = false;
-            PnlMensaje.Visible = false;
+            ValidarEmailPendiente();
         }
 
         protected void BtnActivar_Click(object sender, EventArgs e)
         {
             PnlMensaje.Visible = false;
 
-            string emailIngresado = TxtEmail.Text.Trim();
-            string nombreUsuario = TxtNombreUsuario.Text.Trim();
-            string clave = TxtClave.Text;
-            string claveConfirmar = TxtClaveConfirmar.Text;
-
-            if (string.IsNullOrWhiteSpace(emailIngresado))
-            {
-                MostrarError("Por favor, completá el email.");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(nombreUsuario))
-            {
-                MostrarError("Por favor, ingresá un Nombre de Usuario para tu cuenta.");
-                return;
-            }
-
-            if (nombreUsuario.Length < 4)
-            {
-                MostrarError("El Nombre de Usuario debe tener al menos 4 caracteres.");
-                return;
-            }
-
             try
             {
-                SeguridadService seguridadService = new SeguridadService();
-
-                seguridadService.ValidarNuevaContrasena(clave, claveConfirmar);
-
-                Usuario usuario = usuarioDatos.ObtenerPorEmail(emailIngresado);
-
-                int idExcluir = usuario != null ? usuario.IdUsuario : 0;
-                if (usuarioDatos.ExisteNombreUsuario(nombreUsuario, idExcluir))
-                {
-                    MostrarError($"El nombre de usuario '{nombreUsuario}' ya se encuentra en uso. Por favor, elegí otro.");
-                    return;
-                }
-
-                string hashEncriptado = seguridadService.CalcularHash(clave.Trim());
-
-                if (usuario == null)
-                {
-                    PersonaDatos personaDatos = new PersonaDatos(conexionBase);
-                    Persona persona = personaDatos.ObtenerPorEmail(emailIngresado);
-
-                    if (persona == null)
-                    {
-                        MostrarError("El correo ingresado no corresponde a ninguna persona registrada en el sistema.");
-                        return;
-                    }
-
-                    usuario = new Usuario
-                    {
-                        Persona = persona,
-                        NombreUsuario = nombreUsuario,
-                        PasswordHash = hashEncriptado,
-                        EstadoUsuario = new EstadoUsuario { Nombre = EstadoUsuarioEnum.Activo.ToString() },
-                        Rol = new Rol { Nombre = RolEnum.Recepcionista.ToString() }
-                    };
-
-                    usuarioDatos.Agregar(usuario);
-
-                    usuario = usuarioDatos.ObtenerPorEmail(emailIngresado);
-                }
-                else
-                {
-                    usuario.NombreUsuario = nombreUsuario;
-                    usuario.PasswordHash = hashEncriptado;
-                    usuario.EstadoUsuario = new EstadoUsuario
-                    {
-                        Nombre = EstadoUsuarioEnum.Activo.ToString()
-                    };
-
-                    usuarioDatos.Modificar(usuario);
-                }
+                Usuario usuario = usuarioNegocio.RegistrarCredencialesPendientes(
+                    TxtEmail.Text,
+                    TxtNombreUsuario.Text,
+                    TxtClave.Text,
+                    TxtClaveConfirmar.Text);
 
                 Session["UsuarioActual"] = usuario;
-
                 Response.Redirect("~/PanelPrincipal.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
-                MostrarError("Ocurrió un error al procesar el registro: " + ex.Message);
+                MostrarError("Ocurrio un error al procesar el registro: " + ex.Message);
             }
         }
 
         protected void BtnVolver_Click(object sender, EventArgs e)
         {
             Response.Redirect("Ingresar.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
+
+        protected string ObtenerClaseEstado(object estado)
+        {
+            if (estado == null)
+            {
+                return "badge bg-secondary";
+            }
+
+            string nombreEstado = estado.ToString();
+            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Activo.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-success";
+            }
+
+            if (string.Equals(nombreEstado, EstadoUsuarioEnum.Pendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-warning text-dark";
+            }
+
+            if (string.Equals(nombreEstado, EstadoUsuarioEnum.CambioClavePendiente.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "badge bg-info text-dark";
+            }
+
+            return "badge bg-danger";
+        }
+
+        private void ValidarEmailPendiente()
+        {
+            PnlMensaje.Visible = false;
+            PnlFormularioClave.Visible = false;
+
+            string email = TxtEmail.Text.Trim();
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return;
+            }
+
+            try
+            {
+                Usuario usuario = usuarioNegocio.ObtenerPorEmail(email);
+                if (usuario == null)
+                {
+                    MostrarError("No existe un usuario registrado con ese correo.");
+                    return;
+                }
+
+                if (!EsEstado(usuario, EstadoUsuarioEnum.Pendiente))
+                {
+                    MostrarError(ObtenerMensajeEstadoNoPendiente(usuario, email));
+                    return;
+                }
+
+                TxtEmail.Text = usuario.Persona.Email;
+                LblUsuarioSeleccionado.Text = usuario.Persona.Email;
+                TxtNombreUsuario.Text = string.Empty;
+                TxtClave.Text = string.Empty;
+                TxtClaveConfirmar.Text = string.Empty;
+                PnlFormularioClave.Visible = true;
+            }
+            catch (Exception ex)
+            {
+                MostrarError("Error al validar el correo: " + ex.Message);
+            }
+        }
+
+        private bool EsEstado(Usuario usuario, EstadoUsuarioEnum estado)
+        {
+            return usuario != null
+                && usuario.EstadoUsuario != null
+                && string.Equals(
+                    usuario.EstadoUsuario.Nombre,
+                    estado.ToString(),
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        private string ObtenerMensajeEstadoNoPendiente(Usuario usuario, string email)
+        {
+            if (EsEstado(usuario, EstadoUsuarioEnum.Activo))
+            {
+                return "El usuario con el correo " + email + " ya se encuentra activo.";
+            }
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                return "El usuario con el correo " + email + " se encuentra inactivo.";
+            }
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.Bloqueado))
+            {
+                return "El usuario con el correo " + email + " se encuentra bloqueado.";
+            }
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.CambioClavePendiente))
+            {
+                return "El usuario con el correo " + email + " debe cambiar su contrasena desde el ingreso.";
+            }
+
+            return "La cuenta no esta pendiente de registro.";
+        }
+
         private void MostrarError(string mensaje)
         {
             PnlMensaje.Visible = true;
