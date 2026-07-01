@@ -86,7 +86,7 @@ namespace TurnosClinica.Web
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
             LimpiarImagenTemporal();
-            Response.Redirect("ListaUsuarios.aspx", false);
+            Response.Redirect("PanelPrincipal.aspx", false);
             Context.ApplicationInstance.CompleteRequest();
         }
         protected void btnPrevisualizar_Click(object sender, EventArgs e)
