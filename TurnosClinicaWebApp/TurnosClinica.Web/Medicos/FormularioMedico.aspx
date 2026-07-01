@@ -17,7 +17,7 @@
         </div>
         <div class="col-12 col-md-4">
             <asp:Label ID="LblDni" runat="server" Text="DNI" CssClass="form-label" />
-            <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" placeholder="Sin puntos (Ej: 30123456)" required="required" />
+            <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" TextMode="Number" placeholder="Sin puntos (Ej: 30123456)" required="required" min="1" step="1" />
         </div>
         <div class="col-12 col-md-4">
             <asp:Label ID="LblTelefono" runat="server" Text="Telefono" CssClass="form-label" />
@@ -45,7 +45,13 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="h5 mb-3">Especialidades</h2>
-                    <asp:CheckBoxList ID="CblEspecialidades" runat="server" RepeatDirection="Horizontal" RepeatLayout="Flow" />
+                    <div class="table-responsive">
+                        <asp:CheckBoxList ID="CblEspecialidades" runat="server"
+                            CssClass="table table-sm table-borderless align-middle mb-0"
+                            RepeatColumns="3"
+                            RepeatDirection="Horizontal"
+                            RepeatLayout="Table" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -129,6 +135,7 @@
 
     <div class="mt-4">
         <asp:Button ID="BtnGuardar" runat="server" CssClass="btn btn-primary" Text="Guardar" OnClick="BtnGuardar_Click" />
-        <asp:Button ID="BtnCancelar" runat="server" CssClass="btn btn-outline-primary" Text="Cancelar" OnClick="BtnCancelar_Click" />
+        <asp:Button ID="BtnCancelar" runat="server" CssClass="btn btn-outline-primary" Text="Cancelar"
+            OnClick="BtnCancelar_Click" CausesValidation="false" UseSubmitBehavior="false" />
     </div>
 </asp:Content>

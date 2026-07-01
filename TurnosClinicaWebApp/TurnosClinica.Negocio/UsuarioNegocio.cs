@@ -78,6 +78,67 @@ namespace TurnosClinica.Negocio
             return usuario;
         }
 
+        public Usuario RegistrarCredencialesPendientes(
+            string email,
+            string nombreUsuario,
+            string nuevaContrasena,
+            string confirmacionContrasena)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new Exception("Debe ingresar un email.");
+            }
+
+            if (string.IsNullOrWhiteSpace(nombreUsuario))
+            {
+                throw new Exception("Debe ingresar un nombre de usuario.");
+            }
+
+            if (nombreUsuario.Trim().Length < 4)
+            {
+                throw new Exception("El nombre de usuario debe tener al menos 4 caracteres.");
+            }
+
+            SeguridadService seguridadService = new SeguridadService();
+            seguridadService.ValidarNuevaContrasena(nuevaContrasena, confirmacionContrasena);
+
+            using (ManejadorTransaccionNegocio manejador = new ManejadorTransaccionNegocio())
+            {
+                try
+                {
+                    manejador.Iniciar();
+
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio(manejador.CrearAccesoDatos());
+                    Usuario usuario = usuarioNegocio.ObtenerPorEmail(email.Trim());
+                    if (usuario == null)
+                    {
+                        throw new Exception("No existe un usuario registrado con ese correo.");
+                    }
+
+                    if (!EsEstado(usuario, EstadoUsuarioEnum.Pendiente))
+                    {
+                        throw new Exception("La cuenta no esta pendiente de registro.");
+                    }
+
+                    usuario.NombreUsuario = nombreUsuario.Trim();
+                    usuario.PasswordHash = seguridadService.CalcularHash(nuevaContrasena.Trim());
+                    usuario.EstadoUsuario = new EstadoUsuario
+                    {
+                        Nombre = EstadoUsuarioEnum.Activo.ToString()
+                    };
+
+                    usuarioNegocio.Modificar(usuario);
+                    manejador.Confirmar();
+                    return usuarioNegocio.ObtenerPorId(usuario.IdUsuario);
+                }
+                catch
+                {
+                    manejador.Cancelar();
+                    throw;
+                }
+            }
+        }
+
         public void Agregar(Usuario usuario)
         {
             PrepararEstadoInicial(usuario);
