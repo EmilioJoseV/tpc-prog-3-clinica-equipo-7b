@@ -58,7 +58,7 @@
                         <ItemTemplate>
                             <span class='<%# ObtenerClaseEstado(Eval("EstadoUsuario.Nombre")) %>'>
                                 <%#: Eval("EstadoUsuario.Nombre") %>
-                        </span>
+                            </span>
                         </ItemTemplate>
                     </asp:TemplateField>
 
@@ -81,6 +81,11 @@
                     <small>
                         <asp:Label ID="LblUsuarioSeleccionado" runat="server" CssClass="text-dark fs-6" /></small>
                 </h5>
+
+                <div class="mb-3">
+                    <asp:Label ID="LblNombreUsuario" runat="server" Text="Nombre de Usuario (Login)" CssClass="form-label" Style="font-weight: bold;" />
+                    <asp:TextBox ID="TxtNombreUsuario" runat="server" CssClass="form-control" placeholder="Ej: mauricio.almada" />
+                </div>
 
                 <div class="mb-3">
                     <asp:Label ID="LblClave" runat="server" Text="Nueva Contraseña" CssClass="form-label" />

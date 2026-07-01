@@ -87,6 +87,24 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.Label LblUsuarioSeleccionado;
 
         /// <summary>
+        /// LblNombreUsuario control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label LblNombreUsuario;
+
+        /// <summary>
+        /// TxtNombreUsuario control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox TxtNombreUsuario;
+
+        /// <summary>
         /// LblClave control.
         /// </summary>
         /// <remarks>
