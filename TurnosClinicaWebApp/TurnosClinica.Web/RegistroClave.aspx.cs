@@ -119,6 +119,7 @@ namespace TurnosClinica.Web
             PnlMensaje.Visible = false;
 
             string emailIngresado = TxtEmail.Text.Trim();
+            string nombreUsuario = TxtNombreUsuario.Text.Trim();
             string clave = TxtClave.Text;
             string claveConfirmar = TxtClaveConfirmar.Text;
 
@@ -128,27 +129,70 @@ namespace TurnosClinica.Web
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(nombreUsuario))
+            {
+                MostrarError("Por favor, ingresá un Nombre de Usuario para tu cuenta.");
+                return;
+            }
+
+            if (nombreUsuario.Length < 4)
+            {
+                MostrarError("El Nombre de Usuario debe tener al menos 4 caracteres.");
+                return;
+            }
+
             try
             {
                 SeguridadService seguridadService = new SeguridadService();
+
                 seguridadService.ValidarNuevaContrasena(clave, claveConfirmar);
 
                 Usuario usuario = usuarioDatos.ObtenerPorEmail(emailIngresado);
 
-                if (usuario == null)
+                int idExcluir = usuario != null ? usuario.IdUsuario : 0;
+                if (usuarioDatos.ExisteNombreUsuario(nombreUsuario, idExcluir))
                 {
-                    MostrarError("El correo ingresado no corresponde a ningún usuario del sistema.");
+                    MostrarError($"El nombre de usuario '{nombreUsuario}' ya se encuentra en uso. Por favor, elegí otro.");
                     return;
                 }
 
-                usuario.PasswordHash = seguridadService.CalcularHash(clave.Trim());
+                string hashEncriptado = seguridadService.CalcularHash(clave.Trim());
 
-                usuario.EstadoUsuario = new EstadoUsuario
+                if (usuario == null)
                 {
-                    Nombre = EstadoUsuarioEnum.Activo.ToString()
-                };
+                    PersonaDatos personaDatos = new PersonaDatos(conexionBase);
+                    Persona persona = personaDatos.ObtenerPorEmail(emailIngresado);
 
-                usuarioDatos.Modificar(usuario);
+                    if (persona == null)
+                    {
+                        MostrarError("El correo ingresado no corresponde a ninguna persona registrada en el sistema.");
+                        return;
+                    }
+
+                    usuario = new Usuario
+                    {
+                        Persona = persona,
+                        NombreUsuario = nombreUsuario,
+                        PasswordHash = hashEncriptado,
+                        EstadoUsuario = new EstadoUsuario { Nombre = EstadoUsuarioEnum.Activo.ToString() },
+                        Rol = new Rol { Nombre = RolEnum.Recepcionista.ToString() }
+                    };
+
+                    usuarioDatos.Agregar(usuario);
+
+                    usuario = usuarioDatos.ObtenerPorEmail(emailIngresado);
+                }
+                else
+                {
+                    usuario.NombreUsuario = nombreUsuario;
+                    usuario.PasswordHash = hashEncriptado;
+                    usuario.EstadoUsuario = new EstadoUsuario
+                    {
+                        Nombre = EstadoUsuarioEnum.Activo.ToString()
+                    };
+
+                    usuarioDatos.Modificar(usuario);
+                }
 
                 Session["UsuarioActual"] = usuario;
 
@@ -156,7 +200,7 @@ namespace TurnosClinica.Web
             }
             catch (Exception ex)
             {
-                MostrarError("Ocurrió un error al activar la cuenta: " + ex.Message);
+                MostrarError("Ocurrió un error al procesar el registro: " + ex.Message);
             }
         }
 
