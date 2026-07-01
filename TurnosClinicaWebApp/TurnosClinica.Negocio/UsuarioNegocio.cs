@@ -73,7 +73,9 @@ namespace TurnosClinica.Negocio
             }
 
             string passwordHash = new SeguridadService().CalcularHash(password);
-            return usuarioDatos.ValidarCredenciales(nombreUsuario.Trim(), passwordHash);
+            Usuario usuario = usuarioDatos.ValidarCredenciales(nombreUsuario.Trim(), passwordHash);
+            ValidarEstadoParaIngreso(usuario);
+            return usuario;
         }
 
         public void Agregar(Usuario usuario)
@@ -352,6 +354,24 @@ namespace TurnosClinica.Negocio
             }
 
             ValidarRolAdministrativo(usuario);
+        }
+
+        private void ValidarEstadoParaIngreso(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                return;
+            }
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.Inactivo))
+            {
+                throw new Exception("La cuenta se encuentra inactiva.");
+            }
+
+            if (EsEstado(usuario, EstadoUsuarioEnum.Bloqueado))
+            {
+                throw new Exception("La cuenta se encuentra bloqueada.");
+            }
         }
 
         private void PrepararEstadoInicial(Usuario usuario)

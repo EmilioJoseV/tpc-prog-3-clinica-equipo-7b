@@ -182,13 +182,9 @@ namespace TurnosClinica.AccesoDatos
                 accesoDatos.setearConsulta(
                     ObtenerConsultaBase()
                     + " WHERE UPPER(U.NombreUsuario) = UPPER(@nombreUsuario)"
-                    + " AND U.PasswordHash = @password"
-                    + " AND (UPPER(EU.Nombre) = UPPER(@estadoActivo)"
-                    + " OR UPPER(EU.Nombre) = UPPER(@estadoCambioClavePendiente))");
+                    + " AND U.PasswordHash = @password");
                 accesoDatos.setearParametro("@nombreUsuario", nombreUsuario);
                 accesoDatos.setearParametro("@password", password);
-                accesoDatos.setearParametro("@estadoActivo", EstadoUsuarioEnum.Activo.ToString());
-                accesoDatos.setearParametro("@estadoCambioClavePendiente", EstadoUsuarioEnum.CambioClavePendiente.ToString());
                 accesoDatos.ejecutarLectura();
 
                 if (accesoDatos.Lector.Read())
