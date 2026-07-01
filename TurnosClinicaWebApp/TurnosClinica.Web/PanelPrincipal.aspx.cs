@@ -7,6 +7,19 @@ namespace TurnosClinica.Web
 {
     public partial class PanelPrincipal : Page
     {
+        private const string RutaPacientesFormulario = "~/Pacientes/FormularioPaciente.aspx";
+        private const string RutaPacientesLista = "~/Pacientes/ListaPacientes.aspx";
+        private const string RutaMedicosFormulario = "~/Medicos/FormularioMedico.aspx";
+        private const string RutaMedicosLista = "~/Medicos/ListaMedicos.aspx";
+        private const string RutaEspecialidadesFormulario = "~/Especialidades/FormularioEspecialidad.aspx";
+        private const string RutaEspecialidadesLista = "~/Especialidades/ListaEspecialidades.aspx";
+        private const string RutaUsuariosFormulario = "~/Usuarios/FormularioUsuario.aspx";
+        private const string RutaUsuariosLista = "~/Usuarios/ListaUsuarios.aspx";
+        private const string RutaConfiguracionTurnos = "~/Turnos/ConfiguracionTurnos.aspx";
+        private const string RutaTurnosFormulario = "~/Turnos/FormularioTurno.aspx";
+        private const string RutaTurnosLista = "~/Turnos/ListaTurnos.aspx";
+        private const string RutaMisTurnos = "~/Turnos/MisTurnos.aspx";
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!(Session["UsuarioActual"] is Usuario usuario) || usuario.IdUsuario <= 0)
@@ -26,75 +39,89 @@ namespace TurnosClinica.Web
 
         protected void LnkAltaPaciente_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Pacientes/FormularioPaciente.aspx", RolEnum.Administrador, RolEnum.Recepcionista);
+            AbrirPagina(RutaPacientesFormulario);
         }
 
         protected void LnkListaPacientes_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Pacientes/ListaPacientes.aspx", RolEnum.Administrador, RolEnum.Recepcionista);
+            AbrirPagina(RutaPacientesLista);
         }
 
         protected void LnkAltaMedico_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Medicos/FormularioMedico.aspx", RolEnum.Administrador, RolEnum.Recepcionista);
+            AbrirPagina(RutaMedicosFormulario);
+        }
+
+        protected void LnkListaMedicos_Click(object sender, EventArgs e)
+        {
+            AbrirPagina(RutaMedicosLista);
         }
 
         protected void LnkAltaEspecialidad_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Especialidades/FormularioEspecialidad.aspx", RolEnum.Administrador);
+            AbrirPagina(RutaEspecialidadesFormulario);
         }
 
         protected void LnkListaEspecialidades_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Especialidades/ListaEspecialidades.aspx", RolEnum.Administrador);
+            AbrirPagina(RutaEspecialidadesLista);
         }
 
         protected void LnkAltaUsuario_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Usuarios/FormularioUsuario.aspx", RolEnum.Administrador);
+            AbrirPagina(RutaUsuariosFormulario);
         }
 
         protected void LnkListaUsuarios_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Usuarios/ListaUsuarios.aspx", RolEnum.Administrador);
+            AbrirPagina(RutaUsuariosLista);
         }
 
         protected void LnkConfiguracionTurnos_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Turnos/ConfiguracionTurnos.aspx", RolEnum.Administrador);
+            AbrirPagina(RutaConfiguracionTurnos);
         }
 
         protected void LnkAltaTurno_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Turnos/FormularioTurno.aspx", RolEnum.Administrador, RolEnum.Recepcionista);
+            AbrirPagina(RutaTurnosFormulario);
         }
 
         protected void LnkMisTurnos_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Turnos/MisTurnos.aspx", RolEnum.Medico);
+            AbrirPagina(RutaMisTurnos);
         }
 
         protected void LnkListaTurnos_Click(object sender, EventArgs e)
         {
-            AbrirPagina("Turnos/ListaTurnos.aspx", RolEnum.Administrador, RolEnum.Recepcionista);
+            AbrirPagina(RutaTurnosLista);
         }
 
         private void ConfigurarAccesos(Usuario usuario)
         {
-            bool esAdministrador = AutorizacionRutasService.EsAdministrador(usuario);
-            bool esRecepcionista = AutorizacionRutasService.EsRecepcionista(usuario);
-            bool esMedico = AutorizacionRutasService.EsMedico(usuario);
+            ConfigurarAcceso(LnkAltaPaciente, usuario, RutaPacientesFormulario);
+            ConfigurarAcceso(LnkListaPacientes, usuario, RutaPacientesLista);
+            CardPacientes.Visible = LnkAltaPaciente.Visible || LnkListaPacientes.Visible;
 
-            CardPacientes.Visible = esAdministrador || esRecepcionista;
-            CardMedicos.Visible = esAdministrador || esRecepcionista;
-            CardEspecialidades.Visible = esAdministrador;
-            CardUsuarios.Visible = esAdministrador;
-            CardConfiguracion.Visible = esAdministrador;
-            CardTurnos.Visible = esAdministrador || esRecepcionista || esMedico;
+            ConfigurarAcceso(LnkAltaMedico, usuario, RutaMedicosFormulario);
+            ConfigurarAcceso(LnkListaMedicos, usuario, RutaMedicosLista);
+            CardMedicos.Visible = LnkAltaMedico.Visible || LnkListaMedicos.Visible;
 
-            LnkAltaTurno.Visible = esAdministrador || esRecepcionista;
-            LnkListaTurnos.Visible = esAdministrador || esRecepcionista;
-            LnkMisTurnos.Visible = esMedico;
+            ConfigurarAcceso(LnkAltaTurno, usuario, RutaTurnosFormulario);
+            ConfigurarAcceso(LnkListaTurnos, usuario, RutaTurnosLista);
+            ConfigurarAcceso(LnkMisTurnos, usuario, RutaMisTurnos);
+            CardTurnos.Visible = LnkAltaTurno.Visible || LnkListaTurnos.Visible || LnkMisTurnos.Visible;
+
+            ConfigurarAcceso(LnkAltaEspecialidad, usuario, RutaEspecialidadesFormulario);
+            ConfigurarAcceso(LnkListaEspecialidades, usuario, RutaEspecialidadesLista);
+            CardEspecialidades.Visible = LnkAltaEspecialidad.Visible || LnkListaEspecialidades.Visible;
+
+            ConfigurarAcceso(LnkAltaUsuario, usuario, RutaUsuariosFormulario);
+            ConfigurarAcceso(LnkListaUsuarios, usuario, RutaUsuariosLista);
+            CardUsuarios.Visible = LnkAltaUsuario.Visible || LnkListaUsuarios.Visible;
+
+            ConfigurarAcceso(LnkConfiguracionTurnos, usuario, RutaConfiguracionTurnos);
+            CardConfiguracion.Visible = LnkConfiguracionTurnos.Visible;
         }
 
         private string ObtenerNombre(Usuario usuario)
@@ -111,10 +138,15 @@ namespace TurnosClinica.Web
             return usuario.NombreUsuario;
         }
 
-        private void AbrirPagina(string ruta, params RolEnum[] roles)
+        private void ConfigurarAcceso(System.Web.UI.WebControls.WebControl control, Usuario usuario, string ruta)
+        {
+            control.Visible = AutorizacionRutasService.UsuarioPuedeAccederRuta(usuario, ruta);
+        }
+
+        private void AbrirPagina(string ruta)
         {
             Usuario usuario = Session["UsuarioActual"] as Usuario;
-            if (!AutorizacionRutasService.TieneAlgunRol(usuario, roles))
+            if (!AutorizacionRutasService.UsuarioPuedeAccederRuta(usuario, ruta))
             {
                 throw new Exception("No tiene permisos para ejecutar esta accion.");
             }

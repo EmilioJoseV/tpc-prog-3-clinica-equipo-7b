@@ -27,7 +27,7 @@ namespace TurnosClinica.Web
                     throw new Exception("Los datos ingresados no son validos.");
                 }
 
-                if (!AutorizacionRutasService.TieneAccesoOperativo(usuario))
+                if (!AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico))
                 {
                     Session.Clear();
                     throw new Exception("Su rol no tiene acceso a este modulo.");

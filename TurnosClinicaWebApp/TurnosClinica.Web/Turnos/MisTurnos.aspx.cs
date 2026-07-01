@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TurnosClinica.Dominio.Entidades;
+using TurnosClinica.Dominio.Enums;
 using TurnosClinica.Negocio;
 
 namespace TurnosClinica.Web
@@ -216,7 +217,7 @@ namespace TurnosClinica.Web
         private void ValidarAcceso()
         {
             Usuario usuario = ObtenerUsuarioActual();
-            if (!AutorizacionRutasService.EsMedico(usuario))
+            if (!AutorizacionRutasService.TieneRol(usuario, RolEnum.Medico))
             {
                 throw new Exception("No tiene permisos para consultar sus turnos.");
             }

@@ -11,9 +11,9 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h5">Pacientes</h2>
-                    <p class="text-muted">Alta y listado de pacientes.</p>
-                    <asp:LinkButton ID="LnkAltaPaciente" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaPaciente_Click">Alta</asp:LinkButton>
-                    <asp:LinkButton ID="LnkListaPacientes" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkListaPacientes_Click">Ver lista</asp:LinkButton>
+                    <p class="text-muted">Registrar y consultar pacientes.</p>
+                    <asp:LinkButton ID="LnkAltaPaciente" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaPaciente_Click">Nuevo paciente</asp:LinkButton>
+                    <asp:LinkButton ID="LnkListaPacientes" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkListaPacientes_Click">Ver pacientes</asp:LinkButton>
                 </div>
             </div>
         </div>
@@ -22,9 +22,9 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h5">Medicos</h2>
-                    <p class="text-muted">Alta y listado de medicos.</p>
-                    <asp:LinkButton ID="LnkAltaMedico" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaMedico_Click">Alta</asp:LinkButton>
-                    <asp:HyperLink ID="LnkListaMedicos" runat="server" CssClass="btn btn-outline-primary btn-sm" NavigateUrl="Medicos/ListaMedicos.aspx">Ver lista</asp:HyperLink>
+                    <p class="text-muted">Registrar y consultar medicos.</p>
+                    <asp:LinkButton ID="LnkAltaMedico" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaMedico_Click">Nuevo medico</asp:LinkButton>
+                    <asp:LinkButton ID="LnkListaMedicos" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkListaMedicos_Click">Ver medicos</asp:LinkButton>
                 </div>
             </div>
         </div>
@@ -33,9 +33,9 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h5">Turnos</h2>
-                    <p class="text-muted">Gestion y consulta de turnos.</p>
-                    <asp:LinkButton ID="LnkAltaTurno" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaTurno_Click">Alta</asp:LinkButton>
-                    <asp:LinkButton ID="LnkListaTurnos" runat="server" CssClass="btn btn-outline-primary btn-sm me-2" OnClick="LnkListaTurnos_Click">Ver lista</asp:LinkButton>
+                    <p class="text-muted">Registrar, listar o revisar turnos asignados.</p>
+                    <asp:LinkButton ID="LnkAltaTurno" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaTurno_Click">Nuevo turno</asp:LinkButton>
+                    <asp:LinkButton ID="LnkListaTurnos" runat="server" CssClass="btn btn-outline-primary btn-sm me-2" OnClick="LnkListaTurnos_Click">Ver turnos</asp:LinkButton>
                     <asp:LinkButton ID="LnkMisTurnos" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkMisTurnos_Click">Mis turnos</asp:LinkButton>
                 </div>
             </div>
@@ -45,9 +45,9 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h5">Especialidades</h2>
-                    <p class="text-muted">Alta y listado de especialidades.</p>
-                    <asp:LinkButton ID="LnkAltaEspecialidad" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaEspecialidad_Click">Alta</asp:LinkButton>
-                    <asp:LinkButton ID="LnkListaEspecialidades" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkListaEspecialidades_Click">Ver lista</asp:LinkButton>
+                    <p class="text-muted">Administrar especialidades disponibles.</p>
+                    <asp:LinkButton ID="LnkAltaEspecialidad" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaEspecialidad_Click">Nueva especialidad</asp:LinkButton>
+                    <asp:LinkButton ID="LnkListaEspecialidades" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkListaEspecialidades_Click">Ver especialidades</asp:LinkButton>
                 </div>
             </div>
         </div>
@@ -56,9 +56,9 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h5">Usuarios</h2>
-                    <p class="text-muted">Alta y listado de usuarios.</p>
-                    <asp:LinkButton ID="LnkAltaUsuario" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaUsuario_Click">Alta</asp:LinkButton>
-                    <asp:LinkButton ID="LnkListaUsuarios" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkListaUsuarios_Click">Ver lista</asp:LinkButton>
+                    <p class="text-muted">Crear y consultar usuarios del sistema.</p>
+                    <asp:LinkButton ID="LnkAltaUsuario" runat="server" CssClass="btn btn-primary btn-sm me-2" OnClick="LnkAltaUsuario_Click">Nuevo usuario</asp:LinkButton>
+                    <asp:LinkButton ID="LnkListaUsuarios" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkListaUsuarios_Click">Ver usuarios</asp:LinkButton>
                 </div>
             </div>
         </div>
@@ -67,8 +67,8 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h5">Configuracion</h2>
-                    <p class="text-muted">Configuracion global de turnos.</p>
-                    <asp:LinkButton ID="LnkConfiguracionTurnos" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkConfiguracionTurnos_Click">Configurar</asp:LinkButton>
+                    <p class="text-muted">Definir parametros generales de turnos.</p>
+                    <asp:LinkButton ID="LnkConfiguracionTurnos" runat="server" CssClass="btn btn-outline-primary btn-sm" OnClick="LnkConfiguracionTurnos_Click">Configurar turnos</asp:LinkButton>
                 </div>
             </div>
         </div>

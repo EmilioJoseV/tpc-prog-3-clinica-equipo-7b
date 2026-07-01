@@ -14,7 +14,7 @@ namespace TurnosClinica.Web
         protected global::System.Web.UI.WebControls.LinkButton LnkListaPacientes;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl CardMedicos;
         protected global::System.Web.UI.WebControls.LinkButton LnkAltaMedico;
-        protected global::System.Web.UI.WebControls.HyperLink LnkListaMedicos;
+        protected global::System.Web.UI.WebControls.LinkButton LnkListaMedicos;
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl CardTurnos;
         protected global::System.Web.UI.WebControls.LinkButton LnkAltaTurno;
         protected global::System.Web.UI.WebControls.LinkButton LnkListaTurnos;

@@ -1,6 +1,4 @@
 using System;
-using System.Web;
-using System.Web.SessionState;
 using TurnosClinica.Dominio.Entidades;
 using TurnosClinica.Dominio.Enums;
 
@@ -8,7 +6,7 @@ namespace TurnosClinica.Web
 {
     public static class AutorizacionRutasService
     {
-        private static readonly string[] RutasPublicas =
+        private static readonly string[] RutasSinValidacion =
         {
             "~/Inicio.aspx",
             "~/Default.aspx",
@@ -19,75 +17,41 @@ namespace TurnosClinica.Web
             "~/RecuperarContrasena.aspx"
         };
 
-        private static readonly string[] RutasCambioClave =
+        private static readonly RutaPermitida[] RutasProtegidas =
         {
-            "~/CambiarContrasenaPendiente.aspx",
-            "~/Ingresar.aspx",
-            "~/RecuperarContrasena.aspx"
+            new RutaPermitida("~/PanelPrincipal.aspx", RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico),
+            new RutaPermitida("~/Perfil/MiPerfil.aspx", RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico),
+            new RutaPermitida("~/CambiarContrasenaPendiente.aspx", RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico),
+            new RutaPermitida("~/Pacientes/FormularioPaciente.aspx", RolEnum.Administrador, RolEnum.Recepcionista),
+            new RutaPermitida("~/Pacientes/ListaPacientes.aspx", RolEnum.Administrador, RolEnum.Recepcionista),
+            new RutaPermitida("~/Medicos/FormularioMedico.aspx", RolEnum.Administrador, RolEnum.Recepcionista),
+            new RutaPermitida("~/Medicos/ListaMedicos.aspx", RolEnum.Administrador, RolEnum.Recepcionista),
+            new RutaPermitida("~/Turnos/FormularioTurno.aspx", RolEnum.Administrador, RolEnum.Recepcionista),
+            new RutaPermitida("~/Turnos/ListaTurnos.aspx", RolEnum.Administrador, RolEnum.Recepcionista),
+            new RutaPermitida("~/Especialidades/FormularioEspecialidad.aspx", RolEnum.Administrador),
+            new RutaPermitida("~/Especialidades/ListaEspecialidades.aspx", RolEnum.Administrador),
+            new RutaPermitida("~/Usuarios/FormularioUsuario.aspx", RolEnum.Administrador),
+            new RutaPermitida("~/Usuarios/ListaUsuarios.aspx", RolEnum.Administrador),
+            new RutaPermitida("~/Turnos/ConfiguracionTurnos.aspx", RolEnum.Administrador),
+            new RutaPermitida("~/Turnos/MisTurnos.aspx", RolEnum.Medico),
+            new RutaPermitida("~/Turnos/DetalleTurno.aspx", RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico)
         };
-
-        private static readonly string[] RutasOperativasGenerales =
-        {
-            "~/PanelPrincipal.aspx",
-            "~/Perfil/MiPerfil.aspx",
-            "~/CambiarContrasenaPendiente.aspx"
-        };
-
-        private static readonly string[] RutasRecepcion =
-        {
-            "~/Pacientes/FormularioPaciente.aspx",
-            "~/Pacientes/ListaPacientes.aspx",
-            "~/Medicos/FormularioMedico.aspx",
-            "~/Medicos/ListaMedicos.aspx",
-            "~/Turnos/FormularioTurno.aspx"
-        };
-
-        private static readonly string[] RutasAdministrador =
-        {
-            "~/Especialidades/FormularioEspecialidad.aspx",
-            "~/Especialidades/ListaEspecialidades.aspx",
-            "~/Usuarios/FormularioUsuario.aspx",
-            "~/Usuarios/ListaUsuarios.aspx",
-            "~/Turnos/ConfiguracionTurnos.aspx"
-        };
-
-        public static Usuario ObtenerUsuarioActual(HttpSessionState session)
-        {
-            return session["UsuarioActual"] as Usuario;
-        }
 
         public static bool EstaAutenticado(Usuario usuario)
         {
             return usuario != null && usuario.IdUsuario > 0;
         }
 
-        public static bool TieneRol(Usuario usuario, RolEnum rol)
+        public static bool TieneRol(Usuario usuario, params RolEnum[] roles)
         {
-            return usuario != null
-                && usuario.Rol != null
-                && string.Equals(usuario.Rol.Nombre, rol.ToString(), StringComparison.OrdinalIgnoreCase);
-        }
+            if (!EstaAutenticado(usuario) || usuario.Rol == null)
+            {
+                return false;
+            }
 
-        public static bool EsAdministrador(Usuario usuario)
-        {
-            return TieneRol(usuario, RolEnum.Administrador);
-        }
-
-        public static bool EsRecepcionista(Usuario usuario)
-        {
-            return TieneRol(usuario, RolEnum.Recepcionista);
-        }
-
-        public static bool EsMedico(Usuario usuario)
-        {
-            return TieneRol(usuario, RolEnum.Medico);
-        }
-
-        public static bool TieneAlgunRol(Usuario usuario, params RolEnum[] roles)
-        {
             foreach (RolEnum rol in roles)
             {
-                if (TieneRol(usuario, rol))
+                if (string.Equals(usuario.Rol.Nombre, rol.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -106,86 +70,40 @@ namespace TurnosClinica.Web
                     StringComparison.OrdinalIgnoreCase);
         }
 
-        public static bool TieneAccesoOperativo(Usuario usuario)
-        {
-            return EsAdministrador(usuario) || EsRecepcionista(usuario) || EsMedico(usuario);
-        }
-
-        public static bool PuedeGestionarRecepcion(Usuario usuario)
-        {
-            return EsAdministrador(usuario) || EsRecepcionista(usuario);
-        }
-
-        public static bool RutaEsPublica(string ruta)
-        {
-            return EsUnaDeEstasRutas(ruta, RutasPublicas);
-        }
-
-        public static bool RutaPermitidaCambioClave(string ruta)
-        {
-            return EsUnaDeEstasRutas(ruta, RutasCambioClave);
-        }
-
         public static bool UsuarioPuedeAccederRuta(Usuario usuario, string ruta)
         {
-            if (!EstaAutenticado(usuario))
-            {
-                return RutaEsPublica(ruta);
-            }
-
-            if (EstaCambioClavePendiente(usuario))
-            {
-                return RutaPermitidaCambioClave(ruta);
-            }
-
-            if (EsRuta(ruta, "~/Perfil/MiPerfil.aspx"))
+            if (EsRutaSinValidacion(ruta))
             {
                 return true;
             }
 
-            if (!TieneAccesoOperativo(usuario))
+            if (!EstaAutenticado(usuario))
             {
                 return false;
             }
 
-            if (EsUnaDeEstasRutas(ruta, RutasOperativasGenerales))
+            if (EstaCambioClavePendiente(usuario))
             {
-                return true;
+                return string.Equals(
+                    ruta,
+                    "~/CambiarContrasenaPendiente.aspx",
+                    StringComparison.OrdinalIgnoreCase);
             }
 
-            if (EsUnaDeEstasRutas(ruta, RutasRecepcion))
+            RutaPermitida rutaPermitida = ObtenerRutaPermitida(ruta);
+            if (rutaPermitida == null)
             {
-                return PuedeGestionarRecepcion(usuario);
+                return false;
             }
 
-            if (EsUnaDeEstasRutas(ruta, RutasAdministrador))
-            {
-                return EsAdministrador(usuario);
-            }
-
-            if (EsRuta(ruta, "~/Turnos/MisTurnos.aspx"))
-            {
-                return EsMedico(usuario);
-            }
-
-            if (EsRuta(ruta, "~/Turnos/DetalleTurno.aspx"))
-            {
-                return TieneAccesoOperativo(usuario);
-            }
-
-            if (EsRuta(ruta, "~/Turnos/ListaTurnos.aspx"))
-            {
-                return PuedeGestionarRecepcion(usuario);
-            }
-
-            return false;
+            return TieneRol(usuario, rutaPermitida.RolesPermitidos);
         }
 
-        private static bool EsUnaDeEstasRutas(string rutaActual, string[] rutas)
+        private static bool EsRutaSinValidacion(string rutaActual)
         {
-            foreach (string ruta in rutas)
+            foreach (string ruta in RutasSinValidacion)
             {
-                if (EsRuta(rutaActual, ruta))
+                if (string.Equals(rutaActual, ruta, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -194,9 +112,29 @@ namespace TurnosClinica.Web
             return false;
         }
 
-        private static bool EsRuta(string actual, string esperada)
+        private static RutaPermitida ObtenerRutaPermitida(string rutaActual)
         {
-            return string.Equals(actual, esperada, StringComparison.OrdinalIgnoreCase);
+            foreach (RutaPermitida rutaPermitida in RutasProtegidas)
+            {
+                if (string.Equals(rutaActual, rutaPermitida.Ruta, StringComparison.OrdinalIgnoreCase))
+                {
+                    return rutaPermitida;
+                }
+            }
+
+            return null;
+        }
+
+        private class RutaPermitida
+        {
+            public RutaPermitida(string ruta, params RolEnum[] rolesPermitidos)
+            {
+                Ruta = ruta;
+                RolesPermitidos = rolesPermitidos;
+            }
+
+            public string Ruta { get; private set; }
+            public RolEnum[] RolesPermitidos { get; private set; }
         }
     }
 }
