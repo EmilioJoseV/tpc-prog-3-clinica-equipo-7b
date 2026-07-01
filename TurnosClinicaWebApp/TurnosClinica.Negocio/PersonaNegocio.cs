@@ -98,6 +98,15 @@ namespace TurnosClinica.Negocio
                     throw new Exception("El DNI es obligatorio.");
                 }
 
+                persona.DNI = persona.DNI.Trim();
+                foreach (char caracter in persona.DNI)
+                {
+                    if (!char.IsDigit(caracter))
+                    {
+                        throw new Exception("El DNI solo puede contener numeros");
+                    }
+                }
+
                 if (string.IsNullOrWhiteSpace(persona.Nombre))
                 {
                     throw new Exception("El nombre es obligatorio.");

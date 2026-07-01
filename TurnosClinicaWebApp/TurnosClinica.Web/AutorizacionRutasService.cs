@@ -12,7 +12,6 @@ namespace TurnosClinica.Web
             "~/Default.aspx",
             "~/Error.aspx",
             "~/Ingresar.aspx",
-            "~/Registro.aspx",
             "~/RegistroClave.aspx",
             "~/RecuperarContrasena.aspx"
         };

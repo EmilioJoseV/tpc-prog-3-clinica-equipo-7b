@@ -17,7 +17,7 @@
         <div class="row g-3">
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="txtDni" Text="DNI" CssClass="form-label" />
-                <asp:TextBox ID="txtDni" runat="server" CssClass="form-control" required="required" />
+                <asp:TextBox ID="txtDni" runat="server" CssClass="form-control" TextMode="Number" required="required" min="1" step="1" />
             </div>
             <div class="col-12 col-md-6">
                 <asp:Label runat="server" AssociatedControlID="txtNombre" Text="Nombre" CssClass="form-label" />
@@ -74,7 +74,8 @@
             <asp:Button ID="btnGuardar" runat="server" Text="Guardar"
                 CssClass="btn btn-primary" OnClick="btnGuardar_Click" />
             <asp:Button ID="btnCancelar" runat="server" Text="Cancelar"
-                CssClass="btn btn-outline-primary" OnClick="btnCancelar_Click" CausesValidation="false" />
+                CssClass="btn btn-outline-primary" OnClick="btnCancelar_Click"
+                CausesValidation="false" UseSubmitBehavior="false" />
         </div>
     </div>
 </asp:Content>

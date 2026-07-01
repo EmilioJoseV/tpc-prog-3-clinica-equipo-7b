@@ -18,7 +18,7 @@
         <div class="row g-3">
             <div class="col-12 col-md-6">
                 <label class="form-label">DNI</label>
-                <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" placeholder="Sin puntos (Ej: 30123456)" required="required" />
+                <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" TextMode="Number" placeholder="Sin puntos (Ej: 30123456)" required="required" min="1" step="1" />
             </div>
             <div class="col-12 col-md-6">
                 <label class="form-label">Nombre</label>

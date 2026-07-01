@@ -17,7 +17,7 @@
         </div>
         <div class="col-12 col-md-4">
             <asp:Label ID="LblDni" runat="server" Text="DNI" CssClass="form-label" />
-            <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" placeholder="Sin puntos (Ej: 30123456)" required="required" />
+            <asp:TextBox ID="TxtDni" runat="server" CssClass="form-control" TextMode="Number" placeholder="Sin puntos (Ej: 30123456)" required="required" min="1" step="1" />
         </div>
         <div class="col-12 col-md-4">
             <asp:Label ID="LblTelefono" runat="server" Text="Telefono" CssClass="form-label" />
