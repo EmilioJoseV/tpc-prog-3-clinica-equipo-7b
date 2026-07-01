@@ -143,7 +143,13 @@ namespace TurnosClinica.Web
             if (AutorizacionRutasService.EstaAutenticado(usuario))
             {
                 Session["ErrorAutorizacion"] = "No tiene permisos para acceder a esta pantalla.";
-                if (AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico))
+
+                if (AutorizacionRutasService.EstaCambioClavePendiente(usuario))
+                {
+                    Session["ErrorAutorizacion"] = "Debe cambiar su contrasena para continuar.";
+                    destino = "~/CambiarContrasenaPendiente.aspx";
+                }
+                else if (AutorizacionRutasService.TieneRol(usuario, RolEnum.Administrador, RolEnum.Recepcionista, RolEnum.Medico))
                 {
                     destino = "~/PanelPrincipal.aspx";
                 }
