@@ -45,7 +45,13 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="h5 mb-3">Especialidades</h2>
-                    <asp:CheckBoxList ID="CblEspecialidades" runat="server" RepeatDirection="Horizontal" RepeatLayout="Flow" />
+                    <div class="table-responsive">
+                        <asp:CheckBoxList ID="CblEspecialidades" runat="server"
+                            CssClass="table table-sm table-borderless align-middle mb-0"
+                            RepeatColumns="3"
+                            RepeatDirection="Horizontal"
+                            RepeatLayout="Table" />
+                    </div>
                 </div>
             </div>
         </div>
