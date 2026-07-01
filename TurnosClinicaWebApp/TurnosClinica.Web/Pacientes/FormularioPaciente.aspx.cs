@@ -14,6 +14,8 @@ namespace TurnosClinica.Web
         {
             try
             {
+                TxtFechaNacimiento.Attributes["max"] = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd");
+
                 if (!IsPostBack)
                 {
                     CargarPaciente();

@@ -168,17 +168,22 @@ namespace TurnosClinica.Negocio
 
             if (paciente.Persona == null)
             {
-                throw new Exception("La persona del paciente es obligatoria.");
+                throw new Exception("La persona del paciente es obligatoria");
             }
 
             if (paciente.FechaNacimiento == default(DateTime))
             {
-                throw new Exception("La fecha de nacimiento es obligatoria.");
+                throw new Exception("La fecha de nacimiento es obligatoria");
+            }
+
+            if (paciente.FechaNacimiento.Date >= DateTime.Today)
+            {
+                throw new Exception("La fecha de nacimiento debe ser anterior a hoy");
             }
 
             if (string.IsNullOrWhiteSpace(paciente.Direccion))
             {
-                throw new Exception("La direccion es obligatoria.");
+                throw new Exception("La direccion es obligatoria");
             }
         }
 
